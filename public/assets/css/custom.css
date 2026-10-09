@@ -1,0 +1,28 @@
+@media (min-width: 1400px) {
+    .container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+        max-width: 1600px;
+    }
+}
+
+th.no-sort:after,
+th.no-sort:before {
+    display: none !important;
+}
+
+.table-img{
+    width: 50px;
+    height: 50px;
+}
+
+.card {
+    border: 1px solid !important;
+}
+
+/* Dynamic site brand */
+.site-admin-logo { width: 100px; max-width: 100%; height: auto; object-fit: contain; background: white; border-radius: 6px; padding: 5px; }
+.aside .aside-logo > a { display: flex; align-items: center; justify-content: center; height: 100%; }
+.aside .aside-logo .site-admin-logo { width: 76px; height: 56px; max-width: 76px; max-height: 56px; object-fit: contain; box-sizing: border-box; padding: 6px 8px; }
+#kt_header .site-admin-logo { width: 76px; height: 46px; object-fit: contain; box-sizing: border-box; padding: 5px 8px; }
+.btn.btn-primary { background-color: #ce1521; border-color: #ce1521; }
+.btn.btn-primary:hover:not(.btn-active) { background-color: #b5101b !important; border-color: #b5101b !important; }
+.aside-dark .aside, .aside-dark .aside-logo { background-color: #203b60; }
