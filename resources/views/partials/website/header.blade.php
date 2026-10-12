@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg py-3 sticky-top bg-transparent-custom">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
-            <img src="{{ siteSettingAsset('site_logo', 'web/image/ean-logo-official.png') }}" alt="European Academy of Neurology (EAN)" class="site-brand-logo" width="1603" height="646">
+            <img src="{{ siteSettingAsset('site_logo', 'web/depth/assets/hetero.png') }}" alt="Hetero" class="site-brand-logo" width="254" height="211">
         </a>
 
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="offcanvas"

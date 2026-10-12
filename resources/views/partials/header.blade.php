@@ -10,7 +10,7 @@
     <div class="aside-logo flex-column-auto" id="kt_aside_logo">
         <!--begin::Logo-->
         <a href="{{route('admin.login')}}">
-            <img alt="{{ siteSetting('site_name', 'EAN Microsite') }}" src="{{ siteSettingAsset('site_logo', 'web/image/ean-logo-official.png') }}" class="site-admin-logo"/>
+            <img alt="{{ siteSetting('site_name', 'DEPTH Microsite') }}" src="{{ siteSettingAsset('site_logo', 'web/depth/assets/hetero.png') }}" class="site-admin-logo"/>
         </a>
         <!--end::Logo-->
         <!--begin::Aside toggler-->
@@ -66,7 +66,7 @@
             <!--begin::Mobile logo-->
             <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
                 <a href="{{route('admin.dashboard')}}" class="d-lg-none">
-                    <img alt="{{ siteSetting('site_name', 'EAN Microsite') }}" src="{{ siteSettingAsset('small_site_logo', 'web/image/ean-logo-official.png') }}" class="site-admin-logo"/>
+                    <img alt="{{ siteSetting('site_name', 'DEPTH Microsite') }}" src="{{ siteSettingAsset('small_site_logo', 'web/depth/assets/hetero.png') }}" class="site-admin-logo"/>
                 </a>
             </div>
             <!--end::Mobile logo-->

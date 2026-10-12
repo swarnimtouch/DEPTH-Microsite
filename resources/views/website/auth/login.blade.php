@@ -12,10 +12,10 @@
 
                                 <div class="form-card-header text-center">
                                     <div class="d-flex justify-content-center align-items-center mb-3">
-                                        <img src="{{ siteSettingAsset('site_logo', 'web/image/ean-logo-official.png') }}" alt="European Academy of Neurology (EAN)" class="site-brand-logo" width="1603" height="646">
+                                        <img src="{{ siteSettingAsset('site_logo', 'web/depth/assets/hetero.png') }}" alt="Hetero" class="site-brand-logo" width="254" height="211">
                                     </div>
                                     <h2 class="text-white fw-bold mb-2">Doctor Login</h2>
-                                    <p class="text-white-50 small mb-0">Welcome back to EAN Microsite.</p>
+                                    <p class="text-white-50 small mb-0">Welcome back to DEPTH Microsite.</p>
                                 </div>
 
                                 <div class="p-4 p-md-5">

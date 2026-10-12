@@ -25,7 +25,7 @@
     <header class="top-header d-flex justify-content-between align-items-center px-3 px-lg-5 border-bottom bg-white">
 
         <a href="{{ route('course.dashboard') }}" class="dashboard-brand d-flex align-items-center flex-shrink-0" aria-label="{{ siteSetting('site_name', 'DEPTH Microsite') }} home">
-            <img src="{{ siteSettingAsset('site_logo', 'web/image/ean-logo-official.png') }}" alt="European Academy of Neurology (EAN)" class="site-brand-logo">
+            <img src="{{ siteSettingAsset('site_logo', 'web/depth/assets/hetero.png') }}" alt="Hetero" class="site-brand-logo">
         </a>
 
         <div class="dashboard-course-title d-none d-xl-flex align-items-center flex-grow-1 px-4">
@@ -94,7 +94,7 @@
             <footer class="custom-footer py-4 mt-auto">
                 <div class="container-fluid px-4 px-lg-5">
                     <div class="text-center text-lg-end">
-                        <span class="footer-text">{{ siteSetting('footer_text', '© ' . date('Y') . ' EAN Microsite.') }}</span>
+                        <span class="footer-text">{{ siteSetting('footer_text', '© ' . date('Y') . ' DEPTH Microsite.') }}</span>
                     </div>
                 </div>
             </footer>

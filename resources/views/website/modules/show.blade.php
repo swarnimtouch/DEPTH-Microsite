@@ -371,9 +371,9 @@
                         <div class="card module-brand-slider-card bg-white p-4 mb-4 text-center">
                             <span class="badge-custom d-inline-block px-3 py-2 mb-3 rounded-pill fw-bold">SUPPORTED BY</span>
                             <div class="module-brand-slide-logo mx-auto mb-3">
-                                <img src="{{ siteSettingAsset('site_logo', 'web/image/ean-logo-official.png') }}" alt="European Academy of Neurology (EAN)" class="site-brand-logo mx-auto" width="1603" height="646">
+                                <img src="{{ siteSettingAsset('site_logo', 'web/depth/assets/hetero.png') }}" alt="Hetero" class="site-brand-logo mx-auto" width="254" height="211">
                             </div>
-                            <h6 class="fw-bold text-dark-green mb-0">EAN Microsite</h6>
+                            <h6 class="fw-bold text-dark-green mb-0">DEPTH Microsite</h6>
                         </div>
                     @endif
 
