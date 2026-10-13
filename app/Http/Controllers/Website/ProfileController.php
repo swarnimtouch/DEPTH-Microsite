@@ -56,7 +56,7 @@ class ProfileController
 
         if ($validator->fails()) {
             $redirect = $request->input('profile_context') === 'dashboard'
-                ? redirect()->to(route('dashboard') . '#profile')
+                ? redirect()->route('dashboard.profile')
                 : redirect()->route('profile.edit');
 
             return $redirect->withErrors($validator)->withInput();
@@ -80,7 +80,7 @@ class ProfileController
         $doctor->save();
 
         $redirect = $request->input('profile_context') === 'dashboard'
-            ? redirect()->to(route('dashboard') . '#profile')
+            ? redirect()->route('dashboard.profile')
             : redirect()->route('profile.edit');
 
         return $redirect->with('success', 'Profile updated successfully');

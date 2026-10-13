@@ -1,5 +1,5 @@
-/* DEPTH — Depression Education Program for Therapeutic Excellence by Hetero · participant microsite
-   Static SPA: hash routing, localStorage registration, date-driven live states. */
+/* DEPTH — Depression Education Program for Therapeutic Excellence by Hetero.
+   Laravel-routed member pages with shared dynamic rendering and date-driven live states. */
 (function () {
   'use strict';
 
@@ -13,7 +13,7 @@
     proposition: 'When should primary care clinicians suspect depression — and what should they do next?',
     date: '20 November 2026', dateShort: '20 Nov 2026', day: 'Friday', time: '4:00 – 5:00 PM IST',
     start: '2026-11-20T16:00:00+05:30', end: '2026-11-20T17:00:00+05:30',
-    img: 'web/depth/assets/visual/brain-red.jpg', speaker: 'kasper',
+    img: '/web/depth/assets/visual/brain-red.jpg', speaker: 'kasper',
     agenda: [
       [5, 'Welcome and Introduction of International speaker', 'Medical Team, Hetero'],
       [30, 'The Hidden Burden: Recognizing Depression in Patients with Cardiometabolic and Gastrointestinal Disorders', 'Prof. Siegfried Kasper'],
@@ -43,10 +43,10 @@
   const RESOURCES = Array.isArray(window.DEPTH_RESOURCES) ? window.DEPTH_RESOURCES : [];
 
   let CASES = [
-    { n: 1, title: 'The patient hiding in plain sight', sub: 'Recognizing depression masked by somatic complaints in your daily OPD', time: '8 min', img: 'web/depth/assets/visual/case1-ward.jpg', tag: 'Recognition', color: '#E0242B' },
-    { n: 2, title: 'Diagnosing with confidence', sub: 'Using PHQ-9 as your primary diagnosis and monitoring tool — a step-by-step guide', time: '8 min', img: 'web/depth/assets/visual/case2-phq9.jpg', tag: 'Diagnosis', color: '#1F2A44' },
-    { n: 3, title: "The diabetic who won't comply", sub: 'Depression in diabetes and cardiovascular disease — why treating one changes the other', time: '8 min', img: 'web/depth/assets/visual/case3-patient.jpg', tag: 'Comorbidity', color: '#B8141B' },
-    { n: 4, title: 'Choosing the right antidepressant for your patient', sub: 'A practical pharmacotherapy guide — matching the molecule to the symptom cluster', time: '8 min', img: 'web/depth/assets/visual/case4-pharma.jpg', tag: 'Pharmacotherapy', color: '#2E5E9E' },
+    { n: 1, title: 'The patient hiding in plain sight', sub: 'Recognizing depression masked by somatic complaints in your daily OPD', time: '8 min', img: '/web/depth/assets/visual/case1-ward.jpg', tag: 'Recognition', color: '#E0242B' },
+    { n: 2, title: 'Diagnosing with confidence', sub: 'Using PHQ-9 as your primary diagnosis and monitoring tool — a step-by-step guide', time: '8 min', img: '/web/depth/assets/visual/case2-phq9.jpg', tag: 'Diagnosis', color: '#1F2A44' },
+    { n: 3, title: "The diabetic who won't comply", sub: 'Depression in diabetes and cardiovascular disease — why treating one changes the other', time: '8 min', img: '/web/depth/assets/visual/case3-patient.jpg', tag: 'Comorbidity', color: '#B8141B' },
+    { n: 4, title: 'Choosing the right antidepressant for your patient', sub: 'A practical pharmacotherapy guide — matching the molecule to the symptom cluster', time: '8 min', img: '/web/depth/assets/visual/case4-pharma.jpg', tag: 'Pharmacotherapy', color: '#2E5E9E' },
   ];
   const resourceCases = RESOURCES.map((resource, resourceIndex) => ({ resource, resourceIndex }))
     .filter(({ resource }) => resource.category === 'case_book');
@@ -56,7 +56,7 @@
       title: resource.label,
       sub: resource.description || (resource.isVideo ? 'Video case-based learning resource' : 'Case-based learning resource'),
       time: resource.isVideo ? 'Video' : resource.type,
-      img: resource.thumbnail || `web/depth/assets/visual/case${(index % 4) + 1}-${['ward', 'phq9', 'patient', 'pharma'][index % 4]}.jpg`,
+      img: resource.thumbnail || `/web/depth/assets/visual/case${(index % 4) + 1}-${['ward', 'phq9', 'patient', 'pharma'][index % 4]}.jpg`,
       tag: 'Case booklet',
       color: ['#E0242B', '#1F2A44', '#B8141B', '#2E5E9E'][index % 4],
       resourceIndex,
@@ -67,7 +67,7 @@
 
   const SPEAKERS = {
     kasper: {
-      name: 'Prof. Siegfried Kasper', photo: 'web/depth/assets/speakers/kasper.jpg', role: 'Speaker',
+      name: 'Prof. Siegfried Kasper', photo: '/web/depth/assets/speakers/kasper.jpg', role: 'Speaker',
       designation: 'Professor Emeritus of Psychiatry', designation2: 'Medical University of Vienna, Vienna, Austria', place: 'Vienna, Austria',
       bio: 'Professor Emeritus of Psychiatry and former Head of the Department of Psychiatry and Psychotherapy at the Medical University of Vienna, Austria. A specialist in psychiatry and neurology, his research focuses on depression, neuropsychopharmacology, neurobiology and translational psychiatry. He has authored more than <b>800 PubMed-indexed publications</b> and has held leadership roles in several international psychiatric organisations, including serving as President of the <b>World Federation of Societies of Biological Psychiatry (WFSBP)</b>.',
       expertise: ['Depression & Mood Disorders', 'Neuropsychopharmacology', 'Biological & Translational Psychiatry'],
@@ -131,13 +131,14 @@
 
   const TABS = [['overview', 'Program overview'], ['agenda', 'Agenda'], ['cases', 'Case booklets'], ['speakers', 'Speaker'], ['live', 'Live session'], ['hub', 'Post-event hub'], ['profile', 'Profile']];
   const GATED = ['overview', 'agenda', 'cases', 'speakers', 'live', 'hub', 'takeaways', 'certificate', 'profile', 'thanks'];
+  const ROUTES = window.DEPTH_ROUTES || {};
 
   /* ============================================================== STATE */
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
-  const state = { user: load('depth.user', null), view: 'landing' };
+  const state = { user: load('depth.user', null), view: window.DEPTH_INITIAL_VIEW || 'overview' };
   const drName = () => { const n = state.user?.name?.trim() || ''; return /^(dr|prof)/i.test(n) ? n : 'Dr. ' + n; };
 
   function status() {
@@ -151,12 +152,12 @@
   /* ============================================================== ROUTING */
   function go(v, opts) {
     if ((GATED.includes(v) || v === 'register') && !state.user) { v = 'landing'; opts = { scroll: 'register' }; }
+    if (ROUTES[v]) { window.location.assign(ROUTES[v]); return; }
     state.view = v;
     if (location.hash !== '#' + v) history.pushState(null, '', '#' + v);
     render(); window.scrollTo({ top: 0, behavior: 'instant' });
     if (opts?.scroll) setTimeout(() => $(opts.scroll)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
   }
-  window.addEventListener('popstate', () => { const v = location.hash.replace('#', '') || 'landing'; state.view = ((GATED.includes(v) || v === 'register') && !state.user) ? 'landing' : v; render(); window.scrollTo(0, 0); });
 
   /* ============================================================== RENDER */
   function render() {
@@ -167,10 +168,10 @@
     const titles = { landing: 'Recognising & Managing Depression in Primary Care', thanks: 'Registered', overview: 'Program overview', agenda: 'Agenda', cases: 'HCP case booklets', speakers: 'Speaker', live: 'Live session', hub: 'Post-event hub', takeaways: 'Key takeaways', certificate: 'Certificate', profile: 'Profile' };
     document.title = (titles[v] || 'DEPTH') + ' · DEPTH by Hetero';
 
-    $('hdr-auth').innerHTML = state.user
+    if ($('hdr-auth')) $('hdr-auth').innerHTML = state.user
       ? `<div class="hdr-nav"><span class="hdr-user">${esc(drName())}</span><button class="btn btn-soft sm" data-logout>Log out</button></div>`
       : `<nav class="hdr-nav"><a href="#overview" data-go="overview">Program</a><a href="#register" class="btn btn-grad sm" data-scroll="register">Register now</a></nav>`;
-    $('tabs').innerHTML = state.user && v !== 'landing' ? TABS.map(([k, l]) => `<button class="tab${(v === k || (['takeaways', 'certificate'].includes(v) && k === 'hub')) ? ' active' : ''}" data-go="${k}">${l}</button>`).join('') : '';
+    if ($('tabs')) $('tabs').innerHTML = state.user && v !== 'landing' ? TABS.map(([k, l]) => `<button class="tab${(v === k || (['takeaways', 'certificate'].includes(v) && k === 'hub')) ? ' active' : ''}" data-go="${k}">${l}</button>`).join('') : '';
     stickyCta();
 
     if (v === 'landing') renderLanding();
@@ -338,7 +339,7 @@
       ? `<button class="btn btn-line sm" data-resource="${RESOURCES.indexOf(postRead)}">View post-read</button>`
       : '<button class="btn btn-line sm" disabled>Coming soon</button>';
     $('hub-recordings').innerHTML = `
-      <article class="rec-card${ready ? '' : ' locked'}"><div class="rec-img"><img src="web/depth/assets/visual/brain-red-2.jpg" alt=""><div class="play"><span></span></div><span class="time-badge">${ico('clock')}${esc(EVENT.duration || '~60 min')}</span></div><div class="rec-body"><div class="wc-label"><span>Full webinar recording</span><i></i></div><h3>Watch the full session</h3><p>${esc(fullRecording?.label || EVENT.full)}</p><div class="small muted">Webinar date ${EVENT.date}</div><div class="wc-foot">${recordingAction}</div></div></article>
+      <article class="rec-card${ready ? '' : ' locked'}"><div class="rec-img"><img src="/web/depth/assets/visual/brain-red-2.jpg" alt=""><div class="play"><span></span></div><span class="time-badge">${ico('clock')}${esc(EVENT.duration || '~60 min')}</span></div><div class="rec-body"><div class="wc-label"><span>Full webinar recording</span><i></i></div><h3>Watch the full session</h3><p>${esc(fullRecording?.label || EVENT.full)}</p><div class="small muted">Webinar date ${EVENT.date}</div><div class="wc-foot">${recordingAction}</div></div></article>
       <div class="syn-card"><div class="wc-label"><span>1-page post-read / synopsis</span><i></i></div><h3>${esc(postRead?.label || EVENT.title)}</h3><p>${esc(EVENT.desc)}</p><div class="kicker">Key discussion areas</div><ul>${EVENT.synopsis.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><div class="btn-row">${postReadAction}<button class="btn btn-soft sm" data-go="takeaways">Key takeaways →</button></div></div>`;
     const learningCards = [
       ['pearl', 'Key clinical pearls', keyPearls?.description || 'Short, memorable messages from the session — recognition, assessment and next steps.', resourceButton(keyPearls, 'Explore')],
@@ -470,7 +471,7 @@
   window.addEventListener('afterprint', () => { delete document.body.dataset.print; });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('modal').hidden = true; });
 
-  $('reg-form').addEventListener('submit', (e) => {
+  $('reg-form')?.addEventListener('submit', (e) => {
     e.preventDefault(); const f = e.target;
     const need = ['reg-name', 'reg-spec', 'reg-inst', 'reg-country', 'reg-city', 'reg-email'];
     let bad = need.find((id) => !$(id).value.trim()) || (!$('reg-email').validity.valid ? 'reg-email' : null);
@@ -480,7 +481,7 @@
     state.user = { name: $('reg-name').value.trim(), spec: $('reg-spec').value, inst: $('reg-inst').value.trim(), country: $('reg-country').value, city: $('reg-city').value, email: $('reg-email').value.trim(), mobile: ($('reg-mobile').value.trim() ? $('reg-isd').value + ' ' + $('reg-mobile').value.trim() : ''), event: '1', registered: new Date().toISOString() };
     save('depth.user', state.user); go('thanks');
   });
-  $('login-form').addEventListener('submit', (e) => {
+  $('login-form')?.addEventListener('submit', (e) => {
     e.preventDefault(); const id = $('login-id').value.trim().toLowerCase();
     if (!id) { $('login-id').classList.add('bad'); return; }
     const u = load('depth.user', null);
@@ -491,8 +492,13 @@
 
   /* ============================================================== BOOT */
   try { history.scrollRestoration = 'manual'; } catch (e) {}
-  const first = location.hash.replace('#', '') || 'landing';
-  state.view = ((GATED.includes(first) || first === 'register' || first === 'program') && !(state.user && GATED.includes(first))) ? 'landing' : first;
+  const legacyView = location.hash.replace('#', '');
+  if (legacyView && ROUTES[legacyView] && legacyView !== window.DEPTH_INITIAL_VIEW) {
+    window.location.replace(ROUTES[legacyView]);
+    return;
+  }
+  const first = window.DEPTH_INITIAL_VIEW || location.hash.replace('#', '') || 'overview';
+  state.view = first;
   render();
   if (window.DEPTH_FLASH_SUCCESS) setTimeout(() => toast(window.DEPTH_FLASH_SUCCESS), 120);
   if (first === 'register') setTimeout(() => $('register')?.scrollIntoView(), 80);

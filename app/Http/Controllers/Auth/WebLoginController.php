@@ -28,13 +28,72 @@ class WebLoginController
 
     public function dashboard()
     {
+        return $this->dashboardSection('overview', 'Program overview');
+    }
+
+    public function agenda()
+    {
+        return $this->dashboardSection('agenda', 'Agenda');
+    }
+
+    public function cases()
+    {
+        return $this->dashboardSection('cases', 'HCP case booklets');
+    }
+
+    public function speakers()
+    {
+        return $this->dashboardSection('speakers', 'Speaker');
+    }
+
+    public function live()
+    {
+        return $this->dashboardSection('live', 'Live session');
+    }
+
+    public function hub()
+    {
+        return $this->dashboardSection('hub', 'Post-event hub');
+    }
+
+    public function takeaways()
+    {
+        return $this->dashboardSection('takeaways', 'Key takeaways');
+    }
+
+    public function dashboardCertificate()
+    {
+        return $this->dashboardSection('certificate', 'Certificate');
+    }
+
+    public function profile()
+    {
+        return $this->dashboardSection('profile', 'Profile');
+    }
+
+    private function dashboardSection(string $section, string $title)
+    {
         if (!Auth::guard('web')->check()) {
             return redirect()
                 ->route('login')
                 ->with('error', 'Please login first');
         }
 
-        return view('website.depth_dashboard', $this->dashboardData('Program overview'));
+        return view('website.depth_dashboard', [
+            ...$this->dashboardData($title),
+            'dashboardSection' => $section,
+            'dashboardRoutes' => [
+                'overview' => route('dashboard'),
+                'agenda' => route('dashboard.agenda'),
+                'cases' => route('dashboard.cases'),
+                'speakers' => route('dashboard.speakers'),
+                'live' => route('dashboard.live'),
+                'hub' => route('dashboard.hub'),
+                'takeaways' => route('dashboard.takeaways'),
+                'certificate' => route('dashboard.certificate'),
+                'profile' => route('dashboard.profile'),
+            ],
+        ]);
     }
 
     public function courseDashboard()
@@ -45,7 +104,7 @@ class WebLoginController
                 ->with('error', 'Please login first');
         }
 
-        return redirect()->to(route('dashboard') . '#overview');
+        return redirect()->route('dashboard');
     }
 
     private function dashboardData(string $title): array

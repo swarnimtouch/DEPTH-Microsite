@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Program overview · DEPTH by Hetero</title>
+<title>{{ $title }} · DEPTH by Hetero</title>
 <meta name="description" content="Recognising &amp; Managing Depression in Primary Care — an expert-led live session with Prof. Siegfried Kasper and four HCP case booklets. A Hetero educational initiative.">
 <link rel="icon" href="{{ siteSettingAsset('Favicon', 'web/depth/assets/hetero.png') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,24 +15,15 @@
 @media(max-width:760px){.logo-hetero{height:36px}.trust-row.solo .t-hetero{height:38px}.arm-logos .a-hetero{height:30px}.profile-form-card{padding:24px 20px}.profile-edit-grid{grid-template-columns:1fr}.profile-edit-grid .span2{grid-column:auto}.profile-form-actions{align-items:stretch;flex-direction:column}}
 </style>
 </head>
-<body data-view="landing">
+<body data-view="{{ $dashboardSection }}">
 <div class="page">
 
-  <header class="hdr">
-    <div class="hdr-in">
-      <a class="brand" href="{{ route('dashboard') }}#overview" aria-label="DEPTH dashboard home">
-        <img class="logo-hetero" src="{{ asset('web/depth/assets/hetero.png') }}" alt="Hetero">
-      </a>
-      <div class="hdr-right">
-        <div id="hdr-auth"></div>
-      </div>
-    </div>
-    <nav class="tabs" aria-label="Sections"><div class="tabs-in" id="tabs"></div></nav>
-  </header>
+  @include('partials.website.depth_dashboard_header')
 
   <main>
 
     <!-- ================================================================ LANDING -->
+    @if($dashboardSection === 'landing')
     <section class="view landing" data-view="landing">
       <div class="hero hero-split">
         <div class="hero-in">
@@ -86,8 +77,10 @@
         </div>
       </div>
     </section>
+    @endif
 
     <!-- ================================================================ THANK YOU -->
+    @if($dashboardSection === 'thanks')
     <section class="view wrap thanks" data-view="thanks" hidden>
       <div class="thanks-grid">
         <div>
@@ -103,112 +96,9 @@
         </aside>
       </div>
     </section>
+    @endif
 
-    <!-- ================================================================ OVERVIEW -->
-    <section class="view wrap" data-view="overview" hidden>
-      <div class="member-head"><div><div class="kicker">Program overview</div><h1 class="h1" id="ov-welcome">Welcome</h1></div><div class="meta">Expert perspective • Case-based learning • Practical clinical insights</div></div>
-      <div class="ov-grid">
-        <div>
-          <p class="lead">A focused expert-led webinar on <b>recognising and managing depression in primary care</b> — from hidden presentations and red flags to diagnosis, referral and real-world management.</p>
-          <div class="topics" id="ov-topics"></div>
-        </div>
-        <aside>
-          <div class="card pad grad kv-card"><div class="kicker light">Your program</div><div class="progress-line"><div class="bar"><i id="ov-bar"></i></div><b id="ov-pct">0%</b></div><p id="ov-progress-note" class="small light"></p><div class="btn-row" style="margin-top:16px"><button class="btn btn-white sm" data-go="live">Live session</button><button class="btn btn-line-light sm" data-go="cases">Case booklets</button></div></div>
-          <div class="card pad" style="margin-top:16px"><div class="kicker">Next up</div><div id="ov-next"></div></div>
-        </aside>
-      </div>
-      <div class="sec-head section-head" id="program"><div><div class="kicker">The live session</div><h2 class="h2">One session. A complete clinical journey.</h2></div><div class="meta">Case-based learning → Live session → Post-read</div></div>
-      <div class="card strip"><table class="table"><thead><tr><th>Session</th><th>Date</th><th>Time</th><th>Topic</th></tr></thead><tbody id="ov-strip"></tbody></table></div>
-      <div class="web-cards one" id="ov-cards"></div>
-      <div class="sec-head section-head"><div><div class="kicker">Supporting learning</div><h2 class="h2">Four HCP case booklets</h2></div><button class="btn btn-line sm" data-go="cases">Explore the cases →</button></div>
-      <div class="case-grid compact" id="ov-cases"></div>
-    </section>
-
-    <!-- ================================================================ AGENDA -->
-    <section class="view wrap" data-view="agenda" hidden>
-      <div class="member-head"><div><div class="kicker">Detailed agenda</div><h1 class="h1">Session by session</h1></div><div class="meta">All times IST (UTC+5:30)</div></div>
-      <div id="agenda-blocks"></div>
-    </section>
-
-    <!-- ================================================================ CASES -->
-    <section class="view wrap" data-view="cases" hidden>
-      <div class="member-head"><div><div class="kicker">HCP case booklets</div><h1 class="h1">Explore the cases</h1></div><div class="meta">Case-based learning · 4 × 4-page PDFs</div></div>
-      <p class="lead" style="max-width:72ch">Work through four practical HCP case booklets focused on recognising clinical patterns, navigating diagnostic challenges and considering appropriate management approaches.</p>
-      <div class="case-grid" id="case-cards"></div>
-    </section>
-
-    <!-- ================================================================ SPEAKER -->
-    <section class="view wrap" data-view="speakers" hidden>
-      <div class="member-head"><div><div class="kicker">Speaker details</div><h1 class="h1">Speaker</h1></div><div class="meta">International expertise · Practical perspective</div></div>
-      <div id="speaker-cards"></div>
-    </section>
-
-    <!-- ================================================================ LIVE -->
-    <section class="view wrap" data-view="live" hidden>
-      <div class="member-head"><div><div class="kicker">Live session access</div><h1 class="h1">Join the session</h1></div><div class="meta" id="live-clock"></div></div>
-      <div class="live-cards" id="live-cards"></div>
-      <div class="btn-row" style="margin-top:22px"><button class="btn btn-line" data-ics="1">Add to calendar</button><button class="btn btn-soft" data-go="agenda">View agenda</button><button class="btn btn-soft" data-go="cases">Prepare with the cases</button></div>
-      <div class="live-help"><b>Trouble joining?</b> Use the link in your confirmation email, or write to the Hetero medical team. The room opens 10 minutes before the start time.</div>
-    </section>
-
-    <!-- ================================================================ POST-EVENT HUB -->
-    <section class="view wrap" data-view="hub" hidden>
-      <div class="member-head"><div><div class="kicker">Post-event hub</div><h1 class="h1">Revisit. Reflect. Apply.</h1></div><div class="meta">Recording • Post-read • Takeaways • Certificate</div></div>
-      <div class="hub-grid" id="hub-recordings"></div>
-      <div class="sec-head section-head"><div><div class="kicker">Post-read materials</div><h2 class="h2">Continue the learning</h2></div></div>
-      <div class="pr-grid" id="hub-postread"></div>
-      <div class="sec-head section-head"><div><div class="kicker">Resource list</div><h2 class="h2">Everything in one place</h2></div></div>
-      <div class="card table-wrap"><table class="table"><thead><tr><th>Resource</th><th>Type</th><th></th></tr></thead><tbody id="hub-resources"></tbody></table></div>
-    </section>
-
-    <!-- ================================================================ TAKEAWAYS -->
-    <section class="view wrap" data-view="takeaways" hidden>
-      <button class="back link" data-go="hub">← Post-event hub</button>
-      <div class="tk-head"><div class="kicker">Key takeaways</div><h1 class="h1" id="tk-title">Key takeaways</h1><p class="small muted" id="tk-note"></p></div>
-      <ol class="tk-list" id="tk-list"></ol>
-      <div class="std-band"><div><div class="kicker">Revisit the full session</div><h3>Watch the recording</h3></div><button class="btn btn-grad" data-modal="video" data-title="Full session recording">Watch recording →</button></div>
-    </section>
-
-    <!-- ================================================================ CERTIFICATE -->
-    <section class="view wrap" data-view="certificate" hidden>
-      <div class="member-head no-print"><div><div class="kicker">Certificate of participation</div><h1 class="h1">Your certificate</h1></div><div class="btn-row" id="cert-actions"></div></div>
-      <div class="cert-card" id="cert-card">
-        <div class="cert-in">
-          <div class="cert-top"><img src="{{ asset('web/depth/assets/hetero.png') }}" alt="Hetero"><span class="cert-wm"><b>DEPTH</b><span>Depression Education Program for Therapeutic Excellence by Hetero</span></span></div>
-          <div class="cert-title">Certificate</div><div class="cert-sub">of participation</div>
-          <p class="cert-txt">This certificate is awarded to</p>
-          <div class="cert-name" id="cert-name">Dr. Participant</div>
-          <p class="cert-txt">in recognition of active participation in the international webinar</p>
-          <div class="cert-prog">"Recognising &amp; Managing Depression in Primary Care"</div>
-          <p class="cert-txt">held on 20th November 2026</p>
-          <div class="cert-sig"><div><span class="cert-line"></span><b>Prof. Siegfried Kasper</b><small>Professor Emeritus of Psychiatry, Medical University of Vienna</small></div><div><span class="cert-line"></span><b>Medical Team</b><small>Hetero Healthcare</small></div></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================================================================ PROFILE -->
-    <section class="view wrap" data-view="profile" hidden>
-      <div class="member-head"><div><div class="kicker">My profile</div><h1 class="h1" id="pf-name">Profile</h1></div><button class="btn btn-soft sm" data-logout>Log out</button></div>
-      <div class="card pad profile-form-card">
-        @if($errors->any())
-          <div class="profile-errors"><b>Please correct the highlighted details.</b><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
-        @endif
-        <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
-          @csrf
-          <input type="hidden" name="profile_context" value="dashboard">
-          <div class="profile-edit-grid">
-            <label class="field"><span>Full name <em>*</em></span><input class="input" type="text" name="name" value="{{ old('name', $doctor->name) }}" required></label>
-            <label class="field"><span>Speciality <em>*</em></span><select class="input" name="speciality_id" required><option value="">Select speciality</option>@foreach($specialities as $speciality)<option value="{{ $speciality->id }}" @selected((string) old('speciality_id', $doctor->speciality_id) === (string) $speciality->id)>{{ $speciality->name }}</option>@endforeach</select></label>
-            <label class="field"><span>Institution / Hospital <em>*</em></span><input class="input" type="text" name="hospital" value="{{ old('hospital', $doctor->hospital) }}" required></label>
-            <label class="field"><span>Country <em>*</em></span><select class="input" name="country" required><option value="">Select country</option>@foreach($countries as $country)<option value="{{ $country->name }}" @selected(old('country', $doctor->country) === $country->name)>{{ $country->name }}</option>@endforeach</select></label>
-            <label class="field"><span>City</span><input class="input" type="text" name="city" value="{{ old('city', $doctor->city) }}"></label>
-            <label class="field"><span>Mobile number <em>*</em></span><input class="input" type="tel" name="mobile" value="{{ old('mobile', $doctor->mobile) }}" placeholder="+919876543210" required></label>
-            <label class="field span2"><span>Email ID <em>*</em></span><input class="input" type="email" name="email" value="{{ old('email', $doctor->email) }}" required></label>
-          </div>
-          <div class="profile-form-actions"><button class="btn btn-grad" type="submit">Save profile</button></div>
-        </form>
-      </div>
-    </section>
+    @include('website.dashboard.sections.' . $dashboardSection)
 
   </main>
 
@@ -231,13 +121,14 @@
 <div class="toast" id="toast" hidden></div>
 <script>
 window.DEPTH_LOGOUT_URL = @json(route('logout'));
+window.DEPTH_INITIAL_VIEW = @json($dashboardSection);
+window.DEPTH_ROUTES = @json($dashboardRoutes);
 window.DEPTH_FLASH_SUCCESS = @json(session('success'));
 window.DEPTH_AGENDA = @json($depthAgenda);
 window.DEPTH_SPEAKERS = @json($depthSpeakers);
 window.DEPTH_EVENT = @json($depthEvent);
 window.DEPTH_RESOURCES = @json($depthResources);
 localStorage.setItem('depth.user', JSON.stringify(@json($depthUser)));
-if (!location.hash || location.hash === '#landing') history.replaceState(null, '', '#overview');
 </script>
 <script src="{{ asset('web/depth/dashboard-static.js') }}?v={{ filemtime(public_path('web/depth/dashboard-static.js')) }}"></script>
 </body>
