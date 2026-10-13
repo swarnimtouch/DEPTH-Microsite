@@ -81,9 +81,9 @@ main{flex:1}
 .hdr-user{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--navy)}
 .tabs{border-top:1px solid var(--rule)}.tabs:has(#tabs:empty){display:none}
 .tabs-in{max-width:var(--max);margin:0 auto;padding:0 var(--pad);display:flex;overflow-x:auto;scrollbar-width:none}.tabs-in::-webkit-scrollbar{display:none}
-.tab{position:relative;padding:14px 16px;border:0;background:none;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab{position:relative;padding:14px 16px;border:0;background:none;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;text-decoration:none}
 .tab::after{content:"";position:absolute;left:16px;right:16px;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform .3s}
-.tab:hover{color:var(--navy)}.tab.active{color:var(--navy)}.tab.active::after,.tab:hover::after{transform:scaleX(1)}
+.tab:hover,.tab:focus,.tab:active{color:var(--navy);text-decoration:none}.tab.active{color:var(--navy)}.tab.active::after,.tab:hover::after{transform:scaleX(1)}
 
 /* ---------- cards & tables ---------- */
 .card{background:#fff;border:1px solid var(--rule);border-radius:var(--r)}

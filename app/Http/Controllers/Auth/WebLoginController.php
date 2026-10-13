@@ -249,7 +249,22 @@ class WebLoginController
             'certificateUnlocked' => (bool) $moduleProgress?->video_completed_at,
         ] : [];
 
-        $depthResources = collect($agendaModule?->resourceDocuments ?? [])->map(function ($resource) {
+        $caseFallbackImages = [
+            'case1-ward.jpg',
+            'case2-phq9.jpg',
+            'case3-patient.jpg',
+            'case4-pharma.jpg',
+        ];
+        $caseFallbacksById = collect($agendaModule?->resourceDocuments ?? [])
+            ->where('category', 'case_book')
+            ->values()
+            ->mapWithKeys(function ($resource, $index) use ($caseFallbackImages) {
+                return [
+                    $resource->id => asset('web/depth/assets/visual/' . $caseFallbackImages[$index % count($caseFallbackImages)]),
+                ];
+            });
+
+        $depthResources = collect($agendaModule?->resourceDocuments ?? [])->map(function ($resource) use ($caseFallbacksById) {
             $url = $resource->external_url ?: ($resource->file ? asset('storage/' . $resource->file) : null);
             $hasSource = (bool) $url;
             $extension = strtolower(pathinfo((string) (parse_url($url ?? '', PHP_URL_PATH) ?: $resource->file), PATHINFO_EXTENSION));
@@ -266,7 +281,9 @@ class WebLoginController
                 'category' => $resource->category ?: 'general',
                 'url' => $url,
                 'embedUrl' => $embedUrl,
-                'thumbnail' => $resource->thumbnail ? asset('storage/' . $resource->thumbnail) : null,
+                'thumbnail' => $resource->thumbnail
+                    ? asset('storage/' . $resource->thumbnail)
+                    : $caseFallbacksById->get($resource->id),
                 'type' => $resource->resource_type === 'video' || $embedUrl || in_array($extension, $videoExtensions, true) ? 'Video' : ($resource->resource_type === 'pdf' || $extension === 'pdf' ? 'PDF' : 'Link'),
                 'isVideo' => (bool) ($resource->resource_type === 'video' || $embedUrl || in_array($extension, $videoExtensions, true)),
                 'isPdf' => $resource->resource_type === 'pdf' || $extension === 'pdf',
