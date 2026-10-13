@@ -149,7 +149,7 @@
                 <div class="arms"><small>Marketing arms</small><div class="arm-logos"><img src="{{ $depthAsset('partners/hetero.png') }}" alt="Hetero" class="a-hetero"><img src="{{ $depthAsset('partners/hetero-healthcare.svg') }}" alt="Hetero Healthcare" class="a-hh"><img src="{{ $depthAsset('partners/amarox.png') }}" alt="Amarox" class="a-amarox"><img src="{{ $depthAsset('partners/camber.png') }}" alt="Camber Pharmaceuticals" class="a-camber"><img src="{{ $depthAsset('partners/seven-pharma.png') }}" alt="Seven Pharma" class="a-seven"></div></div>
                 <div class="arms tech"><small>Technical support by</small><img src="{{ $depthAsset('alphamed.png') }}" alt="AlphaMed"></div>
             </div>
-            <p class="t-fac">Faculty: Prof. Siegfried Kasper, Medical University of Vienna</p>
+            
             <p class="tagline">Knowledge drives a brighter tomorrow</p>
             <p class="disclaimer">The content is intended for <b>Healthcare Professionals (HCPs) only</b> and is provided for educational and scientific purposes. The information presented is based on available scientific evidence and expert perspectives and is not intended to replace professional medical judgment, clinical guidelines, or individual patient assessment. Prescribing decisions should be made based on the individual patient's clinical condition, applicable prescribing information, and local regulations. Product information and recommendations may vary by country.</p>
             <div class="ftr-meta"><span>&copy; {{ date('Y') }} Hetero Healthcare Ltd. DEPTH - Depression Education Program for Therapeutic Excellence.</span><span>Technical support by AlphaMed</span></div>

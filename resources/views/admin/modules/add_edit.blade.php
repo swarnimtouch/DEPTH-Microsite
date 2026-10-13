@@ -69,6 +69,7 @@
                                     'country' => '',
                                     'city' => '',
                                     'bio' => '',
+                                    'professional_profile' => '',
                                     'expertise' => '',
                                     'session_title' => $module->title,
                                     'profile_resource_url' => '',
@@ -94,7 +95,8 @@
                                                     <div class="col-md-3"><label class="form-label">City</label><input type="text" name="speakers[{{ $index }}][city]" value="{{ $speaker['city'] ?? '' }}" class="form-control form-control-solid" placeholder="Vienna"></div>
                                                     <div class="col-md-6"><label class="form-label">Session</label><input type="text" name="speakers[{{ $index }}][session_title]" value="{{ $speaker['session_title'] ?? $module->title }}" class="form-control form-control-solid" placeholder="Session title"></div>
                                                     <div class="col-md-6"><label class="form-label">Speaker Resource URL</label><input type="url" name="speakers[{{ $index }}][profile_resource_url]" value="{{ $speaker['profile_resource_url'] ?? '' }}" class="form-control form-control-solid" placeholder="Profile PDF or reference URL"></div>
-                                                    <div class="col-md-8"><label class="form-label">Biography</label><textarea name="speakers[{{ $index }}][bio]" rows="4" class="form-control form-control-solid" placeholder="Speaker profile and experience">{{ $speaker['bio'] ?? '' }}</textarea></div>
+                                                    <div class="col-md-6"><label class="form-label">Biography</label><textarea name="speakers[{{ $index }}][bio]" rows="4" class="form-control form-control-solid" placeholder="Short biography shown below the speaker name">{{ $speaker['bio'] ?? '' }}</textarea></div>
+                                                    <div class="col-md-6"><label class="form-label">Professional Profile</label><textarea name="speakers[{{ $index }}][professional_profile]" rows="4" class="form-control form-control-solid" placeholder="Detailed professional profile shown in the profile table">{{ $speaker['professional_profile'] ?? '' }}</textarea></div>
                                                     <div class="col-md-4">
                                                         <label class="form-label">Speaker Image</label>
                                                         @if(!empty($speaker['image']))<div class="mb-2"><img src="{{ str_starts_with($speaker['image'], 'web/') ? asset($speaker['image']) : asset('storage/' . $speaker['image']) }}" alt="{{ $speaker['name'] ?? 'Speaker' }}" class="rounded" style="width:90px;height:90px;object-fit:cover"></div>@endif
@@ -742,7 +744,8 @@
                             <div class="col-md-3"><label class="form-label">City</label><input type="text" name="speakers[${index}][city]" class="form-control form-control-solid"></div>
                             <div class="col-md-6"><label class="form-label">Session</label><input type="text" name="speakers[${index}][session_title]" class="form-control form-control-solid"></div>
                             <div class="col-md-6"><label class="form-label">Speaker Resource URL</label><input type="url" name="speakers[${index}][profile_resource_url]" class="form-control form-control-solid" placeholder="Profile PDF or reference URL"></div>
-                            <div class="col-md-8"><label class="form-label">Biography</label><textarea name="speakers[${index}][bio]" rows="4" class="form-control form-control-solid" placeholder="Speaker profile and experience"></textarea></div>
+                            <div class="col-md-6"><label class="form-label">Biography</label><textarea name="speakers[${index}][bio]" rows="4" class="form-control form-control-solid" placeholder="Short biography shown below the speaker name"></textarea></div>
+                            <div class="col-md-6"><label class="form-label">Professional Profile</label><textarea name="speakers[${index}][professional_profile]" rows="4" class="form-control form-control-solid" placeholder="Detailed professional profile shown in the profile table"></textarea></div>
                             <div class="col-md-4"><label class="form-label">Speaker Image</label><input type="hidden" name="speakers[${index}][image]" value=""><input type="file" name="speaker_images[${index}]" class="form-control form-control-solid" accept=".jpg,.jpeg,.png,.webp"></div>
                         </div>
                     </div>
