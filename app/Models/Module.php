@@ -20,6 +20,7 @@ class Module extends Model
         'speaker_designation',
         'speaker_hospital',
         'speakers',
+        'agenda',
         'brands',
         'archive_segments',
         'duration',
@@ -30,6 +31,7 @@ class Module extends Model
         'certificate_name_y',
         'certificate_font_size',
         'video_url',
+        'join_url',
         'overview',
         'key_takeaways',
         'resources',
@@ -49,6 +51,7 @@ class Module extends Model
         'certificate_name_y' => 'decimal:2',
         'certificate_font_size' => 'integer',
         'speakers' => 'array',
+        'agenda' => 'array',
         'brands' => 'array',
         'archive_segments' => 'array',
         'sort_order' => 'integer',
@@ -190,7 +193,7 @@ class Module extends Model
 
     public function resourceDocuments(): HasMany
     {
-        return $this->hasMany(ModuleResource::class)->orderBy('id');
+        return $this->hasMany(ModuleResource::class)->orderBy('sort_order')->orderBy('id');
     }
 
     public static function uniqueSlug(string $title, ?int $ignoreId = null): string

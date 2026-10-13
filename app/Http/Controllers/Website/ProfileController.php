@@ -6,6 +6,7 @@ use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class ProfileController
@@ -32,13 +33,16 @@ class ProfileController
         }
 
         $doctor = Auth::guard('web')->user();
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
+            'profile_context' => ['nullable', Rule::in(['dashboard'])],
             'name' => ['required', 'string', 'max:255'],
+            'speciality_id' => ['required', Rule::exists('specialities', 'id')->where('status', 'active')],
             'hospital' => ['required', 'string', 'max:255'],
-            'country' => ['required', 'string', 'max:255'],
+            'country' => ['required', 'string', 'max:255', Rule::exists('countries', 'name')],
+            'city' => ['nullable', 'string', 'max:255'],
             'mobile' => [
                 'required',
-                'digits_between:10,15',
+                'regex:/^\+[0-9]{7,20}$/',
                 Rule::unique('users', 'mobile')->ignore($doctor->id),
             ],
             'email' => [
@@ -49,6 +53,17 @@ class ProfileController
             ],
             'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
+
+        if ($validator->fails()) {
+            $redirect = $request->input('profile_context') === 'dashboard'
+                ? redirect()->to(route('dashboard') . '#profile')
+                : redirect()->route('profile.edit');
+
+            return $redirect->withErrors($validator)->withInput();
+        }
+
+        $validated = $validator->validated();
+        unset($validated['profile_context']);
 
         if ($request->hasFile('profile_image')) {
             $oldImage = $doctor->getRawOriginal('profile_image');
@@ -64,6 +79,10 @@ class ProfileController
         $doctor->fill($validated);
         $doctor->save();
 
-        return redirect()->route('profile.edit')->with('success', 'Profile updated successfully');
+        $redirect = $request->input('profile_context') === 'dashboard'
+            ? redirect()->to(route('dashboard') . '#profile')
+            : redirect()->route('profile.edit');
+
+        return $redirect->with('success', 'Profile updated successfully');
     }
 }

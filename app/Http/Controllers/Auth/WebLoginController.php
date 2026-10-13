@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\Module;
 use App\Models\ModuleUserProgress;
 use App\Models\Speciality;
+use Carbon\CarbonImmutable;
 use Illuminate\Validation\Rule;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -20,10 +21,9 @@ class WebLoginController
             return redirect()->route('dashboard');
         }
 
-        $response = [
-            'title' => 'Login',
-        ];
-        return view('website.auth.login', $response);
+        return redirect()
+            ->to(route('home') . '#register')
+            ->with('show_login', true);
     }
 
     public function dashboard()
@@ -34,7 +34,7 @@ class WebLoginController
                 ->with('error', 'Please login first');
         }
 
-        return view('website.dashboard', $this->dashboardData('Dashboard'));
+        return view('website.depth_dashboard', $this->dashboardData('Program overview'));
     }
 
     public function courseDashboard()
@@ -45,7 +45,7 @@ class WebLoginController
                 ->with('error', 'Please login first');
         }
 
-        return view('website.course_dashboard', $this->dashboardData('Programme Dashboard'));
+        return redirect()->to(route('dashboard') . '#overview');
     }
 
     private function dashboardData(string $title): array
@@ -93,10 +93,151 @@ class WebLoginController
             return $item->module->title . ' (Chapter ' . ($item->module->sort_order) . ')';
         })->values();
         $chartScores = $quizProgress->map(fn($item) => $item->quiz_total ? round(($item->quiz_score / $item->quiz_total) * 100) : 0)->values();
+        $agendaModule = $nearestModule ?: $modules->first();
+        $agendaModule?->loadMissing('resourceDocuments');
+        $depthAgenda = collect($agendaModule?->agenda ?? [])->map(fn($row) => [
+            'type' => $row['type'] ?? 'person',
+            'time' => $row['time'] ?? null,
+            'duration' => isset($row['duration']) && $row['duration'] !== '' ? (int) $row['duration'] : null,
+            'title' => $row['title'] ?? '',
+            'role' => $row['role'] ?? '',
+            'names' => $row['names'] ?? ($row['name'] ?? ''),
+        ])->filter(fn($row) => $row['title'] !== '' || $row['role'] !== '' || $row['names'] !== '')->values();
+        $speakerProfiles = collect($agendaModule?->speakers ?? []);
+        if ($speakerProfiles->isEmpty() && $agendaModule?->speaker_name) {
+            $speakerProfiles = collect([[
+                'name' => $agendaModule->speaker_name,
+                'role' => 'Speaker',
+                'current_position' => $agendaModule->speaker_designation,
+                'designation' => $agendaModule->speaker_designation,
+                'hospital' => $agendaModule->speaker_hospital,
+                'country' => '',
+                'city' => '',
+                'bio' => '',
+                'expertise' => '',
+                'session_title' => $agendaModule->title,
+                'profile_resource_url' => '',
+                'image' => null,
+            ]]);
+        }
+        $depthSpeakers = $speakerProfiles->map(function ($speaker) use ($agendaModule) {
+            $expertise = is_array($speaker['expertise'] ?? null)
+                ? $speaker['expertise']
+                : array_values(array_filter(array_map('trim', explode(',', $speaker['expertise'] ?? ''))));
+            $name = $speaker['name'] ?? 'Speaker';
+            $designation = $speaker['designation'] ?? '';
+            $hospital = $speaker['hospital'] ?? '';
+            $country = $speaker['country'] ?? '';
+            $city = $speaker['city'] ?? '';
+            $image = $speaker['image'] ?? '';
+
+            return [
+                'name' => $name,
+                'photo' => $image
+                    ? (str_starts_with($image, 'web/') ? asset($image) : asset('storage/' . $image))
+                    : asset('web/depth/assets/speakers/kasper.jpg'),
+                'role' => $speaker['role'] ?? 'Speaker',
+                'designation' => $designation,
+                'designation2' => $hospital,
+                'place' => implode(', ', array_filter([$city, $country])) ?: $hospital,
+                'bio' => strip_tags($speaker['bio'] ?? '') ?: trim($designation . ($hospital ? ', ' . $hospital : '')),
+                'expertise' => $expertise,
+                'resourceUrl' => $speaker['profile_resource_url'] ?? '',
+                'profile' => [
+                    ['Current position', $speaker['current_position'] ?? ($designation ?: '—')],
+                    ['Country / City', implode(', ', array_filter([$city, $country])) ?: '—'],
+                    ['Institution / Hospital', $hospital ?: '—'],
+                    ['Professional profile', strip_tags($speaker['bio'] ?? '') ?: '—'],
+                    ['Clinical / research expertise', $expertise ? implode(' • ', $expertise) : '—'],
+                    ['Role in webinar', $speaker['role'] ?? 'Speaker'],
+                    ['Session', $speaker['session_title'] ?? ($agendaModule?->title ?? 'DEPTH')],
+                ],
+            ];
+        })->values();
+
+        $eventStart = $agendaModule?->getRawOriginal('start_at')
+            ? CarbonImmutable::parse($agendaModule->getRawOriginal('start_at'), 'UTC')->setTimezone('Asia/Kolkata')
+            : null;
+        $eventEnd = $agendaModule?->getRawOriginal('end_at')
+            ? CarbonImmutable::parse($agendaModule->getRawOriginal('end_at'), 'UTC')->setTimezone('Asia/Kolkata')
+            : null;
+        $moduleProgress = $agendaModule ? $progress->get($agendaModule->id) : null;
+        $fullRecordingResource = $agendaModule?->resourceDocuments
+            ?->firstWhere('category', 'full_recording');
+        $fullRecordingReady = $fullRecordingResource
+            && $fullRecordingResource->status === 'active'
+            && ($fullRecordingResource->file || $fullRecordingResource->external_url)
+            && (!$fullRecordingResource->getRawOriginal('available_at')
+                || CarbonImmutable::parse($fullRecordingResource->getRawOriginal('available_at'), 'UTC')->lte(now('UTC')));
+        $depthEvent = $agendaModule ? [
+            'title' => $agendaModule->title,
+            'full' => $agendaModule->title,
+            'tagline' => trim(strip_tags((string) $agendaModule->overview)),
+            'desc' => trim(strip_tags((string) $agendaModule->overview)),
+            'date' => $eventStart?->format('d F Y'),
+            'dateShort' => $eventStart?->format('d M Y'),
+            'day' => $eventStart?->format('l'),
+            'time' => $eventStart && $eventEnd
+                ? $eventStart->format('g:i A') . ' – ' . $eventEnd->format('g:i A') . ' IST'
+                : ($agendaModule->duration ?: 'Time to be announced'),
+            'start' => $agendaModule->start_at_utc_iso,
+            'end' => $agendaModule->end_at_utc_iso,
+            'duration' => $agendaModule->duration,
+            'videoPageUrl' => route('modules.show', $agendaModule->slug),
+            'recordingAvailable' => (bool) ($agendaModule->video_url || $fullRecordingReady),
+            'joinUrl' => $agendaModule->join_url,
+            'certificateUrl' => route('modules.certificate', $agendaModule->slug),
+            'certificateUnlocked' => (bool) $moduleProgress?->video_completed_at,
+        ] : [];
+
+        $depthResources = collect($agendaModule?->resourceDocuments ?? [])->map(function ($resource) {
+            $url = $resource->external_url ?: ($resource->file ? asset('storage/' . $resource->file) : null);
+            $hasSource = (bool) $url;
+            $extension = strtolower(pathinfo((string) (parse_url($url ?? '', PHP_URL_PATH) ?: $resource->file), PATHINFO_EXTENSION));
+            $videoExtensions = ['mp4', 'webm', 'mov'];
+            $embedUrl = Module::youtubeEmbedUrl($resource->external_url);
+            if (!$embedUrl && $resource->resource_type === 'video' && $resource->external_url && !in_array($extension, $videoExtensions, true)) {
+                $embedUrl = $resource->external_url;
+            }
+
+            return [
+                'id' => $resource->id,
+                'label' => $resource->label,
+                'description' => $resource->description,
+                'category' => $resource->category ?: 'general',
+                'url' => $url,
+                'embedUrl' => $embedUrl,
+                'thumbnail' => $resource->thumbnail ? asset('storage/' . $resource->thumbnail) : null,
+                'type' => $resource->resource_type === 'video' || $embedUrl || in_array($extension, $videoExtensions, true) ? 'Video' : ($resource->resource_type === 'pdf' || $extension === 'pdf' ? 'PDF' : 'Link'),
+                'isVideo' => (bool) ($resource->resource_type === 'video' || $embedUrl || in_array($extension, $videoExtensions, true)),
+                'isPdf' => $resource->resource_type === 'pdf' || $extension === 'pdf',
+                'available' => $hasSource && $resource->status === 'active' && (!$resource->getRawOriginal('available_at') || CarbonImmutable::parse($resource->getRawOriginal('available_at'), 'UTC')->lte(now('UTC'))),
+                'availableAt' => $resource->getRawOriginal('available_at') ? CarbonImmutable::parse($resource->getRawOriginal('available_at'), 'UTC')->toIso8601String() : null,
+            ];
+        })->values();
 
         return [
             'title' => $title,
             'doctor' => $doctor,
+            'countries' => Country::orderByRaw("CASE WHEN name = 'India' THEN 0 ELSE 1 END")
+                ->orderBy('name')
+                ->get(),
+            'specialities' => Speciality::active()->orderBy('name')->get(),
+            'depthUser' => [
+                'name' => $doctor->name,
+                'spec' => $doctor->speciality?->name,
+                'inst' => $doctor->hospital,
+                'country' => $doctor->country,
+                'city' => $doctor->city,
+                'email' => $doctor->email,
+                'mobile' => $doctor->mobile,
+                'event' => '1',
+                'registered' => optional($doctor->created_at)->toIso8601String(),
+            ],
+            'depthAgenda' => $depthAgenda,
+            'depthSpeakers' => $depthSpeakers,
+            'depthEvent' => $depthEvent,
+            'depthResources' => $depthResources,
             'activeCourse' => $activeCourse,
             'modules' => $modules,
             'progress' => $progress,
@@ -132,7 +273,10 @@ class WebLoginController
         $isLandingRegistration = $request->input('registration_context') === 'landing';
         $validated = $request->validate([
             'registration_context' => ['nullable', Rule::in(['landing'])],
-            'event' => [$isLandingRegistration ? 'required' : 'nullable', Rule::in(['1', '2', 'both'])],
+            'event' => [
+                $isLandingRegistration ? 'required' : 'nullable',
+                Rule::exists('modules', 'id')->where(fn ($query) => $query->where('status', 'active')),
+            ],
             'consent' => [$isLandingRegistration ? 'accepted' : 'nullable'],
             'name' => ['required', 'string', 'max:255'],
             'hospital' => ['required', 'string', 'max:255'],
@@ -163,16 +307,18 @@ class WebLoginController
         $request->session()->regenerate();
 
         return redirect()
-            ->route('modules')
+            ->route('dashboard')
             ->with('success', 'Doctor registered successfully');
     }
 
     public function loginPost(Request $request)
     {
         $validated = $request->validate([
-            'registration_context' => ['nullable', Rule::in(['landing'])],
+            'login_context' => ['nullable', Rule::in(['landing'])],
             'email' => ['required', 'email'],
         ]);
+
+        $isLandingLogin = ($validated['login_context'] ?? null) === 'landing';
 
         $doctor = User::where('email', $validated['email'])
             ->where('type', 'doctor')
@@ -180,9 +326,13 @@ class WebLoginController
             ->first();
 
         if (!$doctor) {
-            return redirect()
-                ->route('login')
+            $redirect = $isLandingLogin
+                ? redirect()->to(route('home') . '#register')
+                : redirect()->route('login');
+
+            return $redirect
                 ->withInput()
+                ->with('show_login', $isLandingLogin)
                 ->with('error', 'No active doctor account found for this email address');
         }
 
@@ -191,7 +341,7 @@ class WebLoginController
         $request->session()->regenerate();
 
         return redirect()
-            ->route('course.dashboard')
+            ->route('dashboard')
             ->with('success', 'Login successful');
     }
 }

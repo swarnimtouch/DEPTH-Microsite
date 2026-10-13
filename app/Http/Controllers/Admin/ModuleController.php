@@ -123,7 +123,22 @@ class ModuleController
             'course_id' => ['required', Rule::exists('courses', 'id')],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('modules', 'slug')->ignore($id)],
             'doctor_id' => ['nullable', Rule::exists('users', 'id')->where('type', 'doctor')],
-            'speaker_designation' => ['required', 'string', 'max:255'],
+            'speaker_designation' => ['nullable', 'string', 'max:255'],
+            'speakers' => ['required', 'array', 'min:1'],
+            'speakers.*.name' => ['required', 'string', 'max:255'],
+            'speakers.*.role' => ['nullable', 'string', 'max:100'],
+            'speakers.*.designation' => ['required', 'string', 'max:255'],
+            'speakers.*.current_position' => ['nullable', 'string', 'max:255'],
+            'speakers.*.hospital' => ['nullable', 'string', 'max:255'],
+            'speakers.*.country' => ['nullable', 'string', 'max:100'],
+            'speakers.*.city' => ['nullable', 'string', 'max:100'],
+            'speakers.*.bio' => ['nullable', 'string', 'max:5000'],
+            'speakers.*.expertise' => ['nullable', 'string', 'max:1000'],
+            'speakers.*.session_title' => ['nullable', 'string', 'max:255'],
+            'speakers.*.profile_resource_url' => ['nullable', 'url', 'max:2048'],
+            'speakers.*.image' => ['nullable', 'string', 'max:255'],
+            'speaker_images' => ['nullable', 'array'],
+            'speaker_images.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'brands' => ['nullable', 'array'],
             'brands.*.label' => ['nullable', 'string', 'max:255'],
             'brands.*.logo' => ['nullable', 'string', 'max:255'],
@@ -136,27 +151,56 @@ class ModuleController
             'brand_logos.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'duration' => ['required', 'string', 'max:50'],
             'cme_credit' => ['required', 'numeric', 'min:0', 'max:99.9'],
-            'thumbnail' => [$thumbnailRule, 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'certificate_template' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
             'certificate_template_remove' => ['nullable', 'boolean'],
             'certificate_name_x' => ['nullable', 'numeric', 'min:0', 'max:2000'],
             'certificate_name_y' => ['nullable', 'numeric', 'min:0', 'max:2000'],
             'certificate_font_size' => ['nullable', 'integer', 'min:8', 'max:72'],
             'video_url' => [
-                'required',
+                'nullable',
                 'url',
                 'regex:/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i',
             ],
+            'join_url' => ['nullable', 'url', 'max:2048'],
             'overview' => ['required', 'string'],
             'key_takeaways' => ['nullable', 'string'],
             'resource_labels' => ['nullable', 'array'],
             'resource_labels.*' => ['nullable', 'string', 'max:255'],
+            'resource_categories' => ['nullable', 'array'],
+            'resource_categories.*' => ['nullable', Rule::in(['full_recording', 'post_read', 'snippet_video', 'case_book', 'general'])],
+            'resource_descriptions' => ['nullable', 'array'],
+            'resource_descriptions.*' => ['nullable', 'string', 'max:2000'],
+            'resource_types' => ['nullable', 'array'],
+            'resource_types.*' => ['nullable', Rule::in(['auto', 'pdf', 'video', 'url'])],
+            'resource_available_at' => ['nullable', 'array'],
+            'resource_available_at.*' => ['nullable', 'date'],
+            'resource_statuses' => ['nullable', 'array'],
+            'resource_statuses.*' => ['nullable', Rule::in(['active', 'inactive'])],
+            'resource_urls' => ['nullable', 'array'],
+            'resource_urls.*' => ['nullable', 'url', 'max:2048'],
             'resource_files' => ['nullable', 'array'],
-            'resource_files.*' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png,webp', 'max:10240'],
+            'resource_files.*' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png,webp,mp4,webm,mov', 'max:102400'],
+            'resource_thumbnails' => ['nullable', 'array'],
+            'resource_thumbnails.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'existing_resource_labels' => ['nullable', 'array'],
             'existing_resource_labels.*' => ['nullable', 'string', 'max:255'],
+            'existing_resource_categories' => ['nullable', 'array'],
+            'existing_resource_categories.*' => ['nullable', Rule::in(['full_recording', 'post_read', 'snippet_video', 'case_book', 'general'])],
+            'existing_resource_descriptions' => ['nullable', 'array'],
+            'existing_resource_descriptions.*' => ['nullable', 'string', 'max:2000'],
+            'existing_resource_types' => ['nullable', 'array'],
+            'existing_resource_types.*' => ['nullable', Rule::in(['auto', 'pdf', 'video', 'url'])],
+            'existing_resource_available_at' => ['nullable', 'array'],
+            'existing_resource_available_at.*' => ['nullable', 'date'],
+            'existing_resource_statuses' => ['nullable', 'array'],
+            'existing_resource_statuses.*' => ['nullable', Rule::in(['active', 'inactive'])],
+            'existing_resource_urls' => ['nullable', 'array'],
+            'existing_resource_urls.*' => ['nullable', 'url', 'max:2048'],
             'existing_resource_files' => ['nullable', 'array'],
-            'existing_resource_files.*' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png,webp', 'max:10240'],
+            'existing_resource_files.*' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png,webp,mp4,webm,mov', 'max:102400'],
+            'existing_resource_thumbnails' => ['nullable', 'array'],
+            'existing_resource_thumbnails.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'remove_resources' => ['nullable', 'array'],
             'remove_resources.*' => ['integer', Rule::exists('module_resources', 'id')],
             'sort_order' => ['required', 'integer', 'min:0'],
@@ -165,6 +209,35 @@ class ModuleController
         ], [
             'video_url.regex' => 'Please enter a valid YouTube link.',
         ]);
+
+        $oldSpeakerImages = collect($module->speakers ?? [])->pluck('image')->filter()->values();
+        $speakerProfiles = collect($validated['speakers'] ?? [])
+            ->map(function ($speaker, $index) use ($request) {
+                $image = $speaker['image'] ?? null;
+                if ($request->hasFile("speaker_images.$index")) {
+                    $image = $request->file("speaker_images.$index")->store('uploads/speakers', 'public');
+                }
+
+                return [
+                    'name' => trim($speaker['name'] ?? ''),
+                    'role' => trim($speaker['role'] ?? '') ?: 'Speaker',
+                    'designation' => trim($speaker['designation'] ?? ''),
+                    'current_position' => trim($speaker['current_position'] ?? ''),
+                    'hospital' => trim($speaker['hospital'] ?? ''),
+                    'country' => trim($speaker['country'] ?? ''),
+                    'city' => trim($speaker['city'] ?? ''),
+                    'bio' => trim($speaker['bio'] ?? ''),
+                    'expertise' => trim($speaker['expertise'] ?? ''),
+                    'session_title' => trim($speaker['session_title'] ?? ''),
+                    'profile_resource_url' => trim($speaker['profile_resource_url'] ?? ''),
+                    'image' => $image,
+                ];
+            })
+            ->filter(fn($speaker) => $speaker['name'] !== '')
+            ->values();
+
+        $newSpeakerImages = $speakerProfiles->pluck('image')->filter()->values();
+        $oldSpeakerImages->diff($newSpeakerImages)->each(fn($image) => $this->deleteFile($image));
 
         $oldBrandLogos = collect($module->brands ?? [])->pluck('logo')->filter()->values();
         $moduleBrands = collect($validated['brands'] ?? [])
@@ -199,6 +272,14 @@ class ModuleController
             if (trim((string) $label) === '') {
                 return back()->withInput()->withErrors(['resources' => 'Please enter a label for every existing resource.']);
             }
+
+            $existingResource = $module->resourceDocuments()->find($resourceId);
+            if ($existingResource
+                && !$existingResource->file
+                && !$request->hasFile("existing_resource_files.$resourceId")
+                && !$request->filled("existing_resource_urls.$resourceId")) {
+                return back()->withInput()->withErrors(['resources' => 'Please upload a file/video or enter an external URL for every existing resource.']);
+            }
         }
 
         foreach ($request->file('resource_files', []) as $index => $file) {
@@ -207,8 +288,8 @@ class ModuleController
             }
         }
         foreach ($resourceLabels as $index => $label) {
-            if (!$request->hasFile("resource_files.$index")) {
-                return back()->withInput()->withErrors(['resources' => 'Please upload a document for every resource label.']);
+            if (!$request->hasFile("resource_files.$index") && !$request->filled("resource_urls.$index")) {
+                return back()->withInput()->withErrors(['resources' => 'Please upload a file/video or enter an external URL for every resource.']);
             }
         }
 
@@ -216,7 +297,7 @@ class ModuleController
         $endAtUtc = CarbonImmutable::parse($validated['end_at'], 'UTC');
 
         $moduleData = collect($validated)
-            ->except(['start_at', 'end_at', 'certificate_template', 'certificate_template_remove', 'resource_labels', 'resource_files', 'existing_resource_labels', 'existing_resource_files', 'remove_resources', 'speaker_images', 'brand_logos', 'brand_crops'])
+            ->except(['start_at', 'end_at', 'certificate_template', 'certificate_template_remove', 'resource_labels', 'resource_categories', 'resource_descriptions', 'resource_types', 'resource_available_at', 'resource_statuses', 'resource_urls', 'resource_files', 'resource_thumbnails', 'existing_resource_labels', 'existing_resource_categories', 'existing_resource_descriptions', 'existing_resource_types', 'existing_resource_available_at', 'existing_resource_statuses', 'existing_resource_urls', 'existing_resource_files', 'existing_resource_thumbnails', 'remove_resources', 'speakers', 'speaker_images', 'brand_logos', 'brand_crops'])
             ->toArray();
 
         foreach (['certificate_name_x', 'certificate_name_y', 'certificate_font_size'] as $nullableNumberField) {
@@ -227,6 +308,11 @@ class ModuleController
 
         $module->fill($moduleData);
         $module->doctor_id = null;
+        $module->speakers = $speakerProfiles->all();
+        $primarySpeaker = $speakerProfiles->first();
+        $module->speaker_name = $primarySpeaker['name'] ?? null;
+        $module->speaker_designation = $primarySpeaker['designation'] ?? null;
+        $module->speaker_hospital = $primarySpeaker['hospital'] ?? null;
         $module->slug = $validated['slug'] ?: Module::uniqueSlug($validated['title'], $id);
         $module->brands = $moduleBrands->map(fn($brand) => [
             'label' => $brand['label'],
@@ -275,6 +361,8 @@ class ModuleController
         $validated = $request->validate([
             'agenda' => ['nullable', 'array'],
             'agenda.*.type' => ['nullable', Rule::in(['section', 'person'])],
+            'agenda.*.time' => ['nullable', 'date_format:H:i'],
+            'agenda.*.duration' => ['nullable', 'integer', 'min:1', 'max:1440'],
             'agenda.*.title' => ['nullable', 'string', 'max:255'],
             'agenda.*.role' => ['nullable', 'string', 'max:255'],
             'agenda.*.names' => ['nullable', 'string', 'max:1000'],
@@ -293,6 +381,8 @@ class ModuleController
         $agendaRows = collect($validated['agenda'] ?? [])
             ->map(fn($row) => [
                 'type' => $row['type'] ?? 'person',
+                'time' => trim($row['time'] ?? ''),
+                'duration' => isset($row['duration']) && $row['duration'] !== '' ? (int) $row['duration'] : null,
                 'title' => trim($row['title'] ?? ''),
                 'role' => trim($row['role'] ?? ''),
                 'names' => trim($row['names'] ?? ''),
@@ -309,15 +399,7 @@ class ModuleController
             ->filter(fn($segment) => $segment['topic'] !== '' || $segment['youtube_url'] !== '')
             ->values();
 
-        $firstPerson = $agendaRows->firstWhere('type', 'person');
-        if ($firstPerson) {
-            $module->speaker_name = $firstPerson['names'];
-            $module->speaker_designation = $firstPerson['role'] ?: $module->speaker_designation;
-            $module->speaker_hospital = null;
-        }
-
-        collect($module->speakers ?? [])->pluck('image')->filter()->each(fn($image) => $this->deleteFile($image));
-        $module->speakers = $agendaRows->all();
+        $module->agenda = $agendaRows->all();
         $module->archive_segments = $archiveSegments->all();
         $module->save();
 
@@ -476,7 +558,7 @@ class ModuleController
         $removeIds = $request->input('remove_resources', []);
         if (!empty($removeIds)) {
             $module->resourceDocuments()->whereIn('id', $removeIds)->get()->each(function (ModuleResource $resource) {
-                $this->deleteResourceFile($resource);
+                $this->deleteResourceAssets($resource);
                 $resource->delete();
             });
         }
@@ -493,27 +575,63 @@ class ModuleController
             }
 
             $resource->label = trim((string) $label);
+            $resource->description = trim((string) $request->input("existing_resource_descriptions.$resourceId", ''));
+            $resource->category = $request->input("existing_resource_categories.$resourceId", 'general');
+            $resource->resource_type = $request->input("existing_resource_types.$resourceId", 'auto');
+            $resource->available_at = $request->filled("existing_resource_available_at.$resourceId")
+                ? CarbonImmutable::parse($request->input("existing_resource_available_at.$resourceId"), 'Asia/Kolkata')->utc()
+                : null;
+            $resource->status = $request->input("existing_resource_statuses.$resourceId", 'active');
+            $externalUrl = trim((string) $request->input("existing_resource_urls.$resourceId", ''));
+
+            if ($request->hasFile("existing_resource_thumbnails.$resourceId")) {
+                $this->deleteFile($resource->thumbnail);
+                $resource->thumbnail = $request->file("existing_resource_thumbnails.$resourceId")
+                    ->store('uploads/module-resources/thumbnails', 'public');
+            }
 
             if ($request->hasFile("existing_resource_files.$resourceId")) {
                 $this->deleteResourceFile($resource);
                 $file = $request->file("existing_resource_files.$resourceId");
                 $resource->file = $file->store('uploads/module-resources', 'public');
                 $resource->file_type = $file->getClientOriginalExtension();
+                $resource->external_url = null;
+            } elseif ($externalUrl !== '') {
+                $this->deleteResourceFile($resource);
+                $resource->file = null;
+                $resource->file_type = pathinfo(parse_url($externalUrl, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION) ?: 'url';
+                $resource->external_url = $externalUrl;
             }
 
             $resource->save();
         }
 
-        foreach ($request->file('resource_files', []) as $index => $file) {
-            $label = trim((string)$request->input("resource_labels.$index"));
+        foreach ($request->input('resource_labels', []) as $index => $resourceLabel) {
+            $label = trim((string) $resourceLabel);
             if ($label === '') {
                 continue;
             }
 
+            $file = $request->file("resource_files.$index");
+            $thumbnail = $request->file("resource_thumbnails.$index");
+            $externalUrl = trim((string) $request->input("resource_urls.$index", ''));
+            $path = $file?->store('uploads/module-resources', 'public');
+
             $module->resourceDocuments()->create([
                 'label' => $label,
-                'file' => $file->store('uploads/module-resources', 'public'),
-                'file_type' => $file->getClientOriginalExtension(),
+                'description' => trim((string) $request->input("resource_descriptions.$index", '')),
+                'category' => $request->input("resource_categories.$index", 'general'),
+                'resource_type' => $request->input("resource_types.$index", 'auto'),
+                'file' => $path,
+                'external_url' => $file ? null : $externalUrl,
+                'thumbnail' => $thumbnail?->store('uploads/module-resources/thumbnails', 'public'),
+                'file_type' => $file?->getClientOriginalExtension()
+                    ?: (pathinfo(parse_url($externalUrl, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION) ?: 'url'),
+                'available_at' => $request->filled("resource_available_at.$index")
+                    ? CarbonImmutable::parse($request->input("resource_available_at.$index"), 'Asia/Kolkata')->utc()
+                    : null,
+                'status' => $request->input("resource_statuses.$index", 'active'),
+                'sort_order' => $index,
             ]);
         }
     }
@@ -521,8 +639,14 @@ class ModuleController
     private function deleteResources(Module $module): void
     {
         $module->resourceDocuments()->get()->each(function (ModuleResource $resource) {
-            $this->deleteResourceFile($resource);
+            $this->deleteResourceAssets($resource);
         });
+    }
+
+    private function deleteResourceAssets(ModuleResource $resource): void
+    {
+        $this->deleteResourceFile($resource);
+        $this->deleteFile($resource->thumbnail);
     }
 
     private function deleteResourceFile(ModuleResource $resource): void

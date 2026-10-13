@@ -2,10 +2,12 @@
 
 @section('content')
     @php
-        $storedAgendaRows = collect($module->speakers ?: [])->map(function ($row) {
+        $storedAgendaRows = collect($module->agenda ?: [])->map(function ($row) {
             if (isset($row['name']) && !isset($row['names'])) {
                 return [
                     'type' => 'person',
+                    'time' => '',
+                    'duration' => '',
                     'title' => '',
                     'role' => $row['designation'] ?? 'Speaker',
                     'names' => $row['name'] ?? '',
@@ -15,9 +17,9 @@
             return $row;
         })->values()->all();
         $agendaRows = old('agenda', $storedAgendaRows ?: [
-            ['type' => 'section', 'title' => 'Lecture : ', 'role' => '', 'names' => ''],
-            ['type' => 'person', 'title' => '', 'role' => 'Chairs', 'names' => ''],
-            ['type' => 'person', 'title' => '', 'role' => 'Speaker', 'names' => ''],
+            ['type' => 'section', 'time' => '', 'duration' => '', 'title' => 'Lecture : ', 'role' => '', 'names' => ''],
+            ['type' => 'person', 'time' => '', 'duration' => '', 'title' => '', 'role' => 'Chairs', 'names' => ''],
+            ['type' => 'person', 'time' => '', 'duration' => '', 'title' => '', 'role' => 'Speaker', 'names' => ''],
         ]);
         $archiveSegments = old('archive_segments', $module->archive_segments ?: [
             ['topic' => '', 'youtube_url' => $module->video_url, 'start_time' => ''],
@@ -77,15 +79,23 @@
                                                     <option value="person" {{ ($row['type'] ?? 'person') === 'person' ? 'selected' : '' }}>Person</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-4 agenda-title-wrap">
+                                            <div class="col-md-2">
+                                                <label class="form-label">Time</label>
+                                                <input type="time" name="agenda[{{ $index }}][time]" value="{{ $row['time'] ?? '' }}" class="form-control form-control-solid agenda-time">
+                                            </div>
+                                            <div class="col-md-1">
+                                                <label class="form-label">Minutes</label>
+                                                <input type="number" min="1" max="1440" name="agenda[{{ $index }}][duration]" value="{{ $row['duration'] ?? '' }}" class="form-control form-control-solid agenda-duration" placeholder="15">
+                                            </div>
+                                            <div class="col-md-3 agenda-title-wrap">
                                                 <label class="form-label">Topic / Session Title</label>
                                                 <input type="text" name="agenda[{{ $index }}][title]" value="{{ $row['title'] ?? '' }}" class="form-control form-control-solid agenda-title" placeholder="Lecture : Dilemmas in Endometriosis">
                                             </div>
-                                            <div class="col-md-2 agenda-role-wrap">
+                                            <div class="col-md-1 agenda-role-wrap">
                                                 <label class="form-label">Role</label>
                                                 <input type="text" name="agenda[{{ $index }}][role]" value="{{ $row['role'] ?? '' }}" class="form-control form-control-solid agenda-role" placeholder="Chairs">
                                             </div>
-                                            <div class="col-md-3 agenda-names-wrap">
+                                            <div class="col-md-2 agenda-names-wrap">
                                                 <label class="form-label">Names</label>
                                                 <textarea name="agenda[{{ $index }}][names]" rows="1" class="form-control form-control-solid agenda-names" placeholder="Name, Name">{{ $row['names'] ?? '' }}</textarea>
                                             </div>
@@ -170,15 +180,17 @@
                 preview.innerHTML = '';
                 agendaRows.querySelectorAll('.agenda-row').forEach(row => {
                     const type = row.querySelector('.agenda-type').value;
+                    const time = row.querySelector('.agenda-time').value;
+                    const duration = row.querySelector('.agenda-duration').value;
                     const title = row.querySelector('.agenda-title').value.trim();
                     const role = row.querySelector('.agenda-role').value.trim();
                     const names = row.querySelector('.agenda-names').value.trim();
                     if (!title && !role && !names) return;
 
                     if (type === 'section') {
-                        preview.insertAdjacentHTML('beforeend', `<tr class="agenda-preview-section"><td colspan="2">${title || '&nbsp;'}</td></tr>`);
+                        preview.insertAdjacentHTML('beforeend', `<tr class="agenda-preview-section"><td>${time || '&nbsp;'}</td><td>${duration ? duration + ' min' : '&nbsp;'}</td><td colspan="2">${title || '&nbsp;'}</td></tr>`);
                     } else {
-                        preview.insertAdjacentHTML('beforeend', `<tr><th>${role || '&nbsp;'}</th><td>${names || '&nbsp;'}</td></tr>`);
+                        preview.insertAdjacentHTML('beforeend', `<tr><td>${time || '&nbsp;'}</td><td>${duration ? duration + ' min' : '&nbsp;'}</td><th>${role || '&nbsp;'}</th><td>${names || title || '&nbsp;'}</td></tr>`);
                     }
                 });
             }
@@ -194,15 +206,23 @@
                                 <option value="person" ${type === 'person' ? 'selected' : ''}>Person</option>
                             </select>
                         </div>
-                        <div class="col-md-4 agenda-title-wrap">
+                        <div class="col-md-2">
+                            <label class="form-label">Time</label>
+                            <input type="time" name="agenda[${index}][time]" class="form-control form-control-solid agenda-time">
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label">Minutes</label>
+                            <input type="number" min="1" max="1440" name="agenda[${index}][duration]" class="form-control form-control-solid agenda-duration" placeholder="15">
+                        </div>
+                        <div class="col-md-3 agenda-title-wrap">
                             <label class="form-label">Topic / Session Title</label>
                             <input type="text" name="agenda[${index}][title]" class="form-control form-control-solid agenda-title" placeholder="Point of View : Surgical Management">
                         </div>
-                        <div class="col-md-2 agenda-role-wrap">
+                        <div class="col-md-1 agenda-role-wrap">
                             <label class="form-label">Role</label>
                             <input type="text" name="agenda[${index}][role]" class="form-control form-control-solid agenda-role" placeholder="Moderator">
                         </div>
-                        <div class="col-md-3 agenda-names-wrap">
+                        <div class="col-md-2 agenda-names-wrap">
                             <label class="form-label">Names</label>
                             <textarea name="agenda[${index}][names]" rows="1" class="form-control form-control-solid agenda-names" placeholder="Name, Name"></textarea>
                         </div>

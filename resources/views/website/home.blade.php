@@ -19,6 +19,7 @@
         'start_iso' => $programModule?->start_at_utc_iso ?? '2026-11-20T10:30:00+00:00',
         'speaker' => $programModule?->speaker_name ?? 'Prof. Siegfried Kasper',
     ];
+    $showLandingLogin = session('show_login') || old('login_context') === 'landing';
 @endphp
 
 <div class="page depth-page">
@@ -28,10 +29,12 @@
                 <img class="logo-hetero" src="{{ $depthAsset('hetero.png') }}" alt="Hetero">
             </a>
             <nav class="hdr-nav" aria-label="Primary navigation">
-                <a href="{{ auth('web')->check() ? route('course.dashboard') : '#register' }}">Program</a>
+                <a href="#program">Program</a>
                 @auth('web')
                     <a class="btn btn-line sm" href="{{ route('dashboard') }}">Dashboard</a>
+                    <a class="btn btn-grad sm" href="{{ route('logout') }}">Log out</a>
                 @else
+                    <a href="#register" data-show-login>Log in</a>
                     <a class="btn btn-grad sm" href="#register">Register now</a>
                 @endauth
             </nav>
@@ -48,11 +51,29 @@
                         <p class="hero-it">{{ $event['tagline'] }}</p>
                         <p class="hero-sub">An expert-led clinical session combining evidence, case-based insights and practical approaches to recognising, diagnosing and managing depression in primary care.</p>
                         <ul class="hero-line"><li>Recognise the signs</li><li>Close the gaps</li><li>Transform care</li></ul>
-                        <div class="btn-row"><a class="btn btn-grad lg" href="#register">Register now &rarr;</a><a class="btn btn-line lg" href="{{ auth('web')->check() ? route('course.dashboard') : '#register' }}">Explore the program</a></div>
+                        @auth('web')
+                            <div class="btn-row"><a class="btn btn-grad lg" href="{{ route('modules') }}">Open learning &rarr;</a><a class="btn btn-line lg" href="#program">Explore the program</a></div>
+                        @else
+                            <div class="btn-row"><a class="btn btn-grad lg" href="#register">Register now &rarr;</a><a class="btn btn-line lg" href="#program">Explore the program</a></div>
+                        @endauth
                     </div>
 
                     <aside class="hero-form" id="register">
-                        <div class="reg-card">
+                        @auth('web')
+                        <div class="reg-card landing-member-card">
+                            <div class="reg-head">
+                                <span class="landing-auth-eyebrow">You are signed in</span>
+                                <h2>Welcome back, {{ auth('web')->user()->name }}</h2>
+                                <p>Continue your DEPTH learning journey, open the active chapter or review the programme below.</p>
+                            </div>
+                            <div class="landing-member-actions">
+                                <a class="btn btn-grad lg wide" href="{{ route('modules') }}">Open learning chapter &rarr;</a>
+                                <a class="btn btn-line lg wide" href="#program">View programme</a>
+                                <a class="landing-logout-link" href="{{ route('logout') }}">Log out</a>
+                            </div>
+                        </div>
+                        @else
+                        <div class="reg-card" id="landing-registration-card" @if($showLandingLogin) hidden @endif>
                             <div class="reg-head">
                                 <h2>Register for the DEPTH Series</h2>
                                 <p>Join an expert-led session exploring practical approaches to recognising, assessing and managing depression through evidence and case-based discussion. Free for healthcare professionals.</p>
@@ -78,9 +99,25 @@
                                     <span class="tel-row micro-mobile-group"><select class="input isd" id="homepage-mobile-country" aria-label="Mobile country code"><option value="{{ old('mobile_country_iso', 'in') }}" data-dial="{{ old('mobile_country_code', '91') }}">+{{ old('mobile_country_code', '91') }}</option></select><input class="input" id="homepage-mobile-number" type="tel" name="mobile_number" value="{{ old('mobile_number') }}" autocomplete="tel-national" inputmode="numeric" placeholder="0000000000" required></span>
                                 </label>
                                 <label class="consent epic-consent span2"><input type="checkbox" name="consent" value="1" @checked(old('consent')) required><span>I consent to receive communication about this program and related educational content from Hetero. <em>*</em></span></label>
-                                <div class="reg-actions span2"><button type="submit" class="btn btn-grad lg wide">Complete registration &rarr;</button><div class="hint">Already registered? <a class="link" href="{{ route('login') }}">Log in</a></div></div>
+                                <div class="reg-actions span2"><button type="submit" class="btn btn-grad lg wide">Complete registration &rarr;</button><div class="hint">Already registered? <button class="link" type="button" data-show-login>Log in</button></div></div>
                             </form>
                         </div>
+                        <div class="reg-card" id="landing-login-card" @unless($showLandingLogin) hidden @endunless>
+                            <div class="reg-head">
+                                <h2>Welcome back</h2>
+                                <p>Enter your registered email address to continue your DEPTH learning journey. No password is required.</p>
+                            </div>
+                            @if($showLandingLogin && (session('error') || $errors->has('email')))
+                                <div class="landing-auth-alert" role="alert">{{ session('error') ?: $errors->first('email') }}</div>
+                            @endif
+                            <form method="POST" action="{{ route('login.post') }}" id="landingLoginForm" class="reg landing-login-form">
+                                @csrf
+                                <input type="hidden" name="login_context" value="landing">
+                                <label class="field span2"><span>Email ID <em>*</em></span><input class="input" id="landing-login-email" type="email" name="email" value="{{ $showLandingLogin ? old('email') : '' }}" autocomplete="email" placeholder="name@hospital.org" required autofocus></label>
+                                <div class="reg-actions span2"><button type="submit" class="btn btn-grad lg wide">Log in &rarr;</button><div class="hint">New to DEPTH? <button class="link" type="button" data-show-register>Register now</button></div></div>
+                            </form>
+                        </div>
+                        @endauth
                     </aside>
                 </div>
 
@@ -155,6 +192,7 @@
 <link rel="stylesheet" href="{{ asset('web/depth/style.css') }}?v={{ filemtime(public_path('web/depth/style.css')) }}">
 <style>
 .depth-page .logo-hetero{height:48px;width:auto}.depth-page .trust-row.solo .t-hetero{height:44px}.depth-page .arm-logos .a-hetero{height:34px}.depth-page .micro-error{display:block;color:#b8141b;font-size:12px;margin-top:5px}.depth-page .input.is-invalid{border-color:#b8141b}.depth-page #register{scroll-margin-top:100px}
+.depth-page .landing-login-form{grid-template-columns:1fr}.depth-page .landing-auth-alert{margin:0 24px 18px;padding:11px 13px;border:1px solid #f1b8bc;border-radius:9px;background:#fff1f2;color:#a01016;font-size:13px;line-height:1.45}.depth-page .landing-auth-eyebrow{display:inline-block;margin-bottom:10px;color:#c4161c;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.depth-page .landing-member-actions{display:grid;gap:12px;padding:0 24px 24px}.depth-page .landing-logout-link{text-align:center;color:#6b7080;font-size:13px;font-weight:700}.depth-page .landing-logout-link:hover{color:#b8141b}.depth-page button.link{appearance:none;border:0;background:none;padding:0}
 @media(max-width:760px){.depth-page .hdr-in{flex-wrap:nowrap}.depth-page .logo-hetero{height:36px}.depth-page .trust-row.solo .t-hetero{height:38px}.depth-page .arm-logos .a-hetero{height:30px}.depth-page .hdr-nav>a:not(.btn){display:none}}
 </style>
 @endpush
@@ -164,4 +202,31 @@
 <script src="https://cdn.jsdelivr.net/npm/country-telephone-data@0.6.3/country_telephone_data.js"></script>
 <script>window.countryTelData=window.countryTelData||window.module.exports||{};delete window.module;delete window.exports;</script>
 <script src="{{ asset('web/js/ean-microsite.js') }}?v={{ filemtime(public_path('web/js/ean-microsite.js')) }}"></script>
+<script>
+(() => {
+    const registrationCard = document.getElementById('landing-registration-card');
+    const loginCard = document.getElementById('landing-login-card');
+    if (!registrationCard || !loginCard) return;
+
+    const setLandingAuthMode = (showLogin, focusField = true) => {
+        registrationCard.hidden = showLogin;
+        loginCard.hidden = !showLogin;
+        if (focusField) {
+            const target = showLogin ? document.getElementById('landing-login-email') : document.getElementById('homepage-name');
+            window.setTimeout(() => target?.focus(), 50);
+        }
+    };
+
+    document.addEventListener('click', (event) => {
+        const loginTrigger = event.target.closest('[data-show-login]');
+        const registerTrigger = event.target.closest('[data-show-register]');
+        if (!loginTrigger && !registerTrigger) return;
+        event.preventDefault();
+        setLandingAuthMode(Boolean(loginTrigger));
+        document.getElementById('register')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    setLandingAuthMode(@json($showLandingLogin), false);
+})();
+</script>
 @endpush

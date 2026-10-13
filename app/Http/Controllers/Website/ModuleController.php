@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Website;
 
-use App\Events\ModuleCommentCreated;
 use App\Models\CommentUpvote;
 use App\Support\CertificatePdf;
 use App\Models\Comments;
@@ -47,7 +46,7 @@ class ModuleController
 
         $activeCourse = Course::active()->first();
         abort_if(!$activeCourse, 404);
-        $module = Module::active()->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
+        $module = Module::active()->with('resourceDocuments')->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
 
 //        if (!$module->isAvailable()) {
 //            return redirect()->route('modules')->with('error', 'This chapter is not available for today');
@@ -76,17 +75,12 @@ class ModuleController
             ]),
             'commentsCount' => Comments::published()
                 ->where('episode_id', $module->id)
-                ->whereNull('comment_id')
                 ->count(),
             'comments' => Comments::published()
-                ->with(['user', 'replies' => fn($query) => $this->commentRelations($query->published()->oldest())])
-                ->withCount('upvotes')
-                ->withExists(['upvotes as upvoted_by_user' => fn($query) => $query->where('user_id', Auth::guard('web')->id())])
+                ->with('user')
                 ->where('episode_id', $module->id)
-                ->whereNull('comment_id')
-                ->orderByDesc('upvotes_count')
                 ->orderByDesc('id')
-                ->take(6)
+                ->take(20)
                 ->get(),
         ]);
     }
@@ -102,15 +96,11 @@ class ModuleController
 
         $module = Module::active()->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
         $offset = max(0, (int) $request->query('offset', 0));
-        $limit = 6;
+        $limit = 20;
 
         $query = Comments::published()
-            ->with(['user', 'replies' => fn($replyQuery) => $this->commentRelations($replyQuery->published()->oldest())])
-            ->withCount('upvotes')
-            ->withExists(['upvotes as upvoted_by_user' => fn($upvoteQuery) => $upvoteQuery->where('user_id', Auth::guard('web')->id())])
+            ->with('user')
             ->where('episode_id', $module->id)
-            ->whereNull('comment_id')
-            ->orderByDesc('upvotes_count')
             ->orderByDesc('id');
 
         $comments = $query->skip($offset)->take($limit + 1)->get();
@@ -121,14 +111,6 @@ class ModuleController
             'comments' => $comments->map(fn($comment) => $this->commentPayload($comment)),
             'has_more' => $hasMore,
         ]);
-    }
-
-    private function commentRelations($query)
-    {
-        return $query
-            ->with('user')
-            ->withCount('upvotes')
-            ->withExists(['upvotes as upvoted_by_user' => fn($upvoteQuery) => $upvoteQuery->where('user_id', Auth::guard('web')->id())]);
     }
 
     public function storeComment(Request $request, $slug)
@@ -144,27 +126,21 @@ class ModuleController
 
         $validated = $request->validate([
             'comment' => ['required', 'string', 'max:1000'],
-            'comment_id' => ['nullable', 'integer'],
         ]);
-
-        $parentComment = null;
-
-        if (!empty($validated['comment_id'])) {
-            $parentComment = Comments::published()
-                ->where('episode_id', $module->id)
-                ->whereNull('comment_id')
-                ->findOrFail($validated['comment_id']);
-        }
 
         $comment = Comments::create([
             'episode_id' => $module->id,
             'user_id' => Auth::guard('web')->id(),
-            'comment_id' => $parentComment?->id,
+            'comment_id' => null,
             'comment' => trim($validated['comment']),
             'status' => 'publish',
         ])->load('user');
 
-        broadcast(new ModuleCommentCreated($comment))->toOthers();
+        if (!$request->expectsJson()) {
+            return redirect()
+                ->route('modules.show', $module->slug)
+                ->with('success', 'Comment posted successfully.');
+        }
 
         return response()->json([
             'success' => true,
@@ -215,11 +191,6 @@ class ModuleController
             'initial' => mb_substr($comment->user?->name ?: 'D', 0, 1),
             'comment' => $comment->comment,
             'created_at' => $comment->created_at?->diffForHumans() ?: 'just now',
-            'upvotes_count' => (int) ($comment->upvotes_count ?? 0),
-            'upvoted_by_user' => (bool) ($comment->upvoted_by_user ?? false),
-            'replies' => $comment->relationLoaded('replies')
-                ? $comment->replies->map(fn($reply) => $this->commentPayload($reply))->values()
-                : [],
         ];
     }
 

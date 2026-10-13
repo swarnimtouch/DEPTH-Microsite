@@ -59,10 +59,54 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-6">
-                                <label class="col-lg-3 col-form-label fw-bold fs-6"><span class="required">Designation</span></label>
+                            @php
+                                $defaultSpeaker = [
+                                    'name' => $module->speaker_name,
+                                    'role' => 'Speaker',
+                                    'current_position' => $module->speaker_designation,
+                                    'designation' => $module->speaker_designation,
+                                    'hospital' => $module->speaker_hospital,
+                                    'country' => '',
+                                    'city' => '',
+                                    'bio' => '',
+                                    'expertise' => '',
+                                    'session_title' => $module->title,
+                                    'profile_resource_url' => '',
+                                    'image' => null,
+                                ];
+                                $speakerRows = old('speakers', $module->speakers ?: [$defaultSpeaker]);
+                            @endphp
+                            <div class="row mb-8">
+                                <label class="col-lg-3 col-form-label fw-bold fs-6"><span class="required">Speakers</span></label>
                                 <div class="col-lg-9">
-                                    <input type="text" name="speaker_designation" value="{{ old('speaker_designation', $module->speaker_designation) }}" class="form-control form-control-lg form-control-solid" placeholder="Senior Endocrinologist"/>
+                                    <div id="speakerRows">
+                                        @foreach($speakerRows as $index => $speaker)
+                                            <div class="speaker-row border rounded p-4 mb-4" data-speaker-index="{{ $index }}">
+                                                <div class="row g-3">
+                                                    <div class="col-md-5"><label class="form-label">Speaker Name</label><input type="text" name="speakers[{{ $index }}][name]" value="{{ $speaker['name'] ?? '' }}" class="form-control form-control-solid" placeholder="Prof. Speaker Name" required></div>
+                                                    <div class="col-md-3"><label class="form-label">Role</label><input type="text" name="speakers[{{ $index }}][role]" value="{{ $speaker['role'] ?? 'Speaker' }}" class="form-control form-control-solid" placeholder="Speaker"></div>
+                                                    <div class="col-md-3"><label class="form-label">Designation</label><input type="text" name="speakers[{{ $index }}][designation]" value="{{ $speaker['designation'] ?? '' }}" class="form-control form-control-solid" placeholder="Professor of Psychiatry" required></div>
+                                                    <div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-light-danger remove-speaker-row w-100">X</button></div>
+                                                    <div class="col-md-6"><label class="form-label">Institution / Hospital</label><input type="text" name="speakers[{{ $index }}][hospital]" value="{{ $speaker['hospital'] ?? '' }}" class="form-control form-control-solid" placeholder="Medical University / Hospital"></div>
+                                                    <div class="col-md-6"><label class="form-label">Areas of Expertise</label><input type="text" name="speakers[{{ $index }}][expertise]" value="{{ is_array($speaker['expertise'] ?? null) ? implode(', ', $speaker['expertise']) : ($speaker['expertise'] ?? '') }}" class="form-control form-control-solid" placeholder="Depression, Psychopharmacology"></div>
+                                                    <div class="col-md-6"><label class="form-label">Current Position</label><input type="text" name="speakers[{{ $index }}][current_position]" value="{{ $speaker['current_position'] ?? '' }}" class="form-control form-control-solid" placeholder="Professor Emeritus of Psychiatry"></div>
+                                                    <div class="col-md-3"><label class="form-label">Country</label><input type="text" name="speakers[{{ $index }}][country]" value="{{ $speaker['country'] ?? '' }}" class="form-control form-control-solid" placeholder="Austria"></div>
+                                                    <div class="col-md-3"><label class="form-label">City</label><input type="text" name="speakers[{{ $index }}][city]" value="{{ $speaker['city'] ?? '' }}" class="form-control form-control-solid" placeholder="Vienna"></div>
+                                                    <div class="col-md-6"><label class="form-label">Session</label><input type="text" name="speakers[{{ $index }}][session_title]" value="{{ $speaker['session_title'] ?? $module->title }}" class="form-control form-control-solid" placeholder="Session title"></div>
+                                                    <div class="col-md-6"><label class="form-label">Speaker Resource URL</label><input type="url" name="speakers[{{ $index }}][profile_resource_url]" value="{{ $speaker['profile_resource_url'] ?? '' }}" class="form-control form-control-solid" placeholder="Profile PDF or reference URL"></div>
+                                                    <div class="col-md-8"><label class="form-label">Biography</label><textarea name="speakers[{{ $index }}][bio]" rows="4" class="form-control form-control-solid" placeholder="Speaker profile and experience">{{ $speaker['bio'] ?? '' }}</textarea></div>
+                                                    <div class="col-md-4">
+                                                        <label class="form-label">Speaker Image</label>
+                                                        @if(!empty($speaker['image']))<div class="mb-2"><img src="{{ str_starts_with($speaker['image'], 'web/') ? asset($speaker['image']) : asset('storage/' . $speaker['image']) }}" alt="{{ $speaker['name'] ?? 'Speaker' }}" class="rounded" style="width:90px;height:90px;object-fit:cover"></div>@endif
+                                                        <input type="hidden" name="speakers[{{ $index }}][image]" value="{{ $speaker['image'] ?? '' }}">
+                                                        <input type="file" name="speaker_images[{{ $index }}]" class="form-control form-control-solid" accept=".jpg,.jpeg,.png,.webp">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <button type="button" class="btn btn-light-primary btn-sm" id="addSpeakerRow">Add Speaker</button>
+                                    <div class="form-text">Each speaker is managed inside this chapter and appears automatically on the participant Speaker tab.</div>
                                 </div>
                             </div>
 
@@ -135,10 +179,15 @@
                             </div>
 
                             <div class="row mb-6">
-                                <label class="col-lg-3 col-form-label fw-bold fs-6"><span class="required">YouTube Link</span></label>
+                                <label class="col-lg-3 col-form-label fw-bold fs-6">Full Session Video</label>
                                 <div class="col-lg-9">
                                     <input type="url" name="video_url" value="{{ old('video_url', $module->video_url) }}" class="form-control form-control-lg form-control-solid" placeholder="https://www.youtube.com/watch?v=..."/>
                                 </div>
+                            </div>
+
+                            <div class="row mb-6">
+                                <label class="col-lg-3 col-form-label fw-bold fs-6">Live Webinar Join URL</label>
+                                <div class="col-lg-9"><input type="url" name="join_url" value="{{ old('join_url', $module->join_url) }}" class="form-control form-control-lg form-control-solid" placeholder="https://meeting-provider.example/session"></div>
                             </div>
 
                             <div class="row mb-6">
@@ -156,33 +205,47 @@
                             </div>
 
                             <div class="row mb-6">
-                                <label class="col-lg-3 col-form-label fw-bold fs-6">Resource Documents</label>
+                                <label class="col-lg-3 col-form-label fw-bold fs-6">Chapter Resources</label>
                                 <div class="col-lg-9">
                                     @if($module->resourceDocuments->isNotEmpty())
                                         <div class="mb-4">
                                             @foreach($module->resourceDocuments as $resource)
                                                 <div class="bg-light rounded p-3 mb-3">
                                                     <div class="row g-3 align-items-end">
-                                                        <div class="col-md-4">
+                                                        <div class="col-md-5">
                                                             <label class="form-label">Resource Label</label>
                                                             <input type="text" name="existing_resource_labels[{{ $resource->id }}]" value="{{ old('existing_resource_labels.' . $resource->id, $resource->label) }}" class="form-control form-control-lg form-control-solid">
                                                         </div>
                                                         <div class="col-md-4">
-                                                            <label class="form-label">Replace File</label>
-                                                            <input type="file" name="existing_resource_files[{{ $resource->id }}]" class="form-control form-control-lg form-control-solid" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp">
+                                                            <label class="form-label">Category</label>
+                                                            <select name="existing_resource_categories[{{ $resource->id }}]" class="form-select form-select-lg form-select-solid">
+                                                                @foreach(['full_recording' => 'Full Webinar Recording', 'post_read' => 'Post-read / PDF', 'snippet_video' => 'Snippet Video', 'case_book' => 'Case Booklet', 'general' => 'General Resource'] as $value => $label)
+                                                                    <option value="{{ $value }}" @selected(old('existing_resource_categories.' . $resource->id, $resource->category ?: 'general') === $value)>{{ $label }}</option>
+                                                                @endforeach
+                                                            </select>
                                                         </div>
-                                                        <div class="col-md-2">
-                                                            <label class="form-label">Current File</label>
-                                                            <a href="{{ asset('storage/' . $resource->file) }}" target="_blank" class="btn btn-light-primary w-100">
-                                                                {{ strtoupper($resource->file_type) }}
-                                                            </a>
-                                                        </div>
-                                                        <div class="col-md-2">
+                                                        <div class="col-md-3"><label class="form-label">Type</label><select name="existing_resource_types[{{ $resource->id }}]" class="form-select form-select-lg form-select-solid">@foreach(['auto'=>'Auto detect','pdf'=>'PDF','video'=>'Video','url'=>'External link'] as $value=>$label)<option value="{{ $value }}" @selected(old('existing_resource_types.' . $resource->id, $resource->resource_type ?: 'auto') === $value)>{{ $label }}</option>@endforeach</select></div>
+                                                        <div class="col-md-3">
                                                             <label class="form-check form-check-sm form-check-custom form-check-solid mb-3">
                                                                 <input class="form-check-input" type="checkbox" name="remove_resources[]" value="{{ $resource->id }}">
                                                                 <span class="form-check-label">Remove</span>
                                                             </label>
                                                         </div>
+                                                        <div class="col-12"><label class="form-label">Description</label><textarea name="existing_resource_descriptions[{{ $resource->id }}]" rows="2" class="form-control form-control-solid" placeholder="Short resource description">{{ old('existing_resource_descriptions.' . $resource->id, $resource->description) }}</textarea></div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Upload / Replace File or Video</label>
+                                                            <input type="file" name="existing_resource_files[{{ $resource->id }}]" class="form-control form-control-lg form-control-solid" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.mp4,.webm,.mov">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Or External / Embed URL</label>
+                                                            <input type="url" name="existing_resource_urls[{{ $resource->id }}]" value="{{ old('existing_resource_urls.' . $resource->id, $resource->external_url) }}" class="form-control form-control-lg form-control-solid" placeholder="https://youtube.com/watch?v=...">
+                                                        </div>
+                                                        <div class="col-md-4"><label class="form-label">Available From</label><input type="text" name="existing_resource_available_at[{{ $resource->id }}]" value="{{ old('existing_resource_available_at.' . $resource->id, $resource->getRawOriginal('available_at') ? \Carbon\CarbonImmutable::parse($resource->getRawOriginal('available_at'), 'UTC')->setTimezone('Asia/Kolkata')->format('Y-m-d H:i') : '') }}" class="form-control form-control-solid module-datetime" placeholder="Optional"></div>
+                                                        <div class="col-md-4"><label class="form-label">Status</label><select name="existing_resource_statuses[{{ $resource->id }}]" class="form-select form-select-solid"><option value="active" @selected($resource->status === 'active')>Active</option><option value="inactive" @selected($resource->status === 'inactive')>Inactive</option></select></div>
+                                                        <div class="col-md-4"><label class="form-label">Thumbnail</label>@if($resource->thumbnail)<img src="{{ asset('storage/' . $resource->thumbnail) }}" alt="" class="d-block rounded mb-2" style="width:100px;height:60px;object-fit:cover">@endif<input type="file" name="existing_resource_thumbnails[{{ $resource->id }}]" class="form-control form-control-solid" accept=".jpg,.jpeg,.png,.webp"></div>
+                                                        @if($resource->file || $resource->external_url)
+                                                            <div class="col-12"><a href="{{ $resource->external_url ?: asset('storage/' . $resource->file) }}" target="_blank" class="btn btn-light-primary btn-sm">Open current {{ strtoupper($resource->file_type ?: 'resource') }}</a></div>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             @endforeach
@@ -190,20 +253,29 @@
                                     @endif
 
                                     <div id="resourceRows">
-                                        <div class="row g-3 mb-3 resource-row">
+                                        <div class="row g-3 mb-4 resource-row border rounded p-4">
                                             <div class="col-md-5">
-                                                <input type="text" name="resource_labels[]" class="form-control form-control-lg form-control-solid" placeholder="Resource label">
+                                                <label class="form-label">Resource Label</label>
+                                                <input type="text" name="resource_labels[0]" class="form-control form-control-lg form-control-solid" placeholder="Resource label">
                                             </div>
                                             <div class="col-md-6">
-                                                <input type="file" name="resource_files[]" class="form-control form-control-lg form-control-solid" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp">
+                                                <label class="form-label">Category</label>
+                                                <select name="resource_categories[0]" class="form-select form-select-lg form-select-solid"><option value="full_recording">Full Webinar Recording</option><option value="post_read">Post-read / PDF</option><option value="snippet_video">Snippet Video</option><option value="case_book">Case Booklet</option><option value="general" selected>General Resource</option></select>
                                             </div>
-                                            <div class="col-md-1 d-flex align-items-center">
+                                            <div class="col-md-3"><label class="form-label">Type</label><select name="resource_types[0]" class="form-select form-select-lg form-select-solid"><option value="auto">Auto detect</option><option value="pdf">PDF</option><option value="video">Video</option><option value="url">External link</option></select></div>
+                                            <div class="col-md-2"><label class="form-label">Status</label><select name="resource_statuses[0]" class="form-select form-select-lg form-select-solid"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                                            <div class="col-md-1 d-flex align-items-end">
                                                 <button type="button" class="btn btn-sm btn-light-danger remove-resource-row">X</button>
                                             </div>
+                                            <div class="col-12"><label class="form-label">Description</label><textarea name="resource_descriptions[0]" rows="2" class="form-control form-control-solid" placeholder="Short resource description"></textarea></div>
+                                            <div class="col-md-6"><label class="form-label">Upload File / Video</label><input type="file" name="resource_files[0]" class="form-control form-control-lg form-control-solid" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.mp4,.webm,.mov"></div>
+                                            <div class="col-md-6"><label class="form-label">Or External / Embed URL</label><input type="url" name="resource_urls[0]" class="form-control form-control-lg form-control-solid" placeholder="https://youtube.com/watch?v=..."></div>
+                                            <div class="col-md-6"><label class="form-label">Available From</label><input type="text" name="resource_available_at[0]" class="form-control form-control-solid module-datetime" placeholder="Optional"></div>
+                                            <div class="col-md-6"><label class="form-label">Thumbnail</label><input type="file" name="resource_thumbnails[0]" class="form-control form-control-solid" accept=".jpg,.jpeg,.png,.webp"></div>
                                         </div>
                                     </div>
                                     <button type="button" class="btn btn-light-primary btn-sm" id="addResourceRow">Add Resource</button>
-                                    <div class="form-text">Optional. Allowed files: PDF, DOC, DOCX, JPG, PNG, WEBP.</div>
+                                    <div class="form-text">For each resource, upload one file/video or enter one external URL. Allowed uploads: PDF, DOC, DOCX, JPG, PNG, WEBP, MP4, WEBM, MOV.</div>
                                 </div>
                             </div>
 
@@ -369,11 +441,6 @@
                             notEmpty: {message: "Programme is required"}
                         }
                     },
-                    speaker_designation: {
-                        validators: {
-                            notEmpty: {message: "Designation is required"}
-                        }
-                    },
                     duration: {
                         validators: {
                             notEmpty: {message: "Duration is required"}
@@ -386,7 +453,6 @@
                     },
                     video_url: {
                         validators: {
-                            notEmpty: {message: "YouTube link is required"},
                             uri: {message: "Please enter a valid YouTube link"}
                         }
                     },
@@ -659,27 +725,82 @@
 
             refreshCertificatePreview();
 
-            $('#addResourceRow').on('click', function () {
-                $('#resourceRows').append(`
-                    <div class="row g-3 mb-3 resource-row">
-                        <div class="col-md-5">
-                            <input type="text" name="resource_labels[]" class="form-control form-control-lg form-control-solid" placeholder="Resource label">
-                        </div>
-                        <div class="col-md-6">
-                            <input type="file" name="resource_files[]" class="form-control form-control-lg form-control-solid" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp">
-                        </div>
-                        <div class="col-md-1 d-flex align-items-center">
-                            <button type="button" class="btn btn-sm btn-light-danger remove-resource-row">X</button>
+            let speakerIndex = document.querySelectorAll('#speakerRows .speaker-row').length;
+            $('#addSpeakerRow').on('click', function () {
+                const index = speakerIndex++;
+                $('#speakerRows').append(`
+                    <div class="speaker-row border rounded p-4 mb-4" data-speaker-index="${index}">
+                        <div class="row g-3">
+                            <div class="col-md-5"><label class="form-label">Speaker Name</label><input type="text" name="speakers[${index}][name]" class="form-control form-control-solid" placeholder="Prof. Speaker Name" required></div>
+                            <div class="col-md-3"><label class="form-label">Role</label><input type="text" name="speakers[${index}][role]" value="Speaker" class="form-control form-control-solid" placeholder="Speaker"></div>
+                            <div class="col-md-3"><label class="form-label">Designation</label><input type="text" name="speakers[${index}][designation]" class="form-control form-control-solid" placeholder="Professor of Psychiatry" required></div>
+                            <div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-light-danger remove-speaker-row w-100">X</button></div>
+                            <div class="col-md-6"><label class="form-label">Institution / Hospital</label><input type="text" name="speakers[${index}][hospital]" class="form-control form-control-solid" placeholder="Medical University / Hospital"></div>
+                            <div class="col-md-6"><label class="form-label">Areas of Expertise</label><input type="text" name="speakers[${index}][expertise]" class="form-control form-control-solid" placeholder="Depression, Psychopharmacology"></div>
+                            <div class="col-md-6"><label class="form-label">Current Position</label><input type="text" name="speakers[${index}][current_position]" class="form-control form-control-solid" placeholder="Professor Emeritus of Psychiatry"></div>
+                            <div class="col-md-3"><label class="form-label">Country</label><input type="text" name="speakers[${index}][country]" class="form-control form-control-solid"></div>
+                            <div class="col-md-3"><label class="form-label">City</label><input type="text" name="speakers[${index}][city]" class="form-control form-control-solid"></div>
+                            <div class="col-md-6"><label class="form-label">Session</label><input type="text" name="speakers[${index}][session_title]" class="form-control form-control-solid"></div>
+                            <div class="col-md-6"><label class="form-label">Speaker Resource URL</label><input type="url" name="speakers[${index}][profile_resource_url]" class="form-control form-control-solid" placeholder="Profile PDF or reference URL"></div>
+                            <div class="col-md-8"><label class="form-label">Biography</label><textarea name="speakers[${index}][bio]" rows="4" class="form-control form-control-solid" placeholder="Speaker profile and experience"></textarea></div>
+                            <div class="col-md-4"><label class="form-label">Speaker Image</label><input type="hidden" name="speakers[${index}][image]" value=""><input type="file" name="speaker_images[${index}]" class="form-control form-control-solid" accept=".jpg,.jpeg,.png,.webp"></div>
                         </div>
                     </div>
                 `);
             });
 
+            $(document).on('click', '.remove-speaker-row', function () {
+                if ($('#speakerRows .speaker-row').length > 1) {
+                    $(this).closest('.speaker-row').remove();
+                } else {
+                    $(this).closest('.speaker-row').find('input:not([type="hidden"]), textarea').val('');
+                    $(this).closest('.speaker-row').find('input[type="hidden"]').val('');
+                }
+            });
+
+            $('#addResourceRow').on('click', function () {
+                const index = $('#resourceRows .resource-row').length;
+                $('#resourceRows').append(`
+                    <div class="row g-3 mb-4 resource-row border rounded p-4">
+                        <div class="col-md-5">
+                            <label class="form-label">Resource Label</label>
+                            <input type="text" name="resource_labels[${index}]" class="form-control form-control-lg form-control-solid" placeholder="Resource label">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category</label>
+                            <select name="resource_categories[${index}]" class="form-select form-select-lg form-select-solid"><option value="full_recording">Full Webinar Recording</option><option value="post_read">Post-read / PDF</option><option value="snippet_video">Snippet Video</option><option value="case_book">Case Booklet</option><option value="general" selected>General Resource</option></select>
+                        </div>
+                        <div class="col-md-3"><label class="form-label">Type</label><select name="resource_types[${index}]" class="form-select form-select-lg form-select-solid"><option value="auto">Auto detect</option><option value="pdf">PDF</option><option value="video">Video</option><option value="url">External link</option></select></div>
+                        <div class="col-md-2"><label class="form-label">Status</label><select name="resource_statuses[${index}]" class="form-select form-select-lg form-select-solid"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-sm btn-light-danger remove-resource-row">X</button>
+                        </div>
+                        <div class="col-12"><label class="form-label">Description</label><textarea name="resource_descriptions[${index}]" rows="2" class="form-control form-control-solid" placeholder="Short resource description"></textarea></div>
+                        <div class="col-md-6"><label class="form-label">Upload File / Video</label><input type="file" name="resource_files[${index}]" class="form-control form-control-lg form-control-solid" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.mp4,.webm,.mov"></div>
+                        <div class="col-md-6"><label class="form-label">Or External / Embed URL</label><input type="url" name="resource_urls[${index}]" class="form-control form-control-lg form-control-solid" placeholder="https://youtube.com/watch?v=..."></div>
+                        <div class="col-md-6"><label class="form-label">Available From</label><input type="text" name="resource_available_at[${index}]" class="form-control form-control-solid module-datetime" placeholder="Optional"></div>
+                        <div class="col-md-6"><label class="form-label">Thumbnail</label><input type="file" name="resource_thumbnails[${index}]" class="form-control form-control-solid" accept=".jpg,.jpeg,.png,.webp"></div>
+                    </div>
+                `);
+                $('.module-datetime').flatpickr({enableTime: true, dateFormat: "Y-m-d H:i", altInput: true, altFormat: "d M Y, h:i K"});
+            });
+
+            function refreshResourceIndexes() {
+                $('#resourceRows .resource-row').each(function (index) {
+                    $(this).find('input, select, textarea').each(function () {
+                        this.name = this.name.replace(/resource_(labels|categories|descriptions|types|available_at|statuses|files|urls|thumbnails)\[\d+]/, `resource_$1[${index}]`);
+                    });
+                });
+            }
+
             $(document).on('click', '.remove-resource-row', function () {
                 if ($('.resource-row').length > 1) {
                     $(this).closest('.resource-row').remove();
+                    refreshResourceIndexes();
                 } else {
-                    $(this).closest('.resource-row').find('input').val('');
+                    const row = $(this).closest('.resource-row');
+                    row.find('input').val('');
+                    row.find('select').val('general');
                 }
             });
 

@@ -1,4 +1,35 @@
 @extends('layouts.website')
+@section('standalone_page', 'true')
+
+@push('styles')
+    <style>
+        .depth-room-header{position:sticky;top:0;z-index:1030;background:rgba(255,255,255,.97);border-bottom:1px solid #e1e5ec;backdrop-filter:blur(10px)}
+        .depth-room-header__top{max-width:1260px;margin:0 auto;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+        .depth-room-logo{display:block;width:auto;height:48px}
+        .depth-room-user{display:flex;align-items:center;gap:20px;color:#1f2a44;font-size:12px;font-weight:700;letter-spacing:.04em}
+        .depth-room-logout{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1px solid #d2d8e2;border-radius:10px;color:#1f2a44;text-decoration:none;text-transform:uppercase;letter-spacing:.08em;font-size:11px;font-weight:800;background:#fff}
+        .depth-room-logout:hover{border-color:#d71920;color:#d71920}
+        .depth-room-tabs{border-top:1px solid #e1e5ec;overflow-x:auto;scrollbar-width:none}
+        .depth-room-tabs::-webkit-scrollbar{display:none}
+        .depth-room-tabs__inner{max-width:1260px;margin:0 auto;padding:0 28px;display:flex;align-items:center}
+        .depth-room-tab{position:relative;display:block;padding:14px 16px;color:#6e7587;text-decoration:none;text-transform:uppercase;letter-spacing:.08em;font-size:12px;font-weight:700;white-space:nowrap}
+        .depth-room-tab:hover,.depth-room-tab.is-active{color:#1f2a44}
+        .depth-room-tab::after{content:"";position:absolute;left:16px;right:16px;bottom:0;height:2px;background:#d71920;transform:scaleX(0);transform-origin:left;transition:transform .2s ease}
+        .depth-room-tab:hover::after,.depth-room-tab.is-active::after{transform:scaleX(1)}
+        .module-comments-panel.simple-comments{border:1px solid #e1e5ec;border-radius:16px;padding:26px;margin-top:28px;box-shadow:0 10px 28px rgba(31,42,68,.05)}
+        .simple-comments .module-comments-header{padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid #e7eaf0}
+        .simple-comments .module-comment-composer{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px}
+        .simple-comments .module-comment-avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#fff0f1;color:#d71920;font-weight:800}
+        .simple-comments .module-comments-stream{margin-top:24px}
+        .simple-comments .module-comment-item{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;padding:18px 0;border-top:1px solid #edf0f4}
+        .simple-comments .module-comment-item:first-child{border-top:0}
+        .simple-comments .module-comment-topline{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:6px}
+        .simple-comments .module-comment-topline span{color:#7c8494;font-size:12px}
+        .simple-comments .module-comment-body p{margin:0;color:#4f5768;white-space:pre-wrap}
+        .simple-comments .module-comments-empty{padding:24px;text-align:center;color:#7c8494;background:#f7f8fa;border-radius:12px}
+        @media(max-width:760px){.depth-room-header__top,.depth-room-tabs__inner{padding-left:18px;padding-right:18px}.depth-room-logo{height:38px}.depth-room-user{gap:10px}.depth-room-user__name{display:none}.depth-room-tab{padding:12px 13px;font-size:10px}.module-comments-panel.simple-comments{padding:20px}.simple-comments .module-comment-composer,.simple-comments .module-comment-item{grid-template-columns:36px minmax(0,1fr)}.simple-comments .module-comment-avatar{width:36px;height:36px}}
+    </style>
+@endpush
 
 @section('body')
     @php
@@ -28,7 +59,12 @@
             ? asset('storage/' . $primarySpeaker['image'])
             : 'https://ui-avatars.com/api/?name=' . urlencode($primarySpeaker['names'] ?? 'EPIC Faculty') . '&background=random';
         $moduleBrands = collect($module->brands ?: [])->filter(fn($brand) => filled($brand['label']) || filled($brand['logo'] ?? null))->values();
-        $youtubeEmbedUrl = $module->youtube_embed_url;
+        $fullRecordingResource = $module->resourceDocuments->firstWhere('category', 'full_recording');
+        $recordingUrl = $module->video_url
+            ?: ($fullRecordingResource?->external_url
+                ?: ($fullRecordingResource?->file ? asset('storage/' . $fullRecordingResource->file) : null));
+        $youtubeEmbedUrl = \App\Models\Module::youtubeEmbedUrl($recordingUrl);
+        $directVideoUrl = $recordingUrl && !$youtubeEmbedUrl ? $recordingUrl : null;
         $certificateUnlocked = (bool) $progress->video_completed_at;
         $youtubeApiUrl = fn(?string $url) => $url ? $url . (str_contains($url, '?') ? '&' : '?') . 'enablejsapi=1&playsinline=1' : null;
         $archiveSegments = collect($module->archive_segments ?: [])
@@ -57,6 +93,29 @@
         $feedbackSubmitted = filled($progress->answers);
     @endphp
 
+    <header class="depth-room-header">
+        <div class="depth-room-header__top">
+            <a href="{{ route('dashboard') }}#overview" aria-label="DEPTH dashboard home">
+                <img class="depth-room-logo" src="{{ asset('web/depth/assets/hetero.png') }}" alt="Hetero">
+            </a>
+            <div class="depth-room-user">
+                <span class="depth-room-user__name">{{ Auth::guard('web')->user()?->name ?: 'Participant' }}</span>
+                <a class="depth-room-logout" href="{{ route('logout') }}">Log out</a>
+            </div>
+        </div>
+        <nav class="depth-room-tabs" aria-label="Programme sections">
+            <div class="depth-room-tabs__inner">
+                <a class="depth-room-tab" href="{{ route('dashboard') }}#overview">Program overview</a>
+                <a class="depth-room-tab" href="{{ route('dashboard') }}#agenda">Agenda</a>
+                <a class="depth-room-tab" href="{{ route('dashboard') }}#cases">Case booklets</a>
+                <a class="depth-room-tab" href="{{ route('dashboard') }}#speakers">Speaker</a>
+                <a class="depth-room-tab is-active" href="{{ route('dashboard') }}#live">Live session</a>
+                <a class="depth-room-tab" href="{{ route('dashboard') }}#hub">Post-event hub</a>
+                <a class="depth-room-tab" href="{{ route('dashboard') }}#profile">Profile</a>
+            </div>
+        </nav>
+    </header>
+
     <section class="py-4 py-lg-5">
         <div class="container">
             <div class="row mb-4">
@@ -82,6 +141,19 @@
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                     allowfullscreen
                                 ></iframe>
+                            </div>
+                        @elseif($directVideoUrl)
+                            <div class="ratio ratio-16x9 bg-dark">
+                                <video
+                                    id="moduleDirectVideo"
+                                    src="{{ $directVideoUrl }}"
+                                    data-complete-url="{{ route('modules.complete_video', $module->slug) }}"
+                                    data-is-completed="{{ $progress->video_completed_at ? '1' : '0' }}"
+                                    controls
+                                    playsinline
+                                    preload="metadata"
+                                    class="w-100 h-100"
+                                ></video>
                             </div>
                         @else
                             <img src="{{ $thumbnail }}" alt="Video Thumbnail" class="img-fluid w-100 video-thumbnail">
@@ -180,49 +252,31 @@
                         @endif
                     </div>
 
-                    <section
-                        class="module-comments-panel bg-white"
-                        data-comments-panel
-                        data-comments-channel="comments.module.{{ $module->id }}"
-                        data-comments-load-url="{{ route('modules.comments', $module->slug, false) }}"
-                        data-comments-total="{{ $commentsCount }}"
-                        data-comments-visible="{{ $comments->count() }}"
-                    >
+                    <section class="module-comments-panel simple-comments bg-white">
                         <div class="module-comments-header">
                             <div>
-                                <span class="module-comments-kicker d-inline-flex align-items-center gap-2 px-3 py-2 mb-2 rounded-pill fw-bold">
-                                    <i class="bi bi-chat-dots"></i> DISCUSSION
-                                </span>
                                 <h5 class="fw-bold text-dark-green mb-1">Comments</h5>
-                                <p class="text-muted small mb-0">Share your thoughts or questions from this chapter.</p>
+                                <p class="text-muted small mb-0">Write a comment for this session. It will be visible to the admin.</p>
                             </div>
                             <div class="module-comments-count">
-                                <strong data-comments-count>{{ $commentsCount }}</strong>
+                                <strong>{{ $commentsCount }}</strong>
                                 <span>{{ \Illuminate\Support\Str::plural('comment', $commentsCount) }}</span>
                             </div>
                         </div>
 
-                        <form class="module-comment-form" action="{{ route('modules.comments.store', $module->slug) }}" method="POST" data-comment-form>
+                        <form class="module-comment-form" action="{{ route('modules.comments.store', $module->slug) }}" method="POST">
                             @csrf
-                            <input type="hidden" name="comment_id" value="" data-comment-parent-input>
                             <div class="module-comment-composer">
                                 <div class="module-comment-avatar">{{ mb_substr(Auth::guard('web')->user()?->name ?: 'D', 0, 1) }}</div>
                                 <div class="module-comment-input-wrap">
-                                    <div class="module-comment-replying d-none" data-comment-replying>
-                                        <span>Replying to <strong data-comment-replying-name></strong></span>
-                                        <button type="button" class="btn p-0" data-comment-reply-cancel aria-label="Cancel reply">
-                                            <i class="bi bi-x-lg"></i>
-                                        </button>
-                                    </div>
                                     <textarea
                                         name="comment"
                                         class="form-control custom-form-control"
                                         rows="3"
                                         maxlength="1000"
                                         placeholder="Write a comment..."
-                                        data-comment-input
                                         required
-                                    ></textarea>
+                                    >{{ old('comment') }}</textarea>
                                     <div class="d-flex justify-content-between align-items-center mt-3 gap-3">
                                         <span class="text-muted small">Keep it helpful and on topic.</span>
                                         <button type="submit" class="btn btn-primary-custom px-4 py-2 fw-semibold">
@@ -234,12 +288,12 @@
                         </form>
 
                         <div class="module-comments-stream">
-                            <div class="module-comments-list" data-comments-list>
+                            <div class="module-comments-list">
                             @forelse($comments as $comment)
                                 @php
                                     $commentUserName = $comment->user?->name ?: 'Delegate';
                                 @endphp
-                                <div class="module-comment-item" data-comment-id="{{ $comment->id }}">
+                                <div class="module-comment-item">
                                     <div class="module-comment-avatar">{{ mb_substr($commentUserName, 0, 1) }}</div>
                                     <div class="module-comment-body">
                                         <div class="module-comment-topline">
@@ -247,76 +301,17 @@
                                             <span>{{ $comment->created_at?->diffForHumans() }}</span>
                                         </div>
                                         <p>{{ $comment->comment }}</p>
-                                        <div class="module-comment-actions">
-                                            <button
-                                                type="button"
-                                                class="btn module-comment-upvote-btn {{ $comment->upvoted_by_user ? 'is-upvoted' : '' }}"
-                                                data-comment-upvote
-                                                data-upvote-url="{{ route('modules.comments.upvote', [$module->slug, $comment->id]) }}"
-                                                aria-pressed="{{ $comment->upvoted_by_user ? 'true' : 'false' }}"
-                                            >
-                                                <i class="bi bi-arrow-up"></i>
-                                                <span>Upvote</span>
-                                                <span data-comment-upvotes>{{ $comment->upvotes_count ?? 0 }}</span>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                class="btn module-comment-reply-btn"
-                                                data-comment-reply
-                                                data-comment-id="{{ $comment->id }}"
-                                                data-comment-name="{{ $commentUserName }}"
-                                            >
-                                                <i class="bi bi-reply"></i>
-                                                <span>Reply</span>
-                                            </button>
-                                        </div>
-                                        <div class="module-comment-replies {{ $comment->replies->isNotEmpty() ? '' : 'd-none' }}" data-comment-replies>
-                                            @foreach($comment->replies as $reply)
-                                                @php
-                                                    $replyUserName = $reply->user?->name ?: 'Delegate';
-                                                @endphp
-                                                <div class="module-comment-reply" data-comment-id="{{ $reply->id }}">
-                                                    <div class="module-comment-avatar">{{ mb_substr($replyUserName, 0, 1) }}</div>
-                                                    <div class="module-comment-body">
-                                                        <div class="module-comment-topline">
-                                                            <strong>{{ $replyUserName }}</strong>
-                                                            <span>{{ $reply->created_at?->diffForHumans() }}</span>
-                                                        </div>
-                                                        <p>{{ $reply->comment }}</p>
-                                                        <div class="module-comment-actions">
-                                                            <button
-                                                                type="button"
-                                                                class="btn module-comment-upvote-btn {{ $reply->upvoted_by_user ? 'is-upvoted' : '' }}"
-                                                                data-comment-upvote
-                                                                data-upvote-url="{{ route('modules.comments.upvote', [$module->slug, $reply->id]) }}"
-                                                                aria-pressed="{{ $reply->upvoted_by_user ? 'true' : 'false' }}"
-                                                            >
-                                                                <i class="bi bi-arrow-up"></i>
-                                                                <span>Upvote</span>
-                                                                <span data-comment-upvotes>{{ $reply->upvotes_count ?? 0 }}</span>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
                                     </div>
                                 </div>
                             @empty
-                                <div class="module-comments-empty" data-comments-empty>
+                                <div class="module-comments-empty">
                                     <i class="bi bi-chat-square-text"></i>
-                                    <span>No comments yet. Start the discussion.</span>
+                                    <span>No comments yet.</span>
                                 </div>
                             @endforelse
                             </div>
                         </div>
 
-                        <div class="module-comments-footer {{ $commentsCount > $comments->count() ? '' : 'd-none' }}" data-comments-load-wrap>
-                            <button type="button" class="btn module-comments-load-more" data-comments-load-more>
-                                <i class="bi bi-chevron-down"></i>
-                                <span>Load more comments</span>
-                            </button>
-                        </div>
                     </section>
                 </div>
 
@@ -479,7 +474,6 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('web/js/modules_video.js') }}"></script>
     <script>
         document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
 
@@ -487,14 +481,14 @@
         let moduleVideoCompletionRequestSent = false;
 
         function markModuleVideoCompleted() {
-            const frame = document.getElementById('moduleVideoFrame');
-            if (!frame || frame.dataset.isCompleted === '1' || moduleVideoCompletionRequestSent) {
+            const player = document.getElementById('moduleVideoFrame') || document.getElementById('moduleDirectVideo');
+            if (!player || player.dataset.isCompleted === '1' || moduleVideoCompletionRequestSent) {
                 return;
             }
 
             moduleVideoCompletionRequestSent = true;
 
-            fetch(frame.dataset.completeUrl, {
+            fetch(player.dataset.completeUrl, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -510,7 +504,7 @@
                     return response.json();
                 })
                 .then(data => {
-                    frame.dataset.isCompleted = '1';
+                    player.dataset.isCompleted = '1';
 
                     const unlockText = document.getElementById('videoAutoCompleteText');
                     const lockedButton = document.getElementById('videoFeedbackLocked');
@@ -581,6 +575,8 @@
             youtubeApiScript.src = 'https://www.youtube.com/iframe_api';
             document.head.appendChild(youtubeApiScript);
         }
+
+        document.getElementById('moduleDirectVideo')?.addEventListener('play', markModuleVideoCompleted, {once: true});
 
         document.querySelectorAll('.topic-video-item').forEach(button => {
             button.addEventListener('click', () => {

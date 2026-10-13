@@ -10,8 +10,20 @@ class ModuleResource extends Model
     protected $fillable = [
         'module_id',
         'label',
+        'description',
+        'category',
+        'resource_type',
         'file',
+        'external_url',
+        'thumbnail',
         'file_type',
+        'available_at',
+        'status',
+        'sort_order',
+    ];
+
+    protected $casts = [
+        'available_at' => 'datetime',
     ];
 
     public function module(): BelongsTo
