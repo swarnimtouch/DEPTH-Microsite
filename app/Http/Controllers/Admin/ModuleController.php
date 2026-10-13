@@ -273,13 +273,8 @@ class ModuleController
                 return back()->withInput()->withErrors(['resources' => 'Please enter a label for every existing resource.']);
             }
 
-            $existingResource = $module->resourceDocuments()->find($resourceId);
-            if ($existingResource
-                && !$existingResource->file
-                && !$request->hasFile("existing_resource_files.$resourceId")
-                && !$request->filled("existing_resource_urls.$resourceId")) {
-                return back()->withInput()->withErrors(['resources' => 'Please upload a file/video or enter an external URL for every existing resource.']);
-            }
+            // Existing resources may intentionally remain as "Coming soon" placeholders.
+            // Requiring a source here also blocks unrelated edits such as speaker details.
         }
 
         foreach ($request->file('resource_files', []) as $index => $file) {

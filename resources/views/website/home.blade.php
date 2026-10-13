@@ -137,36 +137,7 @@
             </div>
         </section>
 
-<section class="program-showcase" id="program">
-            <div class="program-shell">
-                <div class="program-heading">
-                    <div><span class="program-kicker">Live expert-led learning</span><h2>Upcoming live session</h2></div>
-                    <p>One focused DEPTH session designed to support practical recognition, diagnosis and management of depression in primary care.</p>
-                </div>
-                @forelse($modules as $module)
-                    @php
-                        $moduleStart = $module->getRawOriginal('start_at') ? \Carbon\CarbonImmutable::parse($module->getRawOriginal('start_at'), 'UTC')->timezone('Asia/Kolkata') : null;
-                        $moduleEnd = $module->getRawOriginal('end_at') ? \Carbon\CarbonImmutable::parse($module->getRawOriginal('end_at'), 'UTC')->timezone('Asia/Kolkata') : null;
-                        $moduleHref = auth('web')->check() ? route('modules.show', $module->slug) : '#register';
-                    @endphp
-                    <div class="program-table" role="table" aria-label="Upcoming DEPTH session">
-                        <div class="program-table-head" role="row"><span role="columnheader">Session</span><span role="columnheader">Date</span><span role="columnheader">Time</span><span role="columnheader">Topic</span></div>
-                        <div class="program-table-row" role="row"><strong role="cell">Session {{ $loop->iteration }}</strong><span role="cell">{{ $moduleStart?->format('d F Y') ?? 'Date to be announced' }}</span><span role="cell">{{ $moduleStart && $moduleEnd ? $moduleStart->format('g:i A').' - '.$moduleEnd->format('g:i A').' IST' : 'Time to be announced' }}</span><span role="cell">{{ $module->title }}</span></div>
-                    </div>
-                    <article class="program-session-card">
-                        <div class="program-session-art"><img src="{{ $depthAsset('visual/keyvisual-red.png') }}" alt="DEPTH depression education visual"><span>Session {{ $loop->iteration }}</span></div>
-                        <div class="program-session-body">
-                            <div class="program-session-meta"><strong>{{ $moduleStart?->format('d F Y') ?? 'Date to be announced' }}</strong><span>{{ $moduleStart && $moduleEnd ? $moduleStart->format('g:i A').' - '.$moduleEnd->format('g:i A').' IST' : 'Time to be announced' }}</span></div>
-                            <h3>{{ $module->title }}</h3><p>{{ $module->overview }}</p>
-                            <div class="program-speaker"><small>Speaker</small><strong>{{ $module->speaker_name ?: 'To be announced' }}</strong><span>{{ collect([$module->speaker_designation, $module->speaker_hospital])->filter()->join(' · ') }}</span></div>
-                            <a class="program-session-link" href="{{ $moduleHref }}">{{ auth('web')->check() ? 'Open session' : 'Register for session' }} <span aria-hidden="true">&rarr;</span></a>
-                        </div>
-                    </article>
-                @empty
-                    <div class="program-empty">Session details will be announced shortly.</div>
-                @endforelse
-            </div>
-        </section>
+
     </main>
 
     <footer class="ftr">
