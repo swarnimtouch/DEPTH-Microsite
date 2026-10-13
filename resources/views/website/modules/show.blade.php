@@ -93,28 +93,7 @@
         $feedbackSubmitted = filled($progress->answers);
     @endphp
 
-    <header class="depth-room-header">
-        <div class="depth-room-header__top">
-            <a href="{{ route('dashboard') }}#overview" aria-label="DEPTH dashboard home">
-                <img class="depth-room-logo" src="{{ asset('web/depth/assets/hetero.png') }}" alt="Hetero">
-            </a>
-            <div class="depth-room-user">
-                <span class="depth-room-user__name">{{ Auth::guard('web')->user()?->name ?: 'Participant' }}</span>
-                <a class="depth-room-logout" href="{{ route('logout') }}">Log out</a>
-            </div>
-        </div>
-        <nav class="depth-room-tabs" aria-label="Programme sections">
-            <div class="depth-room-tabs__inner">
-                <a class="depth-room-tab" href="{{ route('dashboard') }}#overview">Program overview</a>
-                <a class="depth-room-tab" href="{{ route('dashboard') }}#agenda">Agenda</a>
-                <a class="depth-room-tab" href="{{ route('dashboard') }}#cases">Case booklets</a>
-                <a class="depth-room-tab" href="{{ route('dashboard') }}#speakers">Speaker</a>
-                <a class="depth-room-tab is-active" href="{{ route('dashboard') }}#live">Live session</a>
-                <a class="depth-room-tab" href="{{ route('dashboard') }}#hub">Post-event hub</a>
-                <a class="depth-room-tab" href="{{ route('dashboard') }}#profile">Profile</a>
-            </div>
-        </nav>
-    </header>
+    @include('partials.website.depth_member_header')
 
     <section class="py-4 py-lg-5">
         <div class="container">
@@ -171,11 +150,7 @@
                                 <button class="nav-link" id="takeaways-tab" data-bs-toggle="tab" data-bs-target="#takeaways" type="button" role="tab" aria-controls="takeaways" aria-selected="false">Key Takeaways</button>
                             </li>
                         @endif
-                        @if($moduleAgenda->isNotEmpty())
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="agenda-tab" data-bs-toggle="tab" data-bs-target="#agenda" type="button" role="tab" aria-controls="agenda" aria-selected="false">Agenda</button>
-                            </li>
-                        @endif
+
                         @if($archiveAvailable)
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="topic-videos-tab" data-bs-toggle="tab" data-bs-target="#topic-videos" type="button" role="tab" aria-controls="topic-videos" aria-selected="false">Topic Videos</button>
@@ -203,31 +178,7 @@
                                 </ul>
                             </div>
                         @endif
-                        @if($moduleAgenda->isNotEmpty())
-                            <div class="tab-pane fade" id="agenda" role="tabpanel" aria-labelledby="agenda-tab">
-                                <div class="episode-agenda-public bg-white">
-                                    <div class="episode-agenda-public-title">Topic : {{ $module->title }}</div>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered align-middle mb-0">
-                                            <tbody>
-                                            @foreach($moduleAgenda as $row)
-                                                @if(($row['type'] ?? 'person') === 'section')
-                                                    <tr class="episode-agenda-public-section">
-                                                        <td colspan="2">{{ $row['title'] }}</td>
-                                                    </tr>
-                                                @else
-                                                    <tr>
-                                                        <th>{{ $row['role'] ?: 'Faculty' }}</th>
-                                                        <td>{{ $row['names'] }}</td>
-                                                    </tr>
-                                                @endif
-                                            @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
+
                         @if($archiveAvailable)
                             <div class="tab-pane fade" id="topic-videos" role="tabpanel" aria-labelledby="topic-videos-tab">
                                 <div class="topic-video-list bg-white">
@@ -256,11 +207,7 @@
                         <div class="module-comments-header">
                             <div>
                                 <h5 class="fw-bold text-dark-green mb-1">Comments</h5>
-                                <p class="text-muted small mb-0">Write a comment for this session. It will be visible to the admin.</p>
-                            </div>
-                            <div class="module-comments-count">
-                                <strong>{{ $commentsCount }}</strong>
-                                <span>{{ \Illuminate\Support\Str::plural('comment', $commentsCount) }}</span>
+                                <p class="text-muted small mb-0">Send your comment to the admin.</p>
                             </div>
                         </div>
 
@@ -286,32 +233,6 @@
                                 </div>
                             </div>
                         </form>
-
-                        <div class="module-comments-stream">
-                            <div class="module-comments-list">
-                            @forelse($comments as $comment)
-                                @php
-                                    $commentUserName = $comment->user?->name ?: 'Delegate';
-                                @endphp
-                                <div class="module-comment-item">
-                                    <div class="module-comment-avatar">{{ mb_substr($commentUserName, 0, 1) }}</div>
-                                    <div class="module-comment-body">
-                                        <div class="module-comment-topline">
-                                            <strong>{{ $commentUserName }}</strong>
-                                            <span>{{ $comment->created_at?->diffForHumans() }}</span>
-                                        </div>
-                                        <p>{{ $comment->comment }}</p>
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="module-comments-empty">
-                                    <i class="bi bi-chat-square-text"></i>
-                                    <span>No comments yet.</span>
-                                </div>
-                            @endforelse
-                            </div>
-                        </div>
-
                     </section>
                 </div>
 
@@ -374,7 +295,7 @@
 
 
                     <div class="card quiz-widget p-4 mb-4">
-                        <h5 class="fw-bold mb-2">Watch video and get the certificate</h5>
+                        <h5 class="fw-bold mb-2">Module Feedback</h5>
                         @if(!$progress->video_completed_at)
                             <p class="quiz-unlock-text mb-3" id="videoAutoCompleteText">Start the video to complete your progress.</p>
                             <div class="d-grid gap-2">
@@ -397,24 +318,7 @@
                         @endif
                     </div>
 
-                    <div class="card certificate-download-widget bg-white p-4 mb-4">
-                        <h6 class="fw-bold text-dark-green mb-2">Delegate Certificate</h6>
-                        <p class="text-muted small mb-3">Download your certificate after watching the video.</p>
-                        @if($certificateUnlocked)
-                            <a href="{{ route('modules.certificate', $module->slug) }}" class="btn btn-primary-custom w-100 py-2 fw-semibold" id="certificateDownloadLink">
-                                <i class="bi bi-download me-2"></i> Download Certificate
-                            </a>
-                        @else
-                            <a href="{{ route('modules.certificate', $module->slug) }}" class="btn btn-primary-custom w-100 py-2 fw-semibold d-none" id="certificateDownloadLink">
-                                <i class="bi bi-download me-2"></i> Download Certificate
-                            </a>
-                            <span class="d-block" data-bs-toggle="tooltip" data-bs-placement="top" title="Start the video to unlock certificate" id="certificateLockedWrap">
-                                <button type="button" class="btn btn-locked w-100 py-2 fw-semibold" disabled id="certificateLockedButton">
-                                    <i class="bi bi-lock me-2"></i> Download Certificate
-                                </button>
-                            </span>
-                        @endif
-                    </div>
+
 
                     <div class="card tracker-widget bg-white p-4">
                         <h6 class="fw-bold text-dark-green mb-4">Chapter Progress</h6>

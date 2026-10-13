@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Website;
 
-use App\Models\CommentUpvote;
 use App\Support\CertificatePdf;
 use App\Models\Comments;
 use App\Models\Module;
@@ -73,43 +72,6 @@ class ModuleController
                 'module_id' => $module->id,
                 'user_id' => Auth::guard('web')->id(),
             ]),
-            'commentsCount' => Comments::published()
-                ->where('episode_id', $module->id)
-                ->count(),
-            'comments' => Comments::published()
-                ->with('user')
-                ->where('episode_id', $module->id)
-                ->orderByDesc('id')
-                ->take(20)
-                ->get(),
-        ]);
-    }
-
-    public function comments(Request $request, $slug)
-    {
-        if (!Auth::guard('web')->check()) {
-            return response()->json(['message' => 'Please login first'], 401);
-        }
-
-        $activeCourse = Course::active()->first();
-        abort_if(!$activeCourse, 404);
-
-        $module = Module::active()->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
-        $offset = max(0, (int) $request->query('offset', 0));
-        $limit = 20;
-
-        $query = Comments::published()
-            ->with('user')
-            ->where('episode_id', $module->id)
-            ->orderByDesc('id');
-
-        $comments = $query->skip($offset)->take($limit + 1)->get();
-        $hasMore = $comments->count() > $limit;
-        $comments = $comments->take($limit)->values();
-
-        return response()->json([
-            'comments' => $comments->map(fn($comment) => $this->commentPayload($comment)),
-            'has_more' => $hasMore,
         ]);
     }
 
@@ -148,45 +110,10 @@ class ModuleController
         ]);
     }
 
-    public function toggleCommentUpvote(Request $request, $slug, Comments $comment)
-    {
-        if (!Auth::guard('web')->check()) {
-            return response()->json(['message' => 'Please login first'], 401);
-        }
-
-        $activeCourse = Course::active()->first();
-        abort_if(!$activeCourse, 404);
-
-        $module = Module::active()->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
-        abort_if((int) $comment->episode_id !== (int) $module->id || $comment->status !== 'publish', 404);
-
-        $upvote = CommentUpvote::where('comment_id', $comment->id)
-            ->where('user_id', Auth::guard('web')->id())
-            ->first();
-
-        if ($upvote) {
-            $upvote->delete();
-            $upvoted = false;
-        } else {
-            CommentUpvote::create([
-                'comment_id' => $comment->id,
-                'user_id' => Auth::guard('web')->id(),
-            ]);
-            $upvoted = true;
-        }
-
-        return response()->json([
-            'success' => true,
-            'upvoted' => $upvoted,
-            'upvotes_count' => $comment->upvotes()->count(),
-        ]);
-    }
-
     private function commentPayload(Comments $comment): array
     {
         return [
             'id' => $comment->id,
-            'parent_id' => $comment->comment_id,
             'name' => $comment->user?->name ?: 'Delegate',
             'initial' => mb_substr($comment->user?->name ?: 'D', 0, 1),
             'comment' => $comment->comment,

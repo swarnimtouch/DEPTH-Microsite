@@ -15,9 +15,7 @@ Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit')
 Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 Route::get('/modules', [ModuleController::class, 'index'])->name('modules');
 Route::get('/modules/{slug}', [ModuleController::class, 'show'])->name('modules.show');
-Route::get('/modules/{slug}/comments', [ModuleController::class, 'comments'])->name('modules.comments');
 Route::post('/modules/{slug}/comments', [ModuleController::class, 'storeComment'])->name('modules.comments.store');
-Route::post('/modules/{slug}/comments/{comment}/upvote', [ModuleController::class, 'toggleCommentUpvote'])->name('modules.comments.upvote');
 Route::post('/modules/{slug}/complete-video', [ModuleController::class, 'completeVideo'])->name('modules.complete_video');
 Route::post('/modules/{slug}/view-heartbeat', [ModuleController::class, 'trackViewHeartbeat'])->name('modules.view_heartbeat');
 Route::get('/modules/{slug}/quiz', [ModuleController::class, 'quiz'])->name('modules.quiz');
