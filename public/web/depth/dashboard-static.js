@@ -3,6 +3,9 @@
 (function () {
   'use strict';
 
+  const ASSET_BASE = String(window.DEPTH_ASSET_BASE || '/web/depth').replace(/\/+$/, '');
+  const depthAsset = (path) => `${ASSET_BASE}/${String(path).replace(/^\/+/, '')}`;
+
   /* ============================================================== DATA */
   const EVENT = {
     n: 1,
@@ -13,7 +16,7 @@
     proposition: 'When should primary care clinicians suspect depression — and what should they do next?',
     date: '20 November 2026', dateShort: '20 Nov 2026', day: 'Friday', time: '4:00 – 5:00 PM IST',
     start: '2026-11-20T16:00:00+05:30', end: '2026-11-20T17:00:00+05:30',
-    img: '/web/depth/assets/visual/brain-red.jpg', speaker: 'kasper',
+    img: depthAsset('assets/visual/brain-red.jpg'), speaker: 'kasper',
     agenda: [
       [5, 'Welcome and Introduction of International speaker', 'Medical Team, Hetero'],
       [30, 'The Hidden Burden: Recognizing Depression in Patients with Cardiometabolic and Gastrointestinal Disorders', 'Prof. Siegfried Kasper'],
@@ -43,10 +46,10 @@
   const RESOURCES = Array.isArray(window.DEPTH_RESOURCES) ? window.DEPTH_RESOURCES : [];
 
   let CASES = [
-    { n: 1, title: 'The patient hiding in plain sight', sub: 'Recognizing depression masked by somatic complaints in your daily OPD', time: '8 min', img: '/web/depth/assets/visual/case1-ward.jpg', tag: 'Recognition', color: '#E0242B' },
-    { n: 2, title: 'Diagnosing with confidence', sub: 'Using PHQ-9 as your primary diagnosis and monitoring tool — a step-by-step guide', time: '8 min', img: '/web/depth/assets/visual/case2-phq9.jpg', tag: 'Diagnosis', color: '#1F2A44' },
-    { n: 3, title: "The diabetic who won't comply", sub: 'Depression in diabetes and cardiovascular disease — why treating one changes the other', time: '8 min', img: '/web/depth/assets/visual/case3-patient.jpg', tag: 'Comorbidity', color: '#B8141B' },
-    { n: 4, title: 'Choosing the right antidepressant for your patient', sub: 'A practical pharmacotherapy guide — matching the molecule to the symptom cluster', time: '8 min', img: '/web/depth/assets/visual/case4-pharma.jpg', tag: 'Pharmacotherapy', color: '#2E5E9E' },
+    { n: 1, title: 'The patient hiding in plain sight', sub: 'Recognizing depression masked by somatic complaints in your daily OPD', time: '8 min', img: depthAsset('assets/visual/case1-ward.jpg'), tag: 'Recognition', color: '#E0242B' },
+    { n: 2, title: 'Diagnosing with confidence', sub: 'Using PHQ-9 as your primary diagnosis and monitoring tool — a step-by-step guide', time: '8 min', img: depthAsset('assets/visual/case2-phq9.jpg'), tag: 'Diagnosis', color: '#1F2A44' },
+    { n: 3, title: "The diabetic who won't comply", sub: 'Depression in diabetes and cardiovascular disease — why treating one changes the other', time: '8 min', img: depthAsset('assets/visual/case3-patient.jpg'), tag: 'Comorbidity', color: '#B8141B' },
+    { n: 4, title: 'Choosing the right antidepressant for your patient', sub: 'A practical pharmacotherapy guide — matching the molecule to the symptom cluster', time: '8 min', img: depthAsset('assets/visual/case4-pharma.jpg'), tag: 'Pharmacotherapy', color: '#2E5E9E' },
   ];
   const resourceCases = RESOURCES.map((resource, resourceIndex) => ({ resource, resourceIndex }))
     .filter(({ resource }) => resource.category === 'case_book');
@@ -56,7 +59,7 @@
       title: resource.label,
       sub: resource.description || (resource.isVideo ? 'Video case-based learning resource' : 'Case-based learning resource'),
       time: resource.isVideo ? 'Video' : resource.type,
-      img: resource.thumbnail || `/web/depth/assets/visual/case${(index % 4) + 1}-${['ward', 'phq9', 'patient', 'pharma'][index % 4]}.jpg`,
+      img: resource.thumbnail || depthAsset(`assets/visual/case${(index % 4) + 1}-${['ward', 'phq9', 'patient', 'pharma'][index % 4]}.jpg`),
       tag: 'Case booklet',
       color: ['#E0242B', '#1F2A44', '#B8141B', '#2E5E9E'][index % 4],
       resourceIndex,
@@ -67,7 +70,7 @@
 
   const SPEAKERS = {
     kasper: {
-      name: 'Prof. Siegfried Kasper', photo: '/web/depth/assets/speakers/kasper.jpg', role: 'Speaker',
+      name: 'Prof. Siegfried Kasper', photo: depthAsset('assets/speakers/kasper.jpg'), role: 'Speaker',
       designation: 'Professor Emeritus of Psychiatry', designation2: 'Medical University of Vienna, Vienna, Austria', place: 'Vienna, Austria',
       bio: 'Professor Emeritus of Psychiatry and former Head of the Department of Psychiatry and Psychotherapy at the Medical University of Vienna, Austria. A specialist in psychiatry and neurology, his research focuses on depression, neuropsychopharmacology, neurobiology and translational psychiatry. He has authored more than <b>800 PubMed-indexed publications</b> and has held leadership roles in several international psychiatric organisations, including serving as President of the <b>World Federation of Societies of Biological Psychiatry (WFSBP)</b>.',
       expertise: ['Depression & Mood Disorders', 'Neuropsychopharmacology', 'Biological & Translational Psychiatry'],
@@ -339,7 +342,7 @@
       ? `<button class="btn btn-line sm" data-resource="${RESOURCES.indexOf(postRead)}">View post-read</button>`
       : '<button class="btn btn-line sm" disabled>Coming soon</button>';
     $('hub-recordings').innerHTML = `
-      <article class="rec-card${ready ? '' : ' locked'}"><div class="rec-img"><img src="/web/depth/assets/visual/brain-red-2.jpg" alt=""><div class="play"><span></span></div><span class="time-badge">${ico('clock')}${esc(EVENT.duration || '~60 min')}</span></div><div class="rec-body"><div class="wc-label"><span>Full webinar recording</span><i></i></div><h3>Watch the full session</h3><p>${esc(fullRecording?.label || EVENT.full)}</p><div class="small muted">Webinar date ${EVENT.date}</div><div class="wc-foot">${recordingAction}</div></div></article>
+      <article class="rec-card${ready ? '' : ' locked'}"><div class="rec-img"><img src="${depthAsset('assets/visual/brain-red-2.jpg')}" alt=""><div class="play"><span></span></div><span class="time-badge">${ico('clock')}${esc(EVENT.duration || '~60 min')}</span></div><div class="rec-body"><div class="wc-label"><span>Full webinar recording</span><i></i></div><h3>Watch the full session</h3><p>${esc(fullRecording?.label || EVENT.full)}</p><div class="small muted">Webinar date ${EVENT.date}</div><div class="wc-foot">${recordingAction}</div></div></article>
       <div class="syn-card"><div class="wc-label"><span>1-page post-read / synopsis</span><i></i></div><h3>${esc(postRead?.label || EVENT.title)}</h3><p>${esc(EVENT.desc)}</p><div class="kicker">Key discussion areas</div><ul>${EVENT.synopsis.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><div class="btn-row">${postReadAction}<button class="btn btn-soft sm" data-go="takeaways">Key takeaways →</button></div></div>`;
     const learningCards = [
       ['pearl', 'Key clinical pearls', keyPearls?.description || 'Short, memorable messages from the session — recognition, assessment and next steps.', resourceButton(keyPearls, 'Explore')],

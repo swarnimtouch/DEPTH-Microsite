@@ -179,7 +179,9 @@ class WebLoginController
                 'image' => null,
             ]]);
         }
-        $depthSpeakers = $speakerProfiles->map(function ($speaker) use ($agendaModule) {
+        $publicUrl = static fn (string $path): string => (request()->getBaseUrl() ?: '') . '/' . ltrim($path, '/');
+
+        $depthSpeakers = $speakerProfiles->map(function ($speaker) use ($agendaModule, $publicUrl) {
             $expertise = is_array($speaker['expertise'] ?? null)
                 ? $speaker['expertise']
                 : array_values(array_filter(array_map('trim', explode(',', $speaker['expertise'] ?? ''))));
@@ -193,8 +195,8 @@ class WebLoginController
             return [
                 'name' => $name,
                 'photo' => $image
-                    ? (str_starts_with($image, 'web/') ? asset($image) : asset('storage/' . $image))
-                    : asset('web/depth/assets/speakers/kasper.jpg'),
+                    ? (str_starts_with($image, 'web/') ? $publicUrl($image) : $publicUrl('storage/' . $image))
+                    : $publicUrl('web/depth/assets/speakers/kasper.jpg'),
                 'role' => $speaker['role'] ?? 'Speaker',
                 'designation' => $designation,
                 'designation2' => $hospital,
@@ -258,14 +260,14 @@ class WebLoginController
         $caseFallbacksById = collect($agendaModule?->resourceDocuments ?? [])
             ->where('category', 'case_book')
             ->values()
-            ->mapWithKeys(function ($resource, $index) use ($caseFallbackImages) {
+            ->mapWithKeys(function ($resource, $index) use ($caseFallbackImages, $publicUrl) {
                 return [
-                    $resource->id => asset('web/depth/assets/visual/' . $caseFallbackImages[$index % count($caseFallbackImages)]),
+                    $resource->id => $publicUrl('web/depth/assets/visual/' . $caseFallbackImages[$index % count($caseFallbackImages)]),
                 ];
             });
 
-        $depthResources = collect($agendaModule?->resourceDocuments ?? [])->map(function ($resource) use ($caseFallbacksById) {
-            $url = $resource->external_url ?: ($resource->file ? asset('storage/' . $resource->file) : null);
+        $depthResources = collect($agendaModule?->resourceDocuments ?? [])->map(function ($resource) use ($caseFallbacksById, $publicUrl) {
+            $url = $resource->external_url ?: ($resource->file ? $publicUrl('storage/' . $resource->file) : null);
             $hasSource = (bool) $url;
             $extension = strtolower(pathinfo((string) (parse_url($url ?? '', PHP_URL_PATH) ?: $resource->file), PATHINFO_EXTENSION));
             $videoExtensions = ['mp4', 'webm', 'mov'];
@@ -282,7 +284,7 @@ class WebLoginController
                 'url' => $url,
                 'embedUrl' => $embedUrl,
                 'thumbnail' => $resource->thumbnail
-                    ? asset('storage/' . $resource->thumbnail)
+                    ? $publicUrl('storage/' . $resource->thumbnail)
                     : $caseFallbacksById->get($resource->id),
                 'type' => $resource->resource_type === 'video' || $embedUrl || in_array($extension, $videoExtensions, true) ? 'Video' : ($resource->resource_type === 'pdf' || $extension === 'pdf' ? 'PDF' : 'Link'),
                 'isVideo' => (bool) ($resource->resource_type === 'video' || $embedUrl || in_array($extension, $videoExtensions, true)),

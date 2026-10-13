@@ -121,6 +121,7 @@
 <div class="toast" id="toast" hidden></div>
 <script>
 window.DEPTH_LOGOUT_URL = @json(route('logout'));
+window.DEPTH_ASSET_BASE = @json((request()->getBaseUrl() ?: '') . '/web/depth');
 window.DEPTH_INITIAL_VIEW = @json($dashboardSection);
 window.DEPTH_ROUTES = @json($dashboardRoutes);
 window.DEPTH_FLASH_SUCCESS = @json(session('success'));
