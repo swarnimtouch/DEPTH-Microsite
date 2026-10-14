@@ -1,10 +1,28 @@
 @extends('layouts.website')
+@section('standalone_page', 'true')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('web/depth/style.css') }}?v={{ filemtime(public_path('web/depth/style.css')) }}">
+    <style>
+        .depth-quiz-main{min-height:560px;background:#f6f8fc}
+        .depth-quiz-main .quiz-top-bar{padding-top:32px!important;padding-bottom:22px!important}
+        .depth-quiz-main .quiz-assessment-label{color:#d71920!important;font-size:12px;letter-spacing:.08em}
+        .depth-quiz-main .quiz-question-text{color:#1f2a44!important}
+        .depth-quiz-main .btn-primary-custom{background:#d71920;border-color:#d71920;color:#fff}
+        .depth-quiz-main .btn-primary-custom:hover{background:#b8141b;border-color:#b8141b;color:#fff}
+    </style>
+@endpush
 
 @section('body')
     @php
         $feedbackSubmitted = filled($progress->answers);
         $savedAnswers = collect($progress->answers ?? []);
+        $dashboardSection = 'live';
     @endphp
+
+    <div class="page">
+    @include('partials.website.depth_dashboard_header')
+    <main class="depth-quiz-main">
 
     <div class="quiz-top-bar bg-white border-bottom py-3">
         <div class="container">
@@ -85,6 +103,9 @@
             </div>
         </div>
     </section>
+    </main>
+    @include('partials.website.depth_dashboard_footer')
+    </div>
 @endsection
 
 @push('scripts')

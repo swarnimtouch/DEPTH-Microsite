@@ -20,7 +20,7 @@
         </a>
         <div class="hdr-right">
             <nav class="hdr-nav" aria-label="Account">
-                <span class="hdr-user">{{ $doctor->name }}</span>
+                <span class="hdr-user">{{ ($doctor ?? Auth::guard('web')->user())?->name ?: 'Participant' }}</span>
                 <a class="btn btn-soft sm" href="{{ route('logout') }}">Log out</a>
             </nav>
         </div>
