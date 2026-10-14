@@ -351,7 +351,9 @@
       ['case', `HCP case booklets 1–${CASES.length}`, 'Revisit the four case booklets that anchor the discussion.', availableCases.length ? '<button class="btn btn-line sm" data-go="cases">Open the cases</button>' : '<button class="btn btn-line sm" disabled>Coming soon</button>'],
     ];
     const certificateText = ready ? (EVENT.certificateUnlocked ? 'Your personalised certificate is ready to download.' : 'Complete the full session to unlock your certificate.') : 'Available after event.';
-    const certificateButton = ready && EVENT.certificateUnlocked ? '<button class="btn btn-grad sm" data-go="certificate">Download</button>' : `<button class="btn btn-grad sm" disabled>${ready ? 'Locked' : 'Available after event'}</button>`;
+    const certificateButton = ready && EVENT.certificateUnlocked
+      ? `<a class="btn btn-grad sm" href="${esc(EVENT.certificateUrl)}">Download</a>`
+      : `<button class="btn btn-grad sm" disabled>${ready ? 'Locked' : 'Available after event'}</button>`;
     learningCards.push(['cert', 'Certificate of participation', certificateText, certificateButton]);
     $('hub-postread').innerHTML = learningCards.map(([k, t, d, b], i) => `<div class="pr-card" style="--d:${i * 70}ms"><span class="t-ico">${ico(k)}</span><div><b>${esc(t)}</b><p>${esc(d)}</p>${b}</div></div>`).join('');
     const recordingReady = EVENT.recordingAvailable;
@@ -359,7 +361,7 @@
     res.push([postRead?.label || '1-Page Post-read / Synopsis', 'PDF', resourceButton(postRead, 'View', 'link')]);
     res.push([snippet?.label || 'Snippet videos', 'Video', resourceButton(snippet, 'Watch', 'link')]);
     res.push([`HCP Case Booklets 1–${CASES.length}`, `${CASES.length} × 4-page PDFs`, availableCases.length ? '<button class="link" data-go="cases">Open</button>' : '<button class="link" disabled>Coming soon</button>']);
-    res.push(['Certificate of participation', 'PDF', ready && EVENT.certificateUnlocked ? '<button class="link" data-go="certificate">Download</button>' : `<button class="link" disabled>${ready ? 'Locked' : 'Available after event'}</button>`]);
+    res.push(['Certificate of participation', 'PDF', ready && EVENT.certificateUnlocked ? `<a class="link" href="${esc(EVENT.certificateUrl)}">Download</a>` : `<button class="link" disabled>${ready ? 'Locked' : 'Available after event'}</button>`]);
     $('hub-resources').innerHTML = res.map((r) => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td class="r">${r[2]}</td></tr>`).join('');
   }
 

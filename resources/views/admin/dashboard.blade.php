@@ -35,7 +35,7 @@
 
                 <div class="overview-kpis">
                     <article class="overview-kpi"><span>Total users</span><strong>{{ number_format($stats['participants']) }}</strong><small>{{ number_format($stats['participants']) }} registered participants</small></article>
-                    <article class="overview-kpi"><span>Active users</span><strong>{{ number_format($stats['active']) }}</strong><small>{{ number_format($stats['active']) }} have logged in</small></article>
+                    <article class="overview-kpi"><span>Total attendance</span><strong>{{ number_format($stats['attendance']) }}</strong><small>{{ number_format($stats['attendance']) }} participants attended</small></article>
                     <article class="overview-kpi"><span>Completed chapters</span><strong>{{ number_format($stats['completed_chapters']) }}</strong><small>Feedback submitted</small></article>
                     <article class="overview-kpi"><span>Certificates issued</span><strong>{{ number_format($stats['participation_certificates'] + $stats['advanced_certificates']) }}</strong><small>{{ number_format($stats['participation_certificates']) }} participation · {{ number_format($stats['advanced_certificates']) }} advanced</small></article>
                 </div>

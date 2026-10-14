@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Website;
 
 use App\Support\CertificatePdf;
+use App\Models\CertificateDownloadLog;
 use App\Models\Comments;
 use App\Models\Module;
 use App\Models\ModuleViewSession;
@@ -350,6 +351,12 @@ class ModuleController
             public_path('assets/fonts/Abril_Display_Italic.otf'),
         );
         $fileName = Str::slug(($doctor->name ?? 'delegate') . '-' . $module->title . '-certificate') . '.pdf';
+
+        CertificateDownloadLog::create([
+            'module_id' => $module->id,
+            'user_id' => $doctor->id,
+            'downloaded_at' => now(),
+        ]);
 
         return response($pdf, 200, [
             'Content-Type' => 'application/pdf',

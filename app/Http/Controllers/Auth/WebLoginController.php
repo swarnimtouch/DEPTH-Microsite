@@ -63,7 +63,7 @@ class WebLoginController
 
     public function dashboardCertificate()
     {
-        return $this->dashboardSection('certificate', 'Certificate');
+        return redirect()->route('dashboard.hub');
     }
 
     public function profile()
@@ -90,7 +90,6 @@ class WebLoginController
                 'live' => route('dashboard.live'),
                 'hub' => route('dashboard.hub'),
                 'takeaways' => route('dashboard.takeaways'),
-                'certificate' => route('dashboard.certificate'),
                 'profile' => route('dashboard.profile'),
             ],
         ]);

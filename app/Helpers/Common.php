@@ -132,6 +132,13 @@ function getModules($user_type = 'admin', ?string $role = null): array
                 'all_routes' => ['admin.reports.module_view_time']
             ],
             [
+                'route' => route('admin.certificate_logs'),
+                'name' => 'Certificate Logs',
+                'icon' => 'bi bi-award fs-3',
+                'child' => [],
+                'all_routes' => ['admin.certificate_logs'],
+            ],
+            [
                 'route' => '#',
                 'name' => 'General Settings',
                 'icon' => 'bi bi-gear',
@@ -200,6 +207,13 @@ function getModules($user_type = 'admin', ?string $role = null): array
                 'icon' => 'bi bi-clock-history fs-3',
                 'child' => [],
                 'all_routes' => ['admin.reports.module_view_time'],
+            ],
+            [
+                'route' => route('admin.certificate_logs'),
+                'name' => 'Certificate Logs',
+                'icon' => 'bi bi-award fs-3',
+                'child' => [],
+                'all_routes' => ['admin.certificate_logs'],
             ],
         ];
     }

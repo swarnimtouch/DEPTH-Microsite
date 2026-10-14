@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\SessionCommentsController;
 use App\Http\Controllers\Admin\FAQController;
 use App\Http\Controllers\Admin\DatabaseServersController;
 use App\Http\Controllers\Admin\SubAdminController;
+use App\Http\Controllers\Admin\CertificateLogController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -159,6 +160,12 @@ Route::middleware(['auth:admin', 'admin.access'])->group(function () {
         Route::get('/module-view-time/download-questions', [ModuleViewReportController::class, 'downloadQuestions'])->name('reports.module_view_time.download_questions');
         Route::get('/module-view-time/download-attendees', [ModuleViewReportController::class, 'downloadAttendees'])->name('reports.module_view_time.download_attendees');
         Route::get('/module-view-time/download-users', [ModuleViewReportController::class, 'downloadUsers'])->name('reports.module_view_time.download_users');
+    });
+
+    Route::prefix('certificate-logs')->group(function () {
+        Route::get('/', [CertificateLogController::class, 'index'])->name('certificate_logs');
+        Route::get('/datatable', [CertificateLogController::class, 'datatable'])->name('certificate_logs.datatable');
+        Route::get('/export', [CertificateLogController::class, 'export'])->name('certificate_logs.export');
     });
 
     Route::prefix('webinars')->group(function () {

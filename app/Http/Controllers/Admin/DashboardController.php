@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Module;
 use App\Models\ModuleUserProgress;
+use App\Models\ModuleViewSession;
 use App\Models\Speciality;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -29,13 +30,19 @@ class DashboardController extends Controller
 
         $participantQuery = User::query()->where($userScope);
         $participantCount = (clone $participantQuery)->count();
-        $activeCount = (clone $participantQuery)->whereNotNull('last_login_at')->count();
 
         $modules = Module::active()
             ->when($filters['module'], fn ($query) => $query->whereKey($filters['module']))
             ->with('course')
             ->orderBy('sort_order')->orderBy('id')->get();
         $moduleIds = $modules->pluck('id');
+
+        $attendanceCount = ModuleViewSession::query()
+            ->whereIn('module_id', $moduleIds)
+            ->where('total_seconds', '>', 0)
+            ->whereHas('user', $userScope)
+            ->distinct('user_id')
+            ->count('user_id');
 
         $progressQuery = ModuleUserProgress::query()
             ->whereIn('module_id', $moduleIds)
@@ -108,7 +115,7 @@ class DashboardController extends Controller
             'filters' => $filters,
             'stats' => [
                 'participants' => $participantCount,
-                'active' => $activeCount,
+                'attendance' => $attendanceCount,
                 'completed_chapters' => $completedChapters,
                 'participation_certificates' => $completedChapters,
                 'advanced_certificates' => $advancedCount,
