@@ -29,9 +29,22 @@ class LoginController extends Controller
             ], 422);
         }
 
-        $credentials = $request->only('email', 'password');
+        $credentials = array_merge($request->only('email', 'password'), ['status' => 'active']);
 
         if (Auth::guard('admin')->attempt($credentials, $request->remember ?? false)) {
+            $user = Auth::guard('admin')->user();
+            $isAllowed = $user->type === 'admin'
+                || ($user->type === 'employee' && $user->role === 'sub_admin');
+
+            if (!$isAllowed) {
+                Auth::guard('admin')->logout();
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This account is not authorised for the admin panel.',
+                ], 403);
+            }
+
             $request->session()->regenerate();
             return response()->json([
                 'success' => true,
@@ -51,7 +64,7 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::guard('admin')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

@@ -10,7 +10,10 @@
                 </div>
             </div>
             <div class="menu-item">
-                @foreach (getModules(request()->user()->type) as $key => $value)
+                @php
+                    $adminUser = \Illuminate\Support\Facades\Auth::guard('admin')->user();
+                @endphp
+                @foreach (getModules($adminUser->type, $adminUser->role) as $key => $value)
                     @php
                         $have_child = count($value['child']);
                     @endphp

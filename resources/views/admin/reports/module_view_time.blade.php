@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@php
+    $isSubAdmin = auth('admin')->user()?->role === 'sub_admin';
+@endphp
+
 @section('content')
     <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
         <div class="post d-flex flex-column-fluid" id="kt_post">
@@ -16,17 +20,19 @@
                             </select>
                         </div>
                         <div class="card-toolbar d-flex flex-wrap gap-2">
-                            <a href="{{ route('admin.reports.module_view_time.download_questions') }}" class="btn btn-light-primary" id="downloadQuestionsBtn">
-                                <i class="bi bi-question-circle me-2"></i>Session Questions
-                            </a>
+                            @unless($isSubAdmin)
+                                <a href="{{ route('admin.reports.module_view_time.download_questions') }}" class="btn btn-light-primary" id="downloadQuestionsBtn">
+                                    <i class="bi bi-file-earmark-excel me-2"></i>Questions Excel
+                                </a>
+                            @endunless
                             <a href="{{ route('admin.reports.module_view_time.download_attendees') }}" class="btn btn-light-primary" id="downloadAttendeesBtn">
-                                <i class="bi bi-people me-2"></i>Session Attendees
+                                <i class="bi bi-file-earmark-excel me-2"></i>Attendees Excel
                             </a>
                             <a href="{{ route('admin.reports.module_view_time.download_users') }}" class="btn btn-light-primary" id="downloadUsersBtn">
-                                <i class="bi bi-person-lines-fill me-2"></i>All Users
+                                <i class="bi bi-file-earmark-excel me-2"></i>Users Excel
                             </a>
                             <a href="{{ route('admin.reports.module_view_time.download') }}" class="btn btn-primary" id="downloadReportBtn">
-                                <i class="bi bi-download me-2"></i>Time Report
+                                <i class="bi bi-file-earmark-excel me-2"></i>Time Report Excel
                             </a>
                         </div>
                     </div>
@@ -92,8 +98,10 @@
             const syncDownloadUrl = () => {
                 const timeUrl = new URL('{{ route('admin.reports.module_view_time.download') }}', window.location.origin);
                 const attendeesUrl = new URL('{{ route('admin.reports.module_view_time.download_attendees') }}', window.location.origin);
-                const questionsUrl = new URL('{{ route('admin.reports.module_view_time.download_questions') }}', window.location.origin);
                 const usersUrl = new URL('{{ route('admin.reports.module_view_time.download_users') }}', window.location.origin);
+                @unless($isSubAdmin)
+                    const questionsUrl = new URL('{{ route('admin.reports.module_view_time.download_questions') }}', window.location.origin);
+                @endunless
                 const search = $('[data-kt-time-report-filter="search"]').val();
                 const moduleId = $('[data-kt-time-report-filter="module"]').val();
 
@@ -106,13 +114,17 @@
                 if (moduleId) {
                     timeUrl.searchParams.set('module_id', moduleId);
                     attendeesUrl.searchParams.set('module_id', moduleId);
-                    questionsUrl.searchParams.set('module_id', moduleId);
+                    @unless($isSubAdmin)
+                        questionsUrl.searchParams.set('module_id', moduleId);
+                    @endunless
                 }
 
                 document.getElementById('downloadReportBtn')?.setAttribute('href', timeUrl.toString());
                 document.getElementById('downloadAttendeesBtn')?.setAttribute('href', attendeesUrl.toString());
-                document.getElementById('downloadQuestionsBtn')?.setAttribute('href', questionsUrl.toString());
                 document.getElementById('downloadUsersBtn')?.setAttribute('href', usersUrl.toString());
+                @unless($isSubAdmin)
+                    document.getElementById('downloadQuestionsBtn')?.setAttribute('href', questionsUrl.toString());
+                @endunless
             };
 
             $('[data-kt-time-report-filter="search"], [data-kt-time-report-filter="module"]').on('keyup change', function () {

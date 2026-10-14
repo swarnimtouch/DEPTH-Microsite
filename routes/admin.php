@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\SessionViewUsersController;
 use App\Http\Controllers\Admin\SessionCommentsController;
 use App\Http\Controllers\Admin\FAQController;
 use App\Http\Controllers\Admin\DatabaseServersController;
+use App\Http\Controllers\Admin\SubAdminController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -34,7 +35,7 @@ Route::get('/login', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('post_login');
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::middleware(['auth:admin'])->group(function () {
+Route::middleware(['auth:admin', 'admin.access'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('/user', UserController::class);
     Route::post('/user/delete-multiple', [UserController::class, 'deleteMultiple'])->name('user.deleteMultiple');
@@ -99,6 +100,13 @@ Route::middleware(['auth:admin'])->group(function () {
         Route::post('/delete-multiple', [DoctorController::class, 'deleteMultiple'])->name('doctors.delete_multiple');
     });
 
+    Route::prefix('sub-admins')->group(function () {
+        Route::get('/', [SubAdminController::class, 'index'])->name('sub_admins');
+        Route::get('/add-edit/{id?}', [SubAdminController::class, 'form'])->name('sub_admins.form');
+        Route::match(['POST', 'PUT'], '/save/{id?}', [SubAdminController::class, 'save'])->name('sub_admins.save');
+        Route::delete('/{id}', [SubAdminController::class, 'delete'])->name('sub_admins.delete');
+    });
+
     Route::prefix('courses')->group(function () {
         Route::get('/', [CourseController::class, 'index'])->name('courses');
         Route::get('/add-edit/{id?}', [CourseController::class, 'addEditForm'])->name('courses.add_edit_form');
@@ -126,6 +134,7 @@ Route::middleware(['auth:admin'])->group(function () {
         Route::get('/datatable', [QuizController::class, 'datatable'])->name('quizzes.datatable');
         Route::get('/submissions', [QuizController::class, 'submissions'])->name('quizzes.submissions');
         Route::get('/submissions/datatable', [QuizController::class, 'submissionsDatatable'])->name('quizzes.submissions.datatable');
+        Route::get('/submissions/export', [QuizController::class, 'exportSubmissions'])->name('quizzes.submissions.export');
         Route::get('/submissions/{id}', [QuizController::class, 'showSubmission'])->name('quizzes.submissions.show');
         Route::post('/submissions/{id}/reply', [QuizController::class, 'saveSubmissionReply'])->name('quizzes.submissions.reply');
         Route::get('/add-edit/{id?}', [QuizController::class, 'addEditForm'])->name('quizzes.add_edit_form');
@@ -138,6 +147,7 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::prefix('comments')->group(function () {
         Route::get('/', [CommentController::class, 'index'])->name('comments');
         Route::get('/datatable', [CommentController::class, 'datatable'])->name('comments.datatable');
+        Route::get('/export', [CommentController::class, 'export'])->name('comments.export');
         Route::post('/status-change/{id}', [CommentController::class, 'statusChange'])->name('comments.status_change');
         Route::post('/delete/{id}', [CommentController::class, 'delete'])->name('comments.delete');
     });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Module;
 use App\Models\ModuleUserProgress;
 use App\Models\QuizQuestion;
+use App\Support\ExcelExport;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -72,6 +73,63 @@ class QuizController
             'recordsFiltered' => $recordsTotal,
             'data' => $data,
         ]);
+    }
+
+    public function exportSubmissions(Request $request)
+    {
+        $submissions = ModuleUserProgress::with(['module.questions.options', 'user'])
+            ->whereNotNull('quiz_completed_at')
+            ->whereNotNull('answers')
+            ->when($request->module_id, fn($query, $moduleId) => $query->where('module_id', $moduleId))
+            ->when($request->search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('module', fn($module) => $module->where('title', 'LIKE', "%$search%"))
+                        ->orWhereHas('user', fn($user) => $user
+                            ->where('name', 'LIKE', "%$search%")
+                            ->orWhere('email', 'LIKE', "%$search%")
+                            ->orWhere('mobile', 'LIKE', "%$search%"));
+                });
+            })
+            ->latest('quiz_completed_at')
+            ->get();
+
+        $rows = $submissions->map(function ($progress, $index) {
+            $answers = collect($progress->answers ?? []);
+            $answerLines = [];
+            $replyLines = [];
+
+            foreach ($progress->module?->questions ?? [] as $question) {
+                $answer = $answers->get((string) $question->id) ?? $answers->get($question->id) ?? [];
+                $selectedOption = !empty($answer['selected_option_id'])
+                    ? $question->options->firstWhere('id', (int) $answer['selected_option_id'])
+                    : null;
+                $value = ($question->question_type ?? 'options') === 'text'
+                    ? ($answer['answer_text'] ?? 'No answer')
+                    : ($selectedOption?->option_text ?? 'No answer');
+
+                $answerLines[] = $question->question . ': ' . $value;
+                if (filled($answer['admin_reply'] ?? null)) {
+                    $replyLines[] = $question->question . ': ' . $answer['admin_reply'];
+                }
+            }
+
+            return [
+                $index + 1,
+                $progress->user?->name ?: 'Delegate',
+                $progress->user?->email ?: '-',
+                $progress->user?->mobile ?: '-',
+                $progress->module?->title ?: '-',
+                $progress->quiz_completed_at?->format('d M Y, h:i A') ?: '-',
+                implode("\n", $answerLines),
+                $replyLines ? implode("\n", $replyLines) : '-',
+            ];
+        });
+
+        return ExcelExport::download(
+            'submitted-feedback-' . now()->format('Y-m-d-His'),
+            ['No.', 'Doctor', 'Email', 'Mobile', 'Chapter', 'Submitted At', 'Feedback Answers', 'Admin Replies'],
+            $rows
+        );
     }
 
     public function showSubmission($id)

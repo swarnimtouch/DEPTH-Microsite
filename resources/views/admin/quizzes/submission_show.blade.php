@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@php
+    $isSubAdmin = auth('admin')->user()?->role === 'sub_admin';
+@endphp
+
 @section('content')
     <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
         <div class="post d-flex flex-column-fluid" id="kt_post">
@@ -36,9 +40,11 @@
                             <div class="card-title">
                                 <h3 class="fw-bold mb-0">Feedback Answers</h3>
                             </div>
+                            @unless($isSubAdmin)
                             <div class="card-toolbar">
                                 <button type="submit" class="btn btn-primary">Save Replies</button>
                             </div>
+                            @endunless
                         </div>
                         <div class="card-body">
                             @foreach($progress->module->questions as $question)
@@ -66,6 +72,9 @@
 
                                     @if($isTextQuestion && filled($answerText))
                                         <label class="form-label fw-semibold">Admin Reply</label>
+                                        @if($isSubAdmin)
+                                            <div class="bg-light rounded p-4 text-gray-800">{{ filled($answer['admin_reply'] ?? null) ? $answer['admin_reply'] : 'No reply added.' }}</div>
+                                        @else
                                         <textarea
                                             name="replies[{{ $question->id }}]"
                                             class="form-control form-control-solid"
@@ -73,6 +82,7 @@
                                             maxlength="2000"
                                             placeholder="Write a reply for this question"
                                         >{{ old("replies.{$question->id}", $answer['admin_reply'] ?? '') }}</textarea>
+                                        @endif
                                         @if(!empty($answer['admin_replied_at']))
                                             <div class="text-muted fs-8 mt-2">Last replied {{ \Carbon\Carbon::parse($answer['admin_replied_at'])->format('d M Y, h:i A') }}</div>
                                         @endif
@@ -82,9 +92,11 @@
                                 </div>
                             @endforeach
                         </div>
+                        @unless($isSubAdmin)
                         <div class="card-footer d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">Save Replies</button>
                         </div>
+                        @endunless
                     </div>
                 </form>
             </div>

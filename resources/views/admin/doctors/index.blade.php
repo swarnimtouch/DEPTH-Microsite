@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@php
+    $isSubAdmin = auth('admin')->user()?->role === 'sub_admin';
+@endphp
+
 @section('content')
     <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
         <!--begin::Post-->
@@ -43,8 +47,9 @@
                             <!--begin::Toolbar-->
                             <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
                                 <a href="{{ route('admin.doctors.export') }}" class="btn btn-light-primary me-2" id="exportDoctorsBtn">
-                                    <i class="bi bi-download me-2"></i> Export Doctors
+                                    <i class="bi bi-file-earmark-excel me-2"></i> Export Excel
                                 </a>
+                                @unless($isSubAdmin)
                                 <!--begin::Add user-->
                                 <a href="{{ route('admin.doctors.add_edit_form') }}" class="btn btn-primary">
                                     <span class="svg-icon svg-icon-2">
@@ -57,11 +62,13 @@
                                     </span>
                                     Add Doctor
                                 </a>
+                                @endunless
                                 <!--end::Add user-->
                             </div>
                             <!--end::Toolbar-->
 
                             <!--begin::Group actions-->
+                            @unless($isSubAdmin)
                             <div class="d-flex justify-content-end align-items-center d-none"
                                  data-kt-user-table-toolbar="selected">
                                 <div class="fw-bolder me-5">
@@ -72,6 +79,7 @@
                                     Delete Selected
                                 </button>
                             </div>
+                            @endunless
                             <!--end::Group actions-->
                         </div>
                         <!--end::Card toolbar-->
@@ -84,6 +92,7 @@
                         <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_doctor">
                             <thead>
                             <tr class="text-start text-muted fw-bolder fs-7 text-uppercase gs-0">
+                                @unless($isSubAdmin)
                                 <th class="w-10px pe-2 no-sort">
                                     <div class="form-check form-check-sm form-check-custom form-check-solid me-3">
                                         <input class="form-check-input multiple-delete-checkbox"
@@ -94,13 +103,14 @@
 
                                     </div>
                                 </th>
+                                @endunless
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Mobile</th>
                                 <th>Hospital</th>
                                 <th>Country</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                @unless($isSubAdmin)<th>Actions</th>@endunless
                             </tr>
                             </thead>
                             <tbody></tbody>
@@ -141,14 +151,16 @@
                             d.search = $('[data-kt-user-table-filter="search"]').val();
                         }
                     },
-                    order: [[0, 'desc']],
+                    order: [[{{ $isSubAdmin ? 0 : 1 }}, 'asc']],
                     columns: [
+                        @unless($isSubAdmin)
                         {
                             data: 'id',
                             orderable: false,
                             searchable: false,
                             render: id => `<div class="form-check form-check-sm form-check-custom form-check-solid"> <input class="form-check-input row-checkbox" type="checkbox" value="${id}" /> </div>`
                         },
+                        @endunless
                         {
                             data: 'name'
                         },
@@ -167,11 +179,17 @@
                         {
                             data: 'status',
                             render: (data, type, row) => {
+                                @if($isSubAdmin)
+                                return `<span class="badge ${row.status === 'active' ? 'badge-light-success' : 'badge-light-danger'}">${row.status === 'active' ? 'Active' : 'Inactive'}</span>`;
+                                @else
                                 return `<label class="form-check form-switch form-check-custom form-check-solid">
         <input class="form-check-input status-change" data-id="${row.id}" type="checkbox" value="${row.status === 'active' ? 1 : 0}" ${row.status === 'active' ? 'checked="checked"' : ''}/>
     </label>`
+                                @endif
                             }
-                        },
+                        }
+                        @unless($isSubAdmin)
+                        ,
                         {
                             data: 'id',
                             orderable: false,
@@ -181,6 +199,7 @@
                         <button class="btn btn-sm delete-data" data-id="${id}" title="Delete"><i class="bi bi-trash delete-data"></i></button>
                     </div>`
                         }
+                        @endunless
                     ]
                 });
             }
@@ -201,6 +220,7 @@
                 document.getElementById('exportDoctorsBtn')?.setAttribute('href', url.toString());
             }
 
+            @unless($isSubAdmin)
             document.addEventListener('change', e => {
                 if (e.target.classList.contains('status-change')) {
 
@@ -247,6 +267,7 @@
                 }
 
             });
+            @endunless
             document.addEventListener('click', e => {
                 if ($(e.target).parent().hasClass('delete-data')) {
                     const buttonTag = $(e.target).parent();

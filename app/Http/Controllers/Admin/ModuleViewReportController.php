@@ -6,9 +6,9 @@ use App\Models\Module;
 use App\Models\ModuleViewSession;
 use App\Models\QuizQuestion;
 use App\Models\User;
+use App\Support\ExcelExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ModuleViewReportController extends Controller
 {
@@ -41,53 +41,26 @@ class ModuleViewReportController extends Controller
         ]);
     }
 
-    public function download(Request $request): StreamedResponse
+    public function download(Request $request)
     {
         $rows = $this->baseQuery($request)
             ->orderBy('module_title')
             ->orderBy('user_name')
             ->get();
 
-        return response()->streamDownload(function () use ($rows) {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, [
-                'Doctor',
-                'Email',
-                'Mobile',
-                'Chapter',
-                'Event Start',
-                'Event End',
-                'During Event Time',
-                'Post Event Time',
-                'Total Time',
-                'First Seen',
-                'Last Seen',
-            ]);
+        $exportRows = $rows->map(function ($row) {
+            $formatted = $this->formatRow($row);
+            return array_values($formatted);
+        });
 
-            foreach ($rows as $row) {
-                $formatted = $this->formatRow($row);
-                fputcsv($handle, [
-                    $formatted['user_name'],
-                    $formatted['email'],
-                    $formatted['mobile'],
-                    $formatted['module_title'],
-                    $formatted['event_start'],
-                    $formatted['event_end'],
-                    $formatted['during_event_time'],
-                    $formatted['post_event_time'],
-                    $formatted['total_time'],
-                    $formatted['first_seen'],
-                    $formatted['last_seen'],
-                ]);
-            }
-
-            fclose($handle);
-        }, 'user-time-report-' . now()->format('Y-m-d-His') . '.csv', [
-            'Content-Type' => 'text/csv',
-        ]);
+        return ExcelExport::download(
+            'user-time-report-' . now()->format('Y-m-d-His'),
+            ['Doctor', 'Email', 'Mobile', 'Chapter', 'Event Start', 'Event End', 'During Event Time', 'Post Event Time', 'Total Time', 'First Seen', 'Last Seen'],
+            $exportRows
+        );
     }
 
-    public function downloadQuestions(Request $request): StreamedResponse
+    public function downloadQuestions(Request $request)
     {
         $questions = QuizQuestion::with(['module', 'options'])
             ->when($request->module_id, fn($query) => $query->where('module_id', $request->module_id))
@@ -96,81 +69,46 @@ class ModuleViewReportController extends Controller
             ->orderBy('id')
             ->get();
 
-        return response()->streamDownload(function () use ($questions) {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, [
-                'Session',
-                'Question',
-                'Question Type',
-                'Options',
-                'Order',
-                'Status',
-            ]);
-
-            foreach ($questions as $question) {
-                fputcsv($handle, [
-                    $question->module?->title ?: '-',
-                    $question->question,
-                    ($question->question_type ?? 'options') === 'text' ? 'Text' : 'Options',
-                    $question->options->pluck('option_text')->implode(' | '),
-                    $question->sort_order,
-                    $question->status,
-                ]);
-            }
-
-            fclose($handle);
-        }, 'session-wise-questions-' . now()->format('Y-m-d-His') . '.csv', [
-            'Content-Type' => 'text/csv',
+        $rows = $questions->map(fn($question) => [
+            $question->module?->title ?: '-',
+            $question->question,
+            ($question->question_type ?? 'options') === 'text' ? 'Text' : 'Options',
+            $question->options->pluck('option_text')->implode(' | '),
+            $question->sort_order,
+            ucfirst($question->status),
         ]);
+
+        return ExcelExport::download(
+            'session-wise-questions-' . now()->format('Y-m-d-His'),
+            ['Session', 'Question', 'Question Type', 'Options', 'Order', 'Status'],
+            $rows
+        );
     }
 
-    public function downloadAttendees(Request $request): StreamedResponse
+    public function downloadAttendees(Request $request)
     {
         $rows = $this->baseQuery($request)
             ->orderBy('module_title')
             ->orderBy('user_name')
             ->get();
 
-        return response()->streamDownload(function () use ($rows) {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, [
-                'Session',
-                'Doctor',
-                'Email',
-                'Mobile',
-                'Event Start',
-                'Event End',
-                'First Seen',
-                'Last Seen',
-                'During Event Time',
-                'Post Event Time',
-                'Total Time',
-            ]);
+        $exportRows = $rows->map(function ($row) {
+            $formatted = $this->formatRow($row);
+            return [
+                $formatted['module_title'], $formatted['user_name'], $formatted['email'], $formatted['mobile'],
+                $formatted['event_start'], $formatted['event_end'], $formatted['first_seen'], $formatted['last_seen'],
+                $formatted['during_event_time'], $formatted['post_event_time'], $formatted['total_time'],
+            ];
+        });
 
-            foreach ($rows as $row) {
-                $formatted = $this->formatRow($row);
-                fputcsv($handle, [
-                    $formatted['module_title'],
-                    $formatted['user_name'],
-                    $formatted['email'],
-                    $formatted['mobile'],
-                    $formatted['event_start'],
-                    $formatted['event_end'],
-                    $formatted['first_seen'],
-                    $formatted['last_seen'],
-                    $formatted['during_event_time'],
-                    $formatted['post_event_time'],
-                    $formatted['total_time'],
-                ]);
-            }
-
-            fclose($handle);
-        }, 'session-wise-attendees-' . now()->format('Y-m-d-His') . '.csv', [
-            'Content-Type' => 'text/csv',
-        ]);
+        return ExcelExport::download(
+            'session-wise-attendees-' . now()->format('Y-m-d-His'),
+            ['Session', 'Doctor', 'Email', 'Mobile', 'Event Start', 'Event End', 'First Seen', 'Last Seen', 'During Event Time', 'Post Event Time', 'Total Time'],
+            $exportRows
+        );
     }
 
-    public function downloadUsers(Request $request): StreamedResponse
+    public function downloadUsers(Request $request)
     {
         $users = User::where('type', 'doctor')
             ->when($request->search, function ($query, $search) {
@@ -185,34 +123,21 @@ class ModuleViewReportController extends Controller
             ->orderBy('name')
             ->get();
 
-        return response()->streamDownload(function () use ($users) {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, [
-                'Doctor',
-                'Email',
-                'Mobile',
-                'Hospital',
-                'Country',
-                'Status',
-                'Registered At',
-            ]);
-
-            foreach ($users as $user) {
-                fputcsv($handle, [
-                    $user->name ?: '-',
-                    $user->email ?: '-',
-                    $user->mobile ?: '-',
-                    $user->hospital ?: '-',
-                    $user->country ?: '-',
-                    $user->status ?: '-',
-                    $user->created_at?->format('d M Y, h:i A') ?: '-',
-                ]);
-            }
-
-            fclose($handle);
-        }, 'all-users-' . now()->format('Y-m-d-His') . '.csv', [
-            'Content-Type' => 'text/csv',
+        $rows = $users->map(fn($user) => [
+            $user->name ?: '-',
+            $user->email ?: '-',
+            $user->mobile ?: '-',
+            $user->hospital ?: '-',
+            $user->country ?: '-',
+            ucfirst($user->status ?: '-'),
+            $user->created_at?->format('d M Y, h:i A') ?: '-',
         ]);
+
+        return ExcelExport::download(
+            'all-users-' . now()->format('Y-m-d-His'),
+            ['Doctor', 'Email', 'Mobile', 'Hospital', 'Country', 'Status', 'Registered At'],
+            $rows
+        );
     }
 
     private function baseQuery(Request $request)

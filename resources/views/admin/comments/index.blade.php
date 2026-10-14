@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@php
+    $isSubAdmin = auth('admin')->user()?->role === 'sub_admin';
+@endphp
+
 @section('content')
     <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
         <div class="post d-flex flex-column-fluid" id="kt_post">
@@ -28,6 +32,11 @@
                                 <option value="pending">Pending</option>
                             </select>
                         </div>
+                        <div class="card-toolbar">
+                            <a href="{{ route('admin.comments.export') }}" class="btn btn-light-primary" id="exportCommentsBtn">
+                                <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
+                            </a>
+                        </div>
                     </div>
 
                     <div class="card-body pt-0">
@@ -39,8 +48,10 @@
                                 <th>Comment</th>
                                 <th>Posted</th>
                                 <th>Status</th>
-                                <th>Publish</th>
-                                <th>Actions</th>
+                                @unless($isSubAdmin)
+                                    <th>Publish</th>
+                                    <th>Actions</th>
+                                @endunless
                             </tr>
                             </thead>
                             <tbody></tbody>
@@ -103,7 +114,9 @@
                             const label = status === 'publish' ? 'Published' : (status === 'pending' ? 'Pending' : 'Unpublished');
                             return `<span class="badge ${badge}">${label}</span>`;
                         }
-                    },
+                    }
+                    @unless($isSubAdmin)
+                    ,
                     {
                         data: 'id',
                         orderable: false,
@@ -118,13 +131,28 @@
                         searchable: false,
                         render: id => `<button class="btn btn-sm delete-comment" data-id="${id}" title="Delete"><i class="bi bi-trash"></i></button>`
                     }
+                    @endunless
                 ]
             });
 
             $('[data-kt-comments-table-filter="search"], [data-kt-comments-table-filter="module"], [data-kt-comments-table-filter="status"]').on('keyup change', function () {
+                syncExportUrl();
                 table.draw();
             });
 
+            const syncExportUrl = () => {
+                const url = new URL('{{ route('admin.comments.export') }}', window.location.origin);
+                const search = $('[data-kt-comments-table-filter="search"]').val();
+                const moduleId = $('[data-kt-comments-table-filter="module"]').val();
+                const status = $('[data-kt-comments-table-filter="status"]').val();
+                if (search) url.searchParams.set('search', search);
+                if (moduleId) url.searchParams.set('module_id', moduleId);
+                if (status) url.searchParams.set('status', status);
+                document.getElementById('exportCommentsBtn')?.setAttribute('href', url.toString());
+            };
+            syncExportUrl();
+
+            @unless($isSubAdmin)
             document.addEventListener('change', e => {
                 if (!e.target.classList.contains('comment-status-change')) return;
 
@@ -139,6 +167,7 @@
                         toastr.error('Status update failed');
                     });
             });
+            @endunless
 
             document.addEventListener('click', e => {
                 const button = e.target.closest('.delete-comment');

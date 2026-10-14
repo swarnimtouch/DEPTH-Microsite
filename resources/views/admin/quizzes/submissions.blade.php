@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@php
+    $isSubAdmin = auth('admin')->user()?->role === 'sub_admin';
+@endphp
+
 @section('content')
     <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
         <div class="post d-flex flex-column-fluid" id="kt_post">
@@ -22,8 +26,13 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="card-toolbar">
+                        <div class="card-toolbar gap-2">
+                            <a href="{{ route('admin.quizzes.submissions.export') }}" class="btn btn-light-primary" id="exportFeedbackBtn">
+                                <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
+                            </a>
+                            @unless($isSubAdmin)
                             <a href="{{ route('admin.quizzes') }}" class="btn btn-light">Feedback Questions</a>
+                            @endunless
                         </div>
                     </div>
 
@@ -79,14 +88,25 @@
                         data: 'id',
                         orderable: false,
                         searchable: false,
-                        render: id => `<a href="{{ route('admin.quizzes.submissions') }}/${id}" class="btn btn-sm btn-light-primary">View / Reply</a>`
+                        render: id => `<a href="{{ route('admin.quizzes.submissions') }}/${id}" class="btn btn-sm btn-light-primary">{{ $isSubAdmin ? 'View' : 'View / Reply' }}</a>`
                     }
                 ]
             });
 
+            const syncExportUrl = () => {
+                const url = new URL('{{ route('admin.quizzes.submissions.export') }}', window.location.origin);
+                const search = $('[data-kt-feedback-table-filter="search"]').val();
+                const moduleId = $('[data-kt-feedback-table-filter="module"]').val();
+                if (search) url.searchParams.set('search', search);
+                if (moduleId) url.searchParams.set('module_id', moduleId);
+                document.getElementById('exportFeedbackBtn')?.setAttribute('href', url.toString());
+            };
+
             $('[data-kt-feedback-table-filter="search"], [data-kt-feedback-table-filter="module"]').on('keyup change', function () {
+                syncExportUrl();
                 table.draw();
             });
+            syncExportUrl();
         });
     </script>
 @endpush

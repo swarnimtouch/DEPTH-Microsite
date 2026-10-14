@@ -1,6 +1,6 @@
 <!--begin::Aside-->
 @php
-    $user = \Illuminate\Support\Facades\Auth::user();
+    $user = \Illuminate\Support\Facades\Auth::guard('admin')->user();
 @endphp
 <div id="kt_aside" class="aside aside-dark aside-hoverable" data-kt-drawer="true" data-kt-drawer-name="aside"
      data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true"

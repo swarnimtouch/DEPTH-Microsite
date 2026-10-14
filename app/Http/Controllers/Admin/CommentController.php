@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Comments;
 use App\Models\Module;
+use App\Support\ExcelExport;
 use Illuminate\Http\Request;
 
 class CommentController
@@ -52,6 +53,40 @@ class CommentController
             'recordsFiltered' => $recordsTotal,
             'data' => $data,
         ]);
+    }
+
+    public function export(Request $request)
+    {
+        $comments = Comments::with(['module', 'user'])
+            ->when($request->module_id, fn($query, $moduleId) => $query->where('episode_id', $moduleId))
+            ->when($request->status, fn($query, $status) => $query->where('status', $status))
+            ->when($request->search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('comment', 'LIKE', "%$search%")
+                        ->orWhereHas('module', fn($module) => $module->where('title', 'LIKE', "%$search%"))
+                        ->orWhereHas('user', fn($user) => $user
+                            ->where('name', 'LIKE', "%$search%")
+                            ->orWhere('email', 'LIKE', "%$search%"));
+                });
+            })
+            ->latest()
+            ->get();
+
+        $rows = $comments->map(fn($comment, $index) => [
+            $index + 1,
+            $comment->module?->title ?: '-',
+            $comment->user?->name ?: 'Delegate',
+            $comment->user?->email ?: '-',
+            $comment->comment,
+            $comment->created_at?->format('d M Y, h:i A') ?: '-',
+            ucfirst($comment->status),
+        ]);
+
+        return ExcelExport::download(
+            'comments-' . now()->format('Y-m-d-His'),
+            ['No.', 'Chapter', 'User', 'Email', 'Comment', 'Posted At', 'Status'],
+            $rows
+        );
     }
 
     public function statusChange($id)

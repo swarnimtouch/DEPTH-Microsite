@@ -19,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         }
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->alias([
+            'admin.access' => \App\Http\Middleware\EnsureAdminAreaAccess::class,
+        ]);
         $middleware->use([
             \App\Http\Middleware\DefineConstants::class,
         ]);

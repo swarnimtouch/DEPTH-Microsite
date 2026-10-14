@@ -22,7 +22,7 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        $user = Auth::user();
+        $user = Auth::guard('admin')->user();
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -75,7 +75,7 @@ class ProfileController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        $user = auth()->user();
+        $user = Auth::guard('admin')->user();
 
         if (!Hash::check($request->current_password, $user->password)) {
             return back()->withErrors([

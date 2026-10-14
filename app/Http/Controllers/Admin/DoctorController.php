@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Country;
 use App\Models\User;
+use App\Support\ExcelExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DoctorController
 {
@@ -63,7 +63,7 @@ class DoctorController
         ]);
     }
 
-    public function export(Request $request): StreamedResponse
+    public function export(Request $request)
     {
         $doctors = User::where('type', 'doctor')
             ->when($request->search, function ($query, $search) {
@@ -78,43 +78,24 @@ class DoctorController
             ->orderBy('name')
             ->get();
 
-        return response()->streamDownload(function () use ($doctors) {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, [
-                'No.',
-                'Name',
-                'Hospital',
-                'Country',
-                'Mobile Number',
-                'Email Id',
-                'Last Login',
-                'Created At',
-            ]);
-
-            foreach ($doctors as $index => $doctor) {
-                $lastLoginAt = $doctor->last_login_at
-                    ? '="' . $doctor->last_login_at->format('d-m-Y h:i A') . '"'
-                    : '="' . $doctor->updated_at->format('d-m-Y h:i A') . '"';
-                $createdAt = $doctor->created_at
-                    ? '="' . $doctor->created_at->format('d-m-Y h:i A') . '"'
-                    : '';
-
-                fputcsv($handle, [
-                    $index + 1,
-                    $doctor->name,
-                    $doctor->hospital,
-                    $doctor->country,
-                    $doctor->mobile,
-                    $doctor->email,
-                    $lastLoginAt,
-                    $createdAt,
-                ]);
-            }
-
-            fclose($handle);
-        }, 'doctors-' . now()->format('Y-m-d-His') . '.csv', [
-            'Content-Type' => 'text/csv',
+        $rows = $doctors->map(fn($doctor, $index) => [
+            $index + 1,
+            $doctor->name,
+            $doctor->hospital,
+            $doctor->country,
+            $doctor->mobile,
+            $doctor->email,
+            $doctor->last_login_at?->format('d-m-Y h:i A')
+                ?: $doctor->updated_at?->format('d-m-Y h:i A'),
+            $doctor->created_at?->format('d-m-Y h:i A'),
+            ucfirst($doctor->status),
         ]);
+
+        return ExcelExport::download(
+            'doctors-' . now()->format('Y-m-d-His'),
+            ['No.', 'Name', 'Hospital', 'Country', 'Mobile Number', 'Email Id', 'Last Login', 'Created At', 'Status'],
+            $rows
+        );
     }
 
     public function addEditForm($id = null)

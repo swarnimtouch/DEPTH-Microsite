@@ -61,7 +61,7 @@ if (!function_exists('breadcrumb')) {
     }
 }
 
-function getModules($user_type = 'admin'): array
+function getModules($user_type = 'admin', ?string $role = null): array
 {
     $currentRoute = Route::current();
     $module = [];
@@ -81,6 +81,13 @@ function getModules($user_type = 'admin'): array
                 'icon' => 'bi bi-briefcase fs-3',
                 'child' => [],
                 'all_routes' => ['admin.doctors', 'admin.doctors.add_edit_form']
+            ],
+            [
+                'route' => route('admin.sub_admins'),
+                'name' => 'Sub Admins',
+                'icon' => 'bi bi-person-badge fs-3',
+                'child' => [],
+                'all_routes' => ['admin.sub_admins', 'admin.sub_admins.form']
             ],
             [
                 'route' => route('admin.modules'),
@@ -156,6 +163,44 @@ function getModules($user_type = 'admin'): array
                     'admin.faqs', 'admin.faqs.add_edit_form'
                 ]
             ]
+        ];
+    } elseif ($user_type === 'employee' && $role === 'sub_admin') {
+        $module = [
+            [
+                'route' => route('admin.dashboard'),
+                'name' => 'Dashboard',
+                'icon' => 'bi bi-grid fs-3',
+                'child' => [],
+                'all_routes' => ['admin.dashboard'],
+            ],
+            [
+                'route' => route('admin.doctors'),
+                'name' => 'Doctors',
+                'icon' => 'bi bi-briefcase fs-3',
+                'child' => [],
+                'all_routes' => ['admin.doctors'],
+            ],
+            [
+                'route' => route('admin.quizzes.submissions'),
+                'name' => 'Submitted Feedback',
+                'icon' => 'bi bi-chat-square-text fs-3',
+                'child' => [],
+                'all_routes' => ['admin.quizzes.submissions', 'admin.quizzes.submissions.show'],
+            ],
+            [
+                'route' => route('admin.comments'),
+                'name' => 'Comments',
+                'icon' => 'bi bi-chat-left-text fs-3',
+                'child' => [],
+                'all_routes' => ['admin.comments'],
+            ],
+            [
+                'route' => route('admin.reports.module_view_time'),
+                'name' => 'Time Reports',
+                'icon' => 'bi bi-clock-history fs-3',
+                'child' => [],
+                'all_routes' => ['admin.reports.module_view_time'],
+            ],
         ];
     }
 
