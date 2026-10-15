@@ -12,7 +12,6 @@ use Illuminate\Validation\Rule;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class WebLoginController
 {
@@ -50,38 +49,6 @@ class WebLoginController
     public function live()
     {
         return $this->dashboardSection('live', 'Live session');
-    }
-
-    public function room()
-    {
-        if (!Auth::guard('web')->check()) {
-            return redirect()
-                ->route('login')
-                ->with('error', 'Please login first');
-        }
-
-        $activeCourse = Course::active()->with(['activeModules.doctor'])->first();
-        $modules = $activeCourse?->activeModules ?? collect();
-        $module = $modules
-            ->filter(fn($item) => $item->end_at && $item->end_at->gte(now()))
-            ->sortBy(fn($item) => $item->start_at?->timestamp ?? PHP_INT_MAX)
-            ->first() ?: $modules->first();
-
-        abort_if(!$module, 404);
-
-        $roomKey = hash_hmac('sha256', implode('|', [
-            config('app.url'),
-            $module->id,
-            $module->slug,
-        ]), (string) config('app.key'));
-
-        return view('website.dashboard.room', [
-            'title' => $module->title,
-            'module' => $module,
-            'roomName' => 'depth-' . Str::lower(substr($roomKey, 0, 24)),
-            'jitsiDomain' => config('services.jitsi.domain', 'meet.jit.si'),
-            'participant' => Auth::guard('web')->user(),
-        ]);
     }
 
     public function hub()
@@ -279,7 +246,7 @@ class WebLoginController
             'duration' => $agendaModule->duration,
             'videoPageUrl' => route('modules.show', $agendaModule->slug),
             'recordingAvailable' => (bool) ($agendaModule->video_url || $fullRecordingReady),
-            'roomUrl' => route('dashboard.room'),
+            'roomUrl' => route('modules.show', $agendaModule->slug),
             'certificateUrl' => route('modules.certificate', $agendaModule->slug),
             'certificateUnlocked' => (bool) $moduleProgress?->video_completed_at,
         ] : [];

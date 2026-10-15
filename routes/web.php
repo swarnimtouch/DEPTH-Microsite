@@ -14,7 +14,6 @@ Route::get('/dashboard/agenda', [WebLoginController::class, 'agenda'])->name('da
 Route::get('/dashboard/cases', [WebLoginController::class, 'cases'])->name('dashboard.cases');
 Route::get('/dashboard/speakers', [WebLoginController::class, 'speakers'])->name('dashboard.speakers');
 Route::get('/dashboard/live', [WebLoginController::class, 'live'])->name('dashboard.live');
-Route::get('/dashboard/room', [WebLoginController::class, 'room'])->name('dashboard.room');
 Route::get('/dashboard/post-event-hub', [WebLoginController::class, 'hub'])->name('dashboard.hub');
 Route::get('/dashboard/takeaways', [WebLoginController::class, 'takeaways'])->name('dashboard.takeaways');
 Route::get('/dashboard/certificate', [WebLoginController::class, 'dashboardCertificate'])->name('dashboard.certificate');

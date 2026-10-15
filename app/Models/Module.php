@@ -129,6 +129,10 @@ class Module extends Model
             $videoId = $matches[1];
         }
 
+        if (!$videoId && preg_match('/youtube\.com\/(?:live|shorts)\/([A-Za-z0-9_-]+)/', $url, $matches)) {
+            $videoId = $matches[1];
+        }
+
         if (!$videoId) {
             $query = parse_url($url, PHP_URL_QUERY);
             parse_str($query ?: '', $params);

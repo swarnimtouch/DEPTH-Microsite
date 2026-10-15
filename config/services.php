@@ -45,8 +45,4 @@ return [
         'token' => env('SMS_API_TOKEN'),
     ],
 
-    'jitsi' => [
-        'domain' => env('JITSI_DOMAIN', 'meet.jit.si'),
-    ],
-
 ];
