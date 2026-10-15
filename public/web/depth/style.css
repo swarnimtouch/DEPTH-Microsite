@@ -492,7 +492,7 @@ main{flex:1}
 .arms img{height:52px;width:auto;max-width:100%;object-fit:contain}.arms.tech img{height:40px}
 .field span small{font-weight:600;color:var(--muted);font-size:11px}
 .input:disabled{background:var(--bg-2);color:var(--muted)}
-@media (max-width:760px){.arms{padding:12px 14px}.arms img{height:auto;width:100%}.arms.tech img{width:auto;height:36px}}
+@media (max-width:760px){.arms-row{justify-content:center}.arms{padding:12px 14px}.arms img{height:auto;width:100%}.arms.tech img{width:auto;height:36px}}
 
 /* ---------- homepage: centred copy, LIVE block + countdown below the form ---------- */
 .hero-copy.centred{text-align:center}
