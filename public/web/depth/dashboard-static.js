@@ -325,6 +325,7 @@
   /* ---------- hub ---------- */
   function renderHub() {
     const ready = status() === 'replay';
+    const recordingReady = ready && EVENT.recordingAvailable;
     const fullRecording = RESOURCES.find((resource) => resource.category === 'full_recording');
     const postRead = RESOURCES.find((resource) => resource.category === 'post_read');
     const snippet = RESOURCES.find((resource) => resource.category === 'snippet_video');
@@ -338,7 +339,7 @@
         ? `<button class="${css}" data-resource="${index}">${label}</button>`
         : `<button class="${css}" disabled>Coming soon</button>`;
     };
-    const recordingAction = EVENT.recordingAvailable
+    const recordingAction = recordingReady
       ? `<a class="btn btn-grad sm" href="${esc(EVENT.videoPageUrl || '#live')}">Watch full session →</a>`
       : '<button class="btn btn-line sm" disabled>Coming soon</button>';
     const postReadAction = postRead?.available
@@ -359,7 +360,6 @@
       : `<button class="btn btn-grad sm" disabled>${ready ? 'Locked' : 'Available after event'}</button>`;
     learningCards.push(['cert', 'Certificate of participation', certificateText, certificateButton]);
     $('hub-postread').innerHTML = learningCards.map(([k, t, d, b], i) => `<div class="pr-card" style="--d:${i * 70}ms"><span class="t-ico">${ico(k)}</span><div><b>${esc(t)}</b><p>${esc(d)}</p>${b}</div></div>`).join('');
-    const recordingReady = EVENT.recordingAvailable;
     const res = [[fullRecording?.label || 'Full Webinar Recording', 'Video', recordingReady ? `<a class="link" href="${esc(EVENT.videoPageUrl || '#live')}">Watch</a>` : '<button class="link" disabled>Coming soon</button>']];
     res.push([postRead?.label || '1-Page Post-read / Synopsis', 'PDF', resourceButton(postRead, 'View', 'link')]);
     res.push([snippet?.label || 'Snippet videos', 'Video', resourceButton(snippet, 'Watch', 'link')]);
@@ -374,7 +374,7 @@
     $('tk-note').textContent = status() === 'replay' ? EVENT.date : 'Draft — final takeaways are published after the session.';
     const labels = { evidence: 'Evidence-based clinical insight', assessment: 'Patient assessment / diagnostic insight', treatment: 'Treatment / management consideration', case: 'Case-based learning point', practice: 'Practical / forward-looking insight' };
     $('tk-list').innerHTML = EVENT.takeaways.map(([k, t], i) => `<li style="--d:${i * 80}ms"><span class="tk-ico">${ico(k)}</span><div><small>0${i + 1} · ${labels[k]}</small><p>${esc(t)}</p></div></li>`).join('');
-    const recordingButton = EVENT.recordingAvailable
+    const recordingButton = status() === 'replay' && EVENT.recordingAvailable
       ? `<a class="btn btn-grad" href="${esc(EVENT.videoPageUrl)}">Watch recording →</a>`
       : '<button class="btn btn-grad" disabled>Coming soon</button>';
     document.querySelector('.std-band').innerHTML = `<div><div class="kicker">Revisit the full session</div><h3>Watch the recording</h3></div>${recordingButton}`;
