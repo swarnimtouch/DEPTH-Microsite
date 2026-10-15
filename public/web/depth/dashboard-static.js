@@ -197,7 +197,7 @@
     if (!state.user) { el.innerHTML = `<span>Live session · ${EVENT.dateShort} · ${EVENT.time}</span><a class="btn btn-grad sm" href="#register" data-scroll="register">Register now →</a>`; el.hidden = true; el.dataset.watch = '1'; watchForm(); return; }
     delete el.dataset.watch;
     if (s === 'live') { el.innerHTML = `<span><span class="status s-live">Live now</span> ${esc(EVENT.full)}</span><button class="btn btn-grad sm" data-join="1">Join session →</button>`; el.hidden = false; return; }
-    if (s === 'upcoming' && state.view !== 'live') { el.innerHTML = `<span>Live session · ${EVENT.dateShort} · ${EVENT.time}</span><button class="btn btn-line sm" data-go="live">Join link</button>`; el.hidden = false; return; }
+    if (s === 'upcoming' && state.view !== 'live') { el.innerHTML = `<span>Live session · ${EVENT.dateShort} · ${EVENT.time}</span><button class="btn btn-line sm" data-go="live">Session details</button>`; el.hidden = false; return; }
     el.hidden = true;
   }
 
@@ -257,11 +257,14 @@
     const pct = Math.min(100, Math.round((casesRead / Math.max(1, CASES.length)) * 60 + (s === 'replay' ? 40 : 0)));
     $('ov-bar').style.width = pct + '%'; $('ov-pct').textContent = pct + '%';
     $('ov-progress-note').textContent = `${casesRead} of ${CASES.length} case booklets opened · live session ${s === 'replay' ? 'completed' : 'upcoming'}.`;
+    const liveAction = s === 'live'
+      ? '<button class="btn btn-grad sm" data-join="1">Join webinar →</button>'
+      : '<button class="btn btn-soft sm" data-go="live">Session details</button>';
     $('ov-next').innerHTML = s === 'replay' ? '<b>The live session has concluded.</b><div class="small muted">Recording, post-read and your certificate are in the post-event hub.</div><div class="btn-row" style="margin-top:12px"><button class="btn btn-line sm" data-go="hub">Post-event hub</button></div>'
-      : `<b>Live session — ${esc(EVENT.title)}</b><div class="small muted">${EVENT.date} · ${EVENT.time}</div><div class="countdown" id="ov-cd"></div><div class="btn-row" style="margin-top:14px"><button class="btn btn-line sm" data-ics="1">Add to calendar</button><button class="btn btn-soft sm" data-go="live">Join link</button></div>`;
+      : `<b>Live session — ${esc(EVENT.title)}</b><div class="small muted">${EVENT.date} · ${EVENT.time}</div><div class="countdown" id="ov-cd"></div><div class="btn-row" style="margin-top:14px"><button class="btn btn-line sm" data-ics="1">Add to calendar</button>${liveAction}</div>`;
     if (s !== 'replay') countdown($('ov-cd'), EVENT.start, 'Opens in');
     $('ov-strip').innerHTML = stripRow();
-    $('ov-cards').innerHTML = `<article class="web-card ov"><img class="wc-img" src="${EVENT.img}" alt=""><div class="wc-body"><div class="wc-label"><span>Live session</span><i></i><em class="tagchip">Case-based webinar</em></div><h3>${esc(EVENT.full)}</h3><div class="wc-date">${ico('calendar')}<b>${EVENT.dateShort}</b><span>${EVENT.time}</span></div><p><b>Learning proposition —</b> ${esc(EVENT.proposition)}</p>${speakerMini(EVENT.speaker)}<div class="wc-foot">${pill()}<span class="btn-row"><button class="btn btn-grad sm" data-go="live">Join now</button><button class="btn btn-line sm" data-go="agenda">View details →</button></span></div></div></article>`;
+    $('ov-cards').innerHTML = `<article class="web-card ov"><img class="wc-img" src="${EVENT.img}" alt=""><div class="wc-body"><div class="wc-label"><span>Live session</span><i></i><em class="tagchip">Case-based webinar</em></div><h3>${esc(EVENT.full)}</h3><div class="wc-date">${ico('calendar')}<b>${EVENT.dateShort}</b><span>${EVENT.time}</span></div><p><b>Learning proposition —</b> ${esc(EVENT.proposition)}</p>${speakerMini(EVENT.speaker)}<div class="wc-foot">${pill()}<span class="btn-row">${liveAction}<button class="btn btn-line sm" data-go="agenda">View details →</button></span></div></div></article>`;
     $('ov-cases').innerHTML = CASES.map((c) => caseCard(c, true)).join('');
   }
 
@@ -441,7 +444,7 @@
   }
   function openGoogleCalendar() {
     const dt = (iso) => new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    const details = EVENT.desc + (EVENT.joinUrl ? `\n\nJoin webinar: ${EVENT.joinUrl}` : '');
+    const details = EVENT.desc;
     const params = new URLSearchParams({
       action: 'TEMPLATE',
       text: `DEPTH live session — ${EVENT.full}`,
@@ -462,10 +465,8 @@
     if (t.dataset.resource !== undefined) { openResource(t.dataset.resource); return; }
     if (t.dataset.close !== undefined) { $('modal').hidden = true; $('modal-art').innerHTML = '<div class="play"><span></span></div>'; return; }
     if (t.dataset.join) {
-      if (!EVENT.joinUrl) { toast('Join link has not been published yet'); return; }
-      const joinUrl = new URL(EVENT.joinUrl, window.location.href);
-      if (joinUrl.origin === window.location.origin) window.location.assign(joinUrl.href);
-      else window.open(joinUrl.href, '_blank', 'noopener,noreferrer');
+      if (!EVENT.roomUrl) { toast('Webinar room is not available yet'); return; }
+      window.location.assign(EVENT.roomUrl);
       return;
     }
     if (t.dataset.print) { document.body.dataset.print = t.dataset.print; window.print(); return; }
