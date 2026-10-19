@@ -29,13 +29,13 @@
                 <img class="logo-hetero" src="{{ $depthAsset('hetero.png') }}" alt="Hetero">
             </a>
             <nav class="hdr-nav" aria-label="Primary navigation">
-                <a href="#program">Program</a>
+                <a class="btn btn-grad sm header-program-link" href="#program">Program</a>
                 @auth('web')
                     <a class="btn btn-line sm" href="{{ route('dashboard') }}">Dashboard</a>
                     <a class="btn btn-grad sm" href="{{ route('logout') }}">Log out</a>
                 @else
-                    <a href="#register" data-show-login>Log in</a>
-                    <a class="btn btn-grad sm" href="#register">Register now</a>
+                    <a class="btn btn-grad sm header-login-link" href="#register" data-show-login>Log in</a>
+                    <a class="btn btn-grad sm header-register-link" href="#register">Register now</a>
                 @endauth
             </nav>
         </div>
@@ -54,7 +54,7 @@
                         @auth('web')
                             <div class="btn-row"><a class="btn btn-grad lg" href="{{ route('modules') }}">Open learning &rarr;</a><a class="btn btn-line lg" href="#program">Explore the program</a></div>
                         @else
-                            <div class="btn-row"><a class="btn btn-grad lg" href="#register">Register now &rarr;</a><a class="btn btn-line lg" href="#program">Explore the program</a></div>
+                            <div class="btn-row"><a class="btn btn-grad lg hero-register-link" href="#register">Register now &rarr;</a><a class="btn btn-line lg" href="#program">Explore the program</a></div>
                         @endauth
                     </div>
 
@@ -164,7 +164,7 @@
 <style>
 .depth-page .logo-hetero{height:48px;width:auto}.depth-page .trust-row.solo .t-hetero{height:44px}.depth-page .arm-logos .a-hetero{height:34px}.depth-page .micro-error{display:block;color:#b8141b;font-size:12px;margin-top:5px}.depth-page .input.is-invalid{border-color:#b8141b}.depth-page #register{scroll-margin-top:100px}
 .depth-page .landing-login-form{grid-template-columns:1fr}.depth-page .landing-auth-alert{margin:0 24px 18px;padding:11px 13px;border:1px solid #f1b8bc;border-radius:9px;background:#fff1f2;color:#a01016;font-size:13px;line-height:1.45}.depth-page .landing-auth-eyebrow{display:inline-block;margin-bottom:10px;color:#c4161c;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.depth-page .landing-member-actions{display:grid;gap:12px;padding:0 24px 24px}.depth-page .landing-logout-link{text-align:center;color:#6b7080;font-size:13px;font-weight:700}.depth-page .landing-logout-link:hover{color:#b8141b}.depth-page button.link{appearance:none;border:0;background:none;padding:0}
-@media(max-width:760px){.depth-page .hdr-in{flex-wrap:nowrap}.depth-page .logo-hetero{height:36px}.depth-page .trust-row.solo .t-hetero{height:38px}.depth-page .arm-logos .a-hetero{height:30px}.depth-page .hdr-nav>a:not(.btn){display:none}}
+@media(max-width:760px){.depth-page .hdr-in{flex-wrap:nowrap}.depth-page .brand{flex:0 0 auto}.depth-page .logo-hetero{height:44px}.depth-page .trust-row.solo .t-hetero{height:38px}.depth-page .arm-logos .a-hetero{height:30px}.depth-page .hdr-nav{display:grid;grid-template-columns:repeat(2,max-content);gap:6px;margin-left:auto}.depth-page .hdr-nav .btn{padding:10px 11px;font-size:9.5px;letter-spacing:.03em}.depth-page .hdr-nav .header-program-link{display:none}.depth-page .hdr-nav>a:not(.btn){display:none}.depth-page .hero-register-link{display:none!important}}
 </style>
 @endpush
 
