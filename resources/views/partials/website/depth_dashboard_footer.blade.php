@@ -4,13 +4,9 @@
         <path d="M0 85 C 450 30, 950 120, 1600 50" fill="none" stroke="#1F2A44" stroke-width="2"/>
     </svg>
     <div class="ftr-in">
-        <div class="kicker muted">An educational initiative brought to you by</div>
-        <div class="trust-row solo">
-            <img class="t-hetero" src="{{ asset('web/depth/assets/hetero.png') }}" alt="Hetero">
-        </div>
         <div class="arms-row">
             <div class="arms">
-                <small>Marketing arms</small>
+                <small>Global Marketing Arms</small>
                 <div class="arm-logos">
                     <img src="{{ asset('web/depth/assets/partners/hetero.png') }}" alt="Hetero" class="a-hetero">
                     <img src="{{ asset('web/depth/assets/partners/hetero-healthcare.svg') }}" alt="Hetero Healthcare" class="a-hh">

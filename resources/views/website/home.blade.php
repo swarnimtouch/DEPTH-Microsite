@@ -143,10 +143,8 @@
     <footer class="ftr">
         <svg class="swoosh" viewBox="0 0 1600 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 C 400 10, 900 110, 1600 30" fill="none" stroke="#E0242B" stroke-width="2"/><path d="M0 85 C 450 30, 950 120, 1600 50" fill="none" stroke="#1F2A44" stroke-width="2"/></svg>
         <div class="ftr-in">
-            <div class="kicker muted">An educational initiative brought to you by</div>
-            <div class="trust-row solo"><img class="t-hetero" src="{{ $depthAsset('hetero.png') }}" alt="Hetero"></div>
             <div class="arms-row">
-                <div class="arms"><small>Marketing arms</small><div class="arm-logos"><img src="{{ $depthAsset('partners/hetero.png') }}" alt="Hetero" class="a-hetero"><img src="{{ $depthAsset('partners/hetero-healthcare.svg') }}" alt="Hetero Healthcare" class="a-hh"><img src="{{ $depthAsset('partners/amarox.png') }}" alt="Amarox" class="a-amarox"><img src="{{ $depthAsset('partners/camber.png') }}" alt="Camber Pharmaceuticals" class="a-camber"><img src="{{ $depthAsset('partners/seven-pharma.png') }}" alt="Seven Pharma" class="a-seven"></div></div>
+                <div class="arms"><small>Global Marketing Arms</small><div class="arm-logos"><img src="{{ $depthAsset('partners/hetero.png') }}" alt="Hetero" class="a-hetero"><img src="{{ $depthAsset('partners/hetero-healthcare.svg') }}" alt="Hetero Healthcare" class="a-hh"><img src="{{ $depthAsset('partners/amarox.png') }}" alt="Amarox" class="a-amarox"><img src="{{ $depthAsset('partners/camber.png') }}" alt="Camber Pharmaceuticals" class="a-camber"><img src="{{ $depthAsset('partners/seven-pharma.png') }}" alt="Seven Pharma" class="a-seven"></div></div>
                 <div class="arms tech"><small>Technical support by</small><img src="{{ $depthAsset('alphamed.png') }}" alt="AlphaMed"></div>
             </div>
             
