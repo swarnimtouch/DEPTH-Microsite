@@ -302,6 +302,7 @@ main{flex:1}
 .live-card{display:grid;grid-template-columns:320px minmax(0,1fr);background:var(--grad);color:#fff;border-radius:18px;overflow:hidden;box-shadow:var(--shadow);animation-delay:var(--d,0ms)}
 .live-card.is-live{box-shadow:0 0 0 3px var(--blue),var(--shadow)}
 .lc-img{width:100%;height:100%;object-fit:cover;min-height:220px}
+.event-consultation-img{object-fit:contain!important;background:#fff}
 .lc-body{padding:26px 28px;display:flex;flex-direction:column;gap:14px}.lc-body h2{font-size:22px;font-weight:800;letter-spacing:-.01em;line-height:1.3}
 .lc-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
 .live-help{margin-top:28px;padding:16px 18px;background:var(--bg-2);border-radius:12px;font-size:14px;color:var(--ink-2)}.live-help b{color:var(--navy)}

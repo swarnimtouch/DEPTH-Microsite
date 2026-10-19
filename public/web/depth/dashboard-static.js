@@ -16,7 +16,7 @@
     proposition: 'When should primary care clinicians suspect depression — and what should they do next?',
     date: '20 November 2026', dateShort: '20 Nov 2026', day: 'Friday', time: '4:00 – 5:00 PM IST',
     start: '2026-11-20T16:00:00+05:30', end: '2026-11-20T17:00:00+05:30',
-    img: depthAsset('assets/visual/brain-red.jpg'), speaker: 'kasper',
+    img: depthAsset('assets/visual/doctor-patient-consultation.png'), speaker: 'kasper',
     agenda: [
       [5, 'Welcome and Introduction of International speaker', 'Medical Team, Hetero'],
       [30, 'The Hidden Burden: Recognizing Depression in Patients with Cardiometabolic and Gastrointestinal Disorders', 'Prof. Siegfried Kasper'],
@@ -264,7 +264,7 @@
       : `<b>Live session — ${esc(EVENT.title)}</b><div class="small muted">${EVENT.date} · ${EVENT.time}</div><div class="countdown" id="ov-cd"></div><div class="btn-row" style="margin-top:14px"><button class="btn btn-line sm" data-ics="1">Add to calendar</button>${liveAction}</div>`;
     if (s !== 'replay') countdown($('ov-cd'), EVENT.start, 'Opens in');
     $('ov-strip').innerHTML = stripRow();
-    $('ov-cards').innerHTML = `<article class="web-card ov"><img class="wc-img" src="${EVENT.img}" alt=""><div class="wc-body"><div class="wc-label"><span>Live session</span><i></i><em class="tagchip">Case-based webinar</em></div><h3>${esc(EVENT.full)}</h3><div class="wc-date">${ico('calendar')}<b>${EVENT.dateShort}</b><span>${EVENT.time}</span></div><p><b>Learning proposition —</b> ${esc(EVENT.proposition)}</p>${speakerMini(EVENT.speaker)}<div class="wc-foot">${pill()}<span class="btn-row">${liveAction}<button class="btn btn-line sm" data-go="agenda">View details →</button></span></div></div></article>`;
+    $('ov-cards').innerHTML = `<article class="web-card ov"><img class="wc-img event-consultation-img" src="${EVENT.img}" alt="Doctor consulting with a patient"><div class="wc-body"><div class="wc-label"><span>Live session</span><i></i><em class="tagchip">Case-based webinar</em></div><h3>${esc(EVENT.full)}</h3><div class="wc-date">${ico('calendar')}<b>${EVENT.dateShort}</b><span>${EVENT.time}</span></div><p><b>Learning proposition —</b> ${esc(EVENT.proposition)}</p>${speakerMini(EVENT.speaker)}<div class="wc-foot">${pill()}<span class="btn-row">${liveAction}<button class="btn btn-line sm" data-go="agenda">View details →</button></span></div></div></article>`;
     $('ov-cases').innerHTML = CASES.map((c) => caseCard(c, true)).join('');
   }
 
@@ -316,7 +316,7 @@
           : '<button class="btn btn-soft lg" disabled>Coming soon</button>')
         : `<button class="btn btn-soft lg" disabled>Join webinar</button><div class="countdown dark" id="live-cd"></div>`;
     const speakerNames = Object.values(SPEAKERS).map((speaker) => speaker.name).join(', ');
-    $('live-cards').innerHTML = `<article class="live-card${s === 'live' ? ' is-live' : ''}"><img class="lc-img" src="${EVENT.img}" alt=""><div class="lc-body"><div class="wc-label light"><span>Live session</span><i></i></div><h2>${esc(EVENT.full)}</h2><table class="table mini"><tr><th>Date</th><th>Time</th><th>Speaker</th></tr><tr><td>${EVENT.date} (${EVENT.day})</td><td>${EVENT.time}</td><td>${esc(speakerNames)}</td></tr></table><div class="lc-foot">${pill()}${cta}</div></div></article>`;
+    $('live-cards').innerHTML = `<article class="live-card${s === 'live' ? ' is-live' : ''}"><img class="lc-img event-consultation-img" src="${EVENT.img}" alt="Doctor consulting with a patient"><div class="lc-body"><div class="wc-label light"><span>Live session</span><i></i></div><h2>${esc(EVENT.full)}</h2><table class="table mini"><tr><th>Date</th><th>Time</th><th>Speaker</th></tr><tr><td>${EVENT.date} (${EVENT.day})</td><td>${EVENT.time}</td><td>${esc(speakerNames)}</td></tr></table><div class="lc-foot">${pill()}${cta}</div></div></article>`;
     if (s === 'upcoming') countdown($('live-cd'), EVENT.start, 'Opens in', true);
     liveClock();
   }
