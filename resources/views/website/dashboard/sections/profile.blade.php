@@ -1,6 +1,10 @@
 <section class="view wrap" data-view="profile">
-  <div class="member-head"><div><div class="kicker">My profile</div><h1 class="h1" id="pf-name">Profile</h1></div></div>
+  <div class="member-head"><div><h1 class="h1" id="pf-name">Profile</h1></div></div>
   <div class="card pad profile-form-card">
+    <div class="profile-form-head">
+      <div><div class="kicker">Registration details</div><h2 class="h2">Profile information</h2></div>
+      <a class="btn btn-blue-line sm" href="{{ route('dashboard') }}">Back to home</a>
+    </div>
     @if($errors->any())
       <div class="profile-errors"><b>Please correct the highlighted details.</b><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
     @endif
@@ -16,7 +20,7 @@
         <label class="field"><span>Mobile number <em>*</em></span><input class="input" type="tel" name="mobile" value="{{ old('mobile', $doctor->mobile) }}" placeholder="+919876543210" required></label>
         <label class="field span2"><span>Email ID <em>*</em></span><input class="input" type="email" name="email" value="{{ old('email', $doctor->email) }}" required></label>
       </div>
-      <div class="profile-form-actions"><button class="btn btn-grad" type="submit">Save profile</button></div>
+      <div class="profile-form-actions"><button class="btn btn-grad" type="submit">Update profile</button></div>
     </form>
   </div>
 </section>

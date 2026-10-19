@@ -7,6 +7,6 @@
   <div class="sec-head section-head" id="program"><div><div class="kicker">The live session</div><h2 class="h2">One session. A complete clinical journey.</h2></div><div class="meta">Case-based learning → Live session → Post-read</div></div>
   <div class="card strip"><table class="table"><thead><tr><th>Session</th><th>Date</th><th>Time</th><th>Topic</th></tr></thead><tbody id="ov-strip"></tbody></table></div>
   <div class="web-cards one" id="ov-cards"></div>
-  <div class="sec-head section-head"><div><div class="kicker">Supporting learning</div><h2 class="h2">Four HCP case booklets</h2></div><button class="btn btn-line sm" data-go="cases">Explore the cases →</button></div>
+  <div class="sec-head section-head"><div><div class="kicker">Supporting learning</div><h2 class="h2">Four case booklets</h2></div><button class="btn btn-line sm" data-go="cases">View case booklets →</button></div>
   <div class="case-grid compact" id="ov-cases"></div>
 </section>

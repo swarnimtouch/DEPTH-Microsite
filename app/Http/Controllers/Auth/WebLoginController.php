@@ -38,7 +38,7 @@ class WebLoginController
 
     public function cases()
     {
-        return $this->dashboardSection('cases', 'HCP case booklets');
+        return $this->dashboardSection('cases', 'Case booklets');
     }
 
     public function speakers()

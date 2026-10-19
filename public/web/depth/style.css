@@ -447,6 +447,7 @@ main{flex:1}
   .trust-row{gap:16px 20px;justify-content:center}.t-sep{display:none}.t-strip{height:auto;width:100%}
   .ftr-brand{gap:18px}.ftr-brand img{height:40px}.ftr-ean{margin-left:0}
   .btn{padding:13px 18px}.member-head .btn-row{width:100%}
+  .live-actions{display:grid;grid-template-columns:1fr}.live-actions .btn{display:flex;width:100%}
 }
 
 /* panel */

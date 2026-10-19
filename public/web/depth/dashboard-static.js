@@ -91,7 +91,7 @@
     ['Red flags, screening and clinical assessment to support timely identification', 'flag', '#B8141B'],
     ['Differential diagnosis and safety assessment in patients with overlapping medical symptoms', 'assessment', '#E0242B'],
     ['Treatment, referral and collaborative-care considerations for everyday clinical practice', 'treatment', '#1F2A44'],
-    ['Four HCP case booklets featuring practical patient scenarios and clinical decision-making', 'case', '#B8141B'],
+    ['Four case booklets featuring practical patient scenarios and clinical decision-making', 'case', '#B8141B'],
     ['Post-read materials to reinforce key messages and support continued learning', 'postread', '#2E5E9E'],
   ];
 
@@ -168,7 +168,7 @@
     document.body.dataset.view = v;
     document.body.classList.toggle('registered', !!state.user);
     document.querySelectorAll('[data-view]').forEach((el) => { el.hidden = el.dataset.view !== v; });
-    const titles = { landing: 'Recognising & Managing Depression in Primary Care', thanks: 'Registered', overview: 'Program overview', agenda: 'Agenda', cases: 'HCP case booklets', speakers: 'Speaker', live: 'Live session', hub: 'Post-event hub', takeaways: 'Key takeaways', certificate: 'Certificate', profile: 'Profile' };
+    const titles = { landing: 'Recognising & Managing Depression in Primary Care', thanks: 'Registered', overview: 'Program overview', agenda: 'Agenda', cases: 'Case booklets', speakers: 'Speaker', live: 'Live session', hub: 'Post-event hub', takeaways: 'Key takeaways', certificate: 'Certificate', profile: 'Profile' };
     document.title = (titles[v] || 'DEPTH') + ' · DEPTH by Hetero';
 
     if ($('hdr-auth')) $('hdr-auth').innerHTML = state.user
@@ -256,7 +256,7 @@
     const s = status(); const casesRead = (load('depth.cases', [])).length;
     const pct = Math.min(100, Math.round((casesRead / Math.max(1, CASES.length)) * 60 + (s === 'replay' ? 40 : 0)));
     $('ov-bar').style.width = pct + '%'; $('ov-pct').textContent = pct + '%';
-    $('ov-progress-note').textContent = `${casesRead} of ${CASES.length} case booklets opened · live session ${s === 'replay' ? 'completed' : 'upcoming'}.`;
+    $('ov-progress-note').textContent = `${casesRead} of ${CASES.length} case booklets opened · Live session progress: ${s === 'replay' ? 'completed' : s}.`;
     const liveAction = s === 'live'
       ? '<button class="btn btn-grad sm" data-join="1">Join webinar →</button>'
       : '<button class="btn btn-soft sm" data-go="live">Session details</button>';
@@ -352,7 +352,7 @@
       ['pearl', 'Key clinical pearls', keyPearls?.description || 'Short, memorable messages from the session — recognition, assessment and next steps.', resourceButton(keyPearls, 'Explore')],
       ['refs', 'Selected evidence / references', references?.description || 'The studies and guidelines cited by the speaker, with links.', resourceButton(references, 'Explore')],
       ['practice', 'Practical takeaways', practical?.description || 'Five key takeaways from the session, designed for easy consumption and sharing.', '<button class="btn btn-line sm" data-go="takeaways">View takeaways</button>'],
-      ['case', `HCP case booklets 1–${CASES.length}`, 'Revisit the four case booklets that anchor the discussion.', availableCases.length ? '<button class="btn btn-line sm" data-go="cases">Open the cases</button>' : '<button class="btn btn-line sm" disabled>Coming soon</button>'],
+      ['case', `Case booklets 1–${CASES.length}`, 'Revisit the four case booklets that anchor the discussion.', availableCases.length ? '<button class="btn btn-line sm" data-go="cases">Open the cases</button>' : '<button class="btn btn-line sm" disabled>Coming soon</button>'],
     ];
     const certificateText = ready ? (EVENT.certificateUnlocked ? 'Your personalised certificate is ready to download.' : 'Complete the full session to unlock your certificate.') : 'Available after event.';
     const certificateButton = ready && EVENT.certificateUnlocked
@@ -363,7 +363,7 @@
     const res = [[fullRecording?.label || 'Full Webinar Recording', 'Video', recordingReady ? `<a class="link" href="${esc(EVENT.videoPageUrl || '#live')}">Watch</a>` : '<button class="link" disabled>Coming soon</button>']];
     res.push([postRead?.label || '1-Page Post-read / Synopsis', 'PDF', resourceButton(postRead, 'View', 'link')]);
     res.push([snippet?.label || 'Snippet videos', 'Video', resourceButton(snippet, 'Watch', 'link')]);
-    res.push([`HCP Case Booklets 1–${CASES.length}`, `${CASES.length} × 4-page PDFs`, availableCases.length ? '<button class="link" data-go="cases">Open</button>' : '<button class="link" disabled>Coming soon</button>']);
+    res.push([`Case Booklets 1–${CASES.length}`, `${CASES.length} × 4-page PDFs`, availableCases.length ? '<button class="link" data-go="cases">Open</button>' : '<button class="link" disabled>Coming soon</button>']);
     res.push(['Certificate of participation', 'PDF', ready && EVENT.certificateUnlocked ? `<a class="link" href="${esc(EVENT.certificateUrl)}">Download</a>` : `<button class="link" disabled>${ready ? 'Locked' : 'Available after event'}</button>`]);
     $('hub-resources').innerHTML = res.map((r) => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td class="r">${r[2]}</td></tr>`).join('');
   }

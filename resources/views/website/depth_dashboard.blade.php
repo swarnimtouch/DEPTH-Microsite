@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ $title }} · DEPTH by Hetero</title>
-<meta name="description" content="Recognising &amp; Managing Depression in Primary Care — an expert-led live session with Prof. Siegfried Kasper and four HCP case booklets. A Hetero educational initiative.">
+<meta name="description" content="Recognising &amp; Managing Depression in Primary Care — an expert-led live session with Prof. Siegfried Kasper and four case booklets. A Hetero educational initiative.">
 <link rel="icon" href="{{ siteSettingAsset('Favicon', 'web/depth/assets/hetero.png') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('web/depth/style.css') }}?v={{ filemtime(public_path('web/depth/style.css')) }}">
 <style>
 .logo-hetero{height:48px}.trust-row.solo .t-hetero{height:44px}.arm-logos .a-hetero{height:34px}
-.profile-form-card{width:100%;max-width:1100px;padding:34px 36px}.profile-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 24px}.profile-edit-grid .field{display:grid;gap:8px}.profile-edit-grid .field span{font-size:12px;font-weight:800;color:#4e5668;text-transform:uppercase;letter-spacing:.08em}.profile-edit-grid .field em{color:#e0242b;font-style:normal}.profile-edit-grid .input{width:100%;min-height:52px;border:1px solid #d9dee7;border-radius:9px;background:#fff;padding:12px 16px;color:#1f2a44;font:inherit}.profile-edit-grid .input:focus{outline:2px solid rgba(224,36,43,.14);border-color:#e0242b}.profile-edit-grid .span2{grid-column:1/-1}.profile-form-actions{display:flex;justify-content:flex-end;align-items:center;gap:14px;margin-top:28px}.profile-errors{margin-bottom:20px;padding:14px 16px;border:1px solid #f2b3b7;border-radius:9px;background:#fff2f3;color:#a31319}.profile-errors ul{margin:6px 0 0 18px}
-@media(max-width:760px){.logo-hetero{height:36px}.trust-row.solo .t-hetero{height:38px}.arm-logos .a-hetero{height:30px}.profile-form-card{padding:24px 20px}.profile-edit-grid{grid-template-columns:1fr}.profile-edit-grid .span2{grid-column:auto}.profile-form-actions{align-items:stretch;flex-direction:column}}
+.profile-form-card{width:100%;max-width:1100px;padding:0;overflow:hidden}.profile-form-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:28px 36px;border-bottom:1px solid #d9dee7;background:#f7f9fc}.profile-form-head .kicker{margin-bottom:8px}.profile-form-card form,.profile-errors{margin-left:36px;margin-right:36px}.profile-form-card form{padding:30px 0 34px}.profile-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 24px}.profile-edit-grid .field{display:grid;gap:8px}.profile-edit-grid .field span{font-size:12px;font-weight:800;color:#4e5668;text-transform:uppercase;letter-spacing:.08em}.profile-edit-grid .field em{color:#e0242b;font-style:normal}.profile-edit-grid .input{width:100%;min-height:52px;border:1px solid #d9dee7;border-radius:9px;background:#fff;padding:12px 16px;color:#1f2a44;font:inherit}.profile-edit-grid .input:focus{outline:2px solid rgba(224,36,43,.14);border-color:#e0242b}.profile-edit-grid .span2{grid-column:1/-1}.profile-form-actions{display:flex;justify-content:flex-end;align-items:center;gap:14px;margin-top:28px}.profile-errors{margin-top:24px;margin-bottom:0;padding:14px 16px;border:1px solid #f2b3b7;border-radius:9px;background:#fff2f3;color:#a31319}.profile-errors ul{margin:6px 0 0 18px}
+@media(max-width:760px){.logo-hetero{height:36px}.trust-row.solo .t-hetero{height:38px}.arm-logos .a-hetero{height:30px}.profile-form-head{align-items:flex-start;padding:22px 20px;flex-direction:column}.profile-form-card form{padding:24px 0}.profile-form-card form,.profile-errors{margin-left:20px;margin-right:20px}.profile-edit-grid{grid-template-columns:1fr}.profile-edit-grid .span2{grid-column:auto}.profile-form-actions{align-items:stretch;flex-direction:column}}
 </style>
 </head>
 <body data-view="{{ $dashboardSection }}">
@@ -92,7 +92,7 @@
           <div class="btn-row" style="margin-top:22px"><button class="btn btn-grad" data-go="overview">Explore the program →</button><button class="btn btn-line" data-ics="1">Add to calendar</button></div>
         </div>
         <aside class="thanks-aside">
-          <div class="card pad soft"><div class="kicker">Your learning journey</div><ol class="steps"><li><b>Case-based learning</b><span>Work through the four HCP case booklets before the session.</span></li><li><b>Live session</b><span>Join on 20 Nov with one click from the event card.</span></li><li><b>Post-read engagement</b><span>Recording, 1-page post-read, key takeaways and your certificate.</span></li></ol></div>
+          <div class="card pad soft"><div class="kicker">Your learning journey</div><ol class="steps"><li><b>Case-based learning</b><span>Work through the four case booklets before the session.</span></li><li><b>Live session</b><span>Join on 20 Nov with one click from the event card.</span></li><li><b>Post-read engagement</b><span>Recording, 1-page post-read, key takeaways and your certificate.</span></li></ol></div>
         </aside>
       </div>
     </section>
