@@ -17,7 +17,16 @@
         const $fullNumber = $('#homepage-mobile-full');
         const $dialCode = $('#homepage-mobile-country-code');
         const $countryIso = $('#homepage-mobile-country-iso');
+        const $registrationCountry = $('#homepage-country');
         const csrfToken = $form.data('csrf-token');
+
+        function normalizeCountryName(countryName) {
+            return String(countryName || '').toLowerCase().replace(/[^a-z]/g, '');
+        }
+
+        function telephoneCountryName(country) {
+            return country.name || country[0] || '';
+        }
 
         function flag(iso2) {
             return iso2.toUpperCase().replace(/./g, function (letter) {
@@ -35,6 +44,21 @@
             $dialCode.val(dial);
             $fullNumber.val(local ? '+' + dial + local : '');
             return $fullNumber.val();
+        }
+
+        function syncCodeFromRegistrationCountry() {
+            const selectedName = normalizeCountryName($registrationCountry.val());
+            if (!selectedName) return;
+
+            const country = telephoneCountries.find(function (telephoneCountry) {
+                return normalizeCountryName(telephoneCountryName(telephoneCountry)) === selectedName;
+            });
+            const iso2 = country ? String(country.iso2 || country[1] || '').toLowerCase() : '';
+
+            if (iso2 && $countryPicker.find('option[value="' + iso2 + '"]').length) {
+                $countryPicker.val(iso2);
+                syncMobile();
+            }
         }
 
         const initialIso = String($countryIso.val() || 'in').toLowerCase();
@@ -55,10 +79,12 @@
         }, 'Enter 7 to 15 digits');
 
         $countryPicker.on('change', syncMobile);
+        $registrationCountry.on('change', syncCodeFromRegistrationCountry);
         $localNumber.on('input blur', function () {
             this.value = this.value.replace(/\D+/g, '');
             syncMobile();
         });
+        syncCodeFromRegistrationCountry();
         syncMobile();
 
         $form.validate({
