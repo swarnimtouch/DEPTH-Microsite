@@ -41,11 +41,13 @@ class Module extends Model
         'start_at',
         'end_at',
         'is_locked',
+        'join_enabled',
         'status',
     ];
 
     protected $casts = [
         'is_locked' => 'boolean',
+        'join_enabled' => 'boolean',
         'cme_credit' => 'decimal:1',
         'certificate_name_x' => 'decimal:2',
         'certificate_name_y' => 'decimal:2',
@@ -89,6 +91,17 @@ class Module extends Model
 
         return (!$startAt || $startAt->lte($now))
             && (!$endAt || $endAt->gte($now));
+    }
+
+    public function isJoinOpen(): bool
+    {
+        if ($this->join_enabled) {
+            return true;
+        }
+
+        $startAt = $this->utcDateTime('start_at');
+
+        return $startAt !== null && $startAt->lte(now('UTC'));
     }
 
     public function getStartAtUtcIsoAttribute(): ?string

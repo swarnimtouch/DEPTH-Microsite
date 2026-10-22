@@ -248,9 +248,10 @@ class WebLoginController
             'start' => $agendaModule->start_at_utc_iso,
             'end' => $agendaModule->end_at_utc_iso,
             'duration' => $agendaModule->duration,
+            'joinEnabled' => (bool) $agendaModule->join_enabled,
             'videoPageUrl' => route('modules.show', $agendaModule->slug),
             'recordingAvailable' => (bool) ($agendaModule->video_url || $fullRecordingReady),
-            'roomUrl' => route('modules.show', $agendaModule->slug),
+            'roomUrl' => $agendaModule->join_url ?: route('modules.show', $agendaModule->slug),
             'certificateUrl' => route('modules.certificate', $agendaModule->slug),
             'certificateUnlocked' => (bool) $moduleProgress?->video_completed_at,
         ] : [];

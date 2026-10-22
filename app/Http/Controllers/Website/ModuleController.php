@@ -48,9 +48,10 @@ class ModuleController
         abort_if(!$activeCourse, 404);
         $module = Module::active()->with('resourceDocuments')->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
 
-//        if (!$module->isAvailable()) {
-//            return redirect()->route('modules')->with('error', 'This chapter is not available for today');
-//        }
+        if (!$module->isJoinOpen()) {
+            return redirect()->route('dashboard.live')
+                ->with('error', 'This chapter will open when the administrator enables it or its scheduled start time is reached.');
+        }
 
         $nextModule = Module::active()
             ->where(function ($query) use ($module) {

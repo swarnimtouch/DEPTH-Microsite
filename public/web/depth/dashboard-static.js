@@ -150,6 +150,15 @@
     if (now > e) return 'replay';
     return 'upcoming';
   }
+  const eventStartsInFuture = () => {
+    const start = Date.parse(EVENT.start);
+    return Number.isFinite(start) && Date.now() < start;
+  };
+  const joinOpen = () => {
+    const manuallyEnabled = EVENT.joinEnabled === true || EVENT.joinEnabled === 1 || EVENT.joinEnabled === '1';
+    const start = Date.parse(EVENT.start);
+    return manuallyEnabled || (Number.isFinite(start) && Date.now() >= start);
+  };
   const pill = () => { const s = status(); return `<span class="status s-${s}">${s === 'live' ? 'Live now' : s === 'replay' ? 'Recording available' : 'Upcoming'}</span>`; };
 
   /* ============================================================== ROUTING */
@@ -196,8 +205,8 @@
     const el = $('sticky-cta'); const s = status();
     if (!state.user) { el.innerHTML = `<span>Live session · ${EVENT.dateShort} · ${EVENT.time}</span><a class="btn btn-grad sm" href="#register" data-scroll="register">Register now →</a>`; el.hidden = true; el.dataset.watch = '1'; watchForm(); return; }
     delete el.dataset.watch;
-    if (s === 'live') { el.innerHTML = `<span><span class="status s-live">Live now</span> ${esc(EVENT.full)}</span><button class="btn btn-grad sm" data-join="1">Join session →</button>`; el.hidden = false; return; }
-    if (s === 'upcoming' && state.view !== 'live') { el.innerHTML = `<span>Live session · ${EVENT.dateShort} · ${EVENT.time}</span><button class="btn btn-line sm" data-go="live">Session details</button>`; el.hidden = false; return; }
+    if (joinOpen()) { el.innerHTML = `<span><span class="status s-live">${s === 'live' ? 'Live now' : 'Joining open'}</span> ${esc(EVENT.full)}</span><button class="btn btn-grad sm" data-join="1">Join session →</button>`; el.hidden = false; return; }
+    if ((s === 'upcoming' || s === 'live') && state.view !== 'live') { el.innerHTML = `<span>Live session · ${EVENT.dateShort} · ${EVENT.time}</span><button class="btn btn-line sm" data-go="live">Session details</button>`; el.hidden = false; return; }
     el.hidden = true;
   }
 
@@ -257,7 +266,7 @@
     const pct = Math.min(100, Math.round((casesRead / Math.max(1, CASES.length)) * 60 + (s === 'replay' ? 40 : 0)));
     $('ov-bar').style.width = pct + '%'; $('ov-pct').textContent = pct + '%';
     $('ov-progress-note').textContent = `${casesRead} of ${CASES.length} case booklets opened · Live session progress`;
-    const liveAction = s === 'live'
+    const liveAction = joinOpen()
       ? '<button class="btn btn-grad sm" data-join="1">Join webinar →</button>'
       : '<button class="btn btn-soft sm" data-go="live">Session details</button>';
     $('ov-next').innerHTML = s === 'replay' ? '<b>The live session has concluded.</b><div class="small muted">Recording, post-read and your certificate are in the post-event hub.</div><div class="btn-row" style="margin-top:12px"><button class="btn btn-line sm" data-go="hub">Post-event hub</button></div>'
@@ -308,16 +317,13 @@
   /* ---------- live ---------- */
   function renderLive() {
     const s = status();
-    const cta = s === 'live'
+    const cta = joinOpen()
       ? `<button class="btn btn-grad lg" data-join="1">Join webinar →</button>`
-      : s === 'replay'
-        ? (EVENT.recordingAvailable
-          ? `<a class="btn btn-blue lg" href="${esc(EVENT.videoPageUrl)}">Watch recording</a>`
-          : '<button class="btn btn-soft lg" disabled>Coming soon</button>')
-        : `<button class="btn btn-soft lg" disabled>Join webinar</button><div class="countdown dark" id="live-cd"></div>`;
+      : `<button class="btn btn-soft lg" disabled>Join webinar</button>`;
+    const eventCountdown = eventStartsInFuture() ? '<div class="countdown dark" id="live-cd"></div>' : '';
     const speakerNames = Object.values(SPEAKERS).map((speaker) => speaker.name).join(', ');
-    $('live-cards').innerHTML = `<article class="live-card${s === 'live' ? ' is-live' : ''}"><img class="lc-img event-consultation-img" src="${EVENT.img}" alt="Doctor consulting with a patient"><div class="lc-body"><div class="wc-label light"><span>Live session</span><i></i></div><h2>${esc(EVENT.full)}</h2><table class="table mini"><tr><th>Date</th><th>Time</th><th>Speaker</th></tr><tr><td>${EVENT.date} (${EVENT.day})</td><td>${EVENT.time}</td><td>${esc(speakerNames)}</td></tr></table><div class="lc-foot">${pill()}${cta}</div></div></article>`;
-    if (s === 'upcoming') countdown($('live-cd'), EVENT.start, 'Opens in', true);
+    $('live-cards').innerHTML = `<article class="live-card${s === 'live' ? ' is-live' : ''}"><img class="lc-img event-consultation-img" src="${EVENT.img}" alt="Doctor consulting with a patient"><div class="lc-body"><div class="wc-label light"><span>Live session</span><i></i></div><h2>${esc(EVENT.full)}</h2><table class="table mini"><tr><th>Date</th><th>Time</th><th>Speaker</th></tr><tr><td>${EVENT.date} (${EVENT.day})</td><td>${EVENT.time}</td><td>${esc(speakerNames)}</td></tr></table><div class="lc-foot">${pill()}${cta}${eventCountdown}</div></div></article>`;
+    if (eventStartsInFuture()) countdown($('live-cd'), EVENT.start, 'Opens in', true);
     liveClock();
   }
   function liveClock() { const el = $('live-clock'); if (!el) return; const t = () => { el.textContent = 'Now: ' + new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit', day: 'numeric', month: 'short' }) + ' IST'; }; t(); clearInterval(liveClock.i); liveClock.i = setInterval(t, 30000); }
@@ -465,6 +471,7 @@
     if (t.dataset.resource !== undefined) { openResource(t.dataset.resource); return; }
     if (t.dataset.close !== undefined) { $('modal').hidden = true; $('modal-art').innerHTML = '<div class="play"><span></span></div>'; return; }
     if (t.dataset.join) {
+      if (!joinOpen()) { toast('Joining opens automatically at the scheduled start time'); return; }
       if (!EVENT.roomUrl) { toast('Webinar room is not available yet'); return; }
       window.location.assign(EVENT.roomUrl);
       return;
@@ -506,6 +513,14 @@
   const first = window.DEPTH_INITIAL_VIEW || location.hash.replace('#', '') || 'overview';
   state.view = first;
   render();
+  let wasJoinOpen = joinOpen();
+  if (!wasJoinOpen && eventStartsInFuture()) {
+    window.setInterval(() => {
+      const isOpen = joinOpen();
+      if (isOpen && !wasJoinOpen) render();
+      wasJoinOpen = isOpen;
+    }, 1000);
+  }
   if (window.DEPTH_FLASH_SUCCESS) setTimeout(() => toast(window.DEPTH_FLASH_SUCCESS), 120);
   if (first === 'register') setTimeout(() => $('register')?.scrollIntoView(), 80);
 })();

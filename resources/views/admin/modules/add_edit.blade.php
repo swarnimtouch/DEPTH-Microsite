@@ -363,6 +363,17 @@
                                     <input type="text" name="end_at" value="{{ old('end_at', optional($module->end_at)->format('Y-m-d H:i')) }}" class="form-control form-control-lg form-control-solid module-datetime" placeholder="End date time"/>
                                 </div>
                             </div>
+
+                            <div class="row mb-6">
+                                <label class="col-lg-3 col-form-label fw-bold fs-6"><span class="required">Allow Live Room Joining</span></label>
+                                <div class="col-lg-9">
+                                    <select name="join_enabled" class="form-select form-select-lg form-select-solid">
+                                        <option value="0" @selected(old('join_enabled', $module->join_enabled ? '1' : '0') === '0')>No — follow chapter schedule</option>
+                                        <option value="1" @selected(old('join_enabled', $module->join_enabled ? '1' : '0') === '1')>Yes — enable immediately</option>
+                                    </select>
+                                    <div class="form-text">Yes enables joining immediately while the countdown remains visible before the event. With No, the button enables automatically at the scheduled start time and stays enabled afterwards.</div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="card-footer d-flex justify-content-end py-6 px-9">

@@ -205,6 +205,7 @@ class ModuleController
             'remove_resources' => ['nullable', 'array'],
             'remove_resources.*' => ['integer', Rule::exists('module_resources', 'id')],
             'sort_order' => ['required', 'integer', 'min:0'],
+            'join_enabled' => ['required', 'boolean'],
             'start_at' => ['required', 'date'],
             'end_at' => ['required', 'date', 'after_or_equal:start_at'],
         ], [
