@@ -4,6 +4,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Outgoing Mail Switch
+    |--------------------------------------------------------------------------
+    |
+    | Keep the mail integration configured while preventing any message from
+    | leaving the application until the client approves email delivery.
+    |
+    */
+
+    'enabled' => env('MAIL_ENABLED', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Default Mailer
     |--------------------------------------------------------------------------
     |
@@ -45,6 +57,7 @@ return [
             'port' => env('MAIL_PORT', 2525),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
+            'require_tls' => env('MAIL_REQUIRE_TLS', false),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],

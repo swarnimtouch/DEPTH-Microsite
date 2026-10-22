@@ -19,7 +19,9 @@
         'start_iso' => $programModule?->start_at_utc_iso ?? '2026-11-20T10:30:00+00:00',
         'speaker' => $programModule?->speaker_name ?? 'Prof. Siegfried Kasper',
     ];
-    $showLandingLogin = session('show_login') || old('login_context') === 'landing';
+    $showLandingLogin = request('auth') === 'login'
+        || session('show_login')
+        || old('login_context') === 'landing';
 @endphp
 
 <div class="page depth-page">
@@ -29,7 +31,6 @@
                 <img class="logo-hetero" src="{{ $depthAsset('hetero.png') }}" alt="Hetero">
             </a>
             <nav class="hdr-nav" aria-label="Primary navigation">
-                <a class="btn btn-grad sm header-program-link" href="#program">Program</a>
                 @auth('web')
                     <a class="btn btn-line sm" href="{{ route('dashboard') }}">Dashboard</a>
                     <a class="btn btn-grad sm" href="{{ route('logout') }}">Log out</a>
@@ -123,7 +124,7 @@
 
                 <div class="hero-below">
                     <div class="badge-card">
-                        <img class="bc-kv" src="{{ $depthAsset('visual/keyvisual-red.png') }}" alt="DEPTH clinical learning visual">
+                        <img class="bc-kv" src="{{ $depthAsset('visual/doctor-patient-consultation.png') }}" alt="Doctor consulting with a patient">
                         <div class="bc-body">
                             <span class="live-pill">Case-based live session</span>
                             <div class="bc-title">DEPTH</div>

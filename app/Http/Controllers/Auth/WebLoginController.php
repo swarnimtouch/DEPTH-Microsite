@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Mail\RegistrationConfirmation;
 use App\Models\Country;
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\ModuleUserProgress;
 use App\Models\Speciality;
-use Carbon\CarbonImmutable;
-use Illuminate\Validation\Rule;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
+use Throwable;
 
 class WebLoginController
 {
@@ -383,6 +387,18 @@ class WebLoginController
         Auth::guard('web')->login($doctor);
         $doctor->forceFill(['last_login_at' => now()])->save();
         $request->session()->regenerate();
+
+        if (config('mail.enabled')) {
+            try {
+                Mail::to($doctor->email)->send(new RegistrationConfirmation($doctor));
+            } catch (Throwable $exception) {
+                Log::error('Registration confirmation email could not be sent.', [
+                    'user_id' => $doctor->id,
+                    'recipient' => $doctor->email,
+                    'exception' => $exception,
+                ]);
+            }
+        }
 
         return redirect()
             ->route('dashboard')

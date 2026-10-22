@@ -86,13 +86,13 @@
   }
 
   const TOPICS = [
-    ['Clinical evidence and contemporary perspectives on depression in primary care', 'evidence', '#E0242B'],
-    ['Practical approaches to recognising depression amid common physical and psychological presentations', 'recognise', '#1F2A44'],
-    ['Red flags, screening and clinical assessment to support timely identification', 'flag', '#B8141B'],
-    ['Differential diagnosis and safety assessment in patients with overlapping medical symptoms', 'assessment', '#E0242B'],
-    ['Treatment, referral and collaborative-care considerations for everyday clinical practice', 'treatment', '#1F2A44'],
-    ['Four case booklets featuring practical patient scenarios and clinical decision-making', 'case', '#B8141B'],
-    ['Post-read materials to reinforce key messages and support continued learning', 'postread', '#2E5E9E'],
+    ['Clinical evidence and contemporary perspectives on depression in primary care', 'evidence', '#0B6FD3'],
+    ['Practical approaches to recognising depression amid common physical and psychological presentations', 'recognise', '#EF2635'],
+    ['Red flags, screening and clinical assessment to support timely identification', 'flag', '#00A68F'],
+    ['Differential diagnosis and safety assessment in patients with overlapping medical symptoms', 'assessment', '#6B43DF'],
+    ['Treatment, referral and collaborative-care considerations for everyday clinical practice', 'treatment', '#EE8A00'],
+    ['Four case booklets featuring practical patient scenarios and clinical decision-making', 'case', '#14A35A'],
+    ['Post-read materials to reinforce key messages and support continued learning', 'postread', '#D52386'],
   ];
 
   const ISD = [['Philippines','+63','PH'],['Thailand','+66','TH'],['Indonesia','+62','ID'],['Malaysia','+60','MY'],['Singapore','+65','SG'],['Vietnam','+84','VN'],['Myanmar','+95','MM'],['Cambodia','+855','KH'],['Laos','+856','LA'],['Brunei','+673','BN'],['Timor-Leste','+670','TL'],['India','+91','IN'],['Other','+','··']];
@@ -346,7 +346,7 @@
       ? `<button class="btn btn-line sm" data-resource="${RESOURCES.indexOf(postRead)}">View post-read</button>`
       : '<button class="btn btn-line sm" disabled>Coming soon</button>';
     $('hub-recordings').innerHTML = `
-      <article class="rec-card${ready ? '' : ' locked'}"><div class="rec-img"><img src="${depthAsset('assets/visual/brain-red-2.jpg')}" alt=""><div class="play"><span></span></div><span class="time-badge">${ico('clock')}${esc(EVENT.duration || '~60 min')}</span></div><div class="rec-body"><div class="wc-label"><span>Full webinar recording</span><i></i></div><h3>Watch the full session</h3><p>${esc(fullRecording?.label || EVENT.full)}</p><div class="small muted">Webinar date ${EVENT.date}</div><div class="wc-foot">${recordingAction}</div></div></article>
+      <article class="rec-card${ready ? '' : ' locked'}"><div class="rec-img"><img src="${depthAsset('assets/visual/doctor-patient-consultation.png')}" alt="Doctor consulting with a patient"><div class="play"><span></span></div><span class="time-badge">${ico('clock')}${esc(EVENT.duration || '~60 min')}</span></div><div class="rec-body"><div class="wc-label"><span>Full webinar recording</span><i></i></div><h3>Watch the full session</h3><p>${esc(fullRecording?.label || EVENT.full)}</p><div class="small muted">Webinar date ${EVENT.date}</div><div class="wc-foot">${recordingAction}</div></div></article>
       <div class="syn-card"><div class="wc-label"><span>1-page post-read / synopsis</span><i></i></div><h3>${esc(postRead?.label || EVENT.title)}</h3><p>${esc(EVENT.desc)}</p><div class="kicker">Key discussion areas</div><ul>${EVENT.synopsis.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><div class="btn-row">${postReadAction}<button class="btn btn-soft sm" data-go="takeaways">Key takeaways →</button></div></div>`;
     const learningCards = [
       ['pearl', 'Key clinical pearls', keyPearls?.description || 'Short, memorable messages from the session — recognition, assessment and next steps.', resourceButton(keyPearls, 'Explore')],

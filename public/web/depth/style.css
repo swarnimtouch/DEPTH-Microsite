@@ -90,7 +90,7 @@ main{flex:1}
 .card{background:#fff;border:1px solid var(--rule);border-radius:var(--r)}
 .card.pad{padding:24px}.card.soft{background:var(--bg-2);border-color:transparent}
 .card.navy,.card.grad{background:var(--grad);color:#fff;border-color:transparent}
-.kv-card{position:relative;overflow:hidden}.kv-card::before{content:"";position:absolute;right:-60px;top:-40px;width:260px;height:260px;background:url(assets/visual/keyvisual-red.png) center/contain no-repeat;opacity:.35}.kv-card>*{position:relative}
+.kv-card{position:relative;overflow:hidden}.kv-card::before{content:"";position:absolute;right:-48px;top:-35px;width:280px;height:280px;background:url(assets/visual/doctor-patient-consultation.png) center/cover no-repeat;opacity:.28;-webkit-mask-image:radial-gradient(ellipse at center,#000 46%,transparent 76%);mask-image:radial-gradient(ellipse at center,#000 46%,transparent 76%)}.kv-card>*{position:relative}
 .table{width:100%;border-collapse:collapse}
 .table th{text-align:left;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:13px 16px;border-bottom:1px solid var(--rule)}
 .table td{padding:14px 16px;font-size:14.5px;line-height:1.5;color:var(--ink-2);border-bottom:1px solid var(--rule-2);vertical-align:top}
@@ -185,7 +185,7 @@ main{flex:1}
 .stats b{display:block;font-size:34px;font-weight:900;color:var(--navy);letter-spacing:-.03em;line-height:1}.stats b i{font-style:normal;font-size:16px;color:var(--red);margin-left:2px}
 .stats span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .why-list,.topics{display:grid;grid-template-columns:1fr;gap:10px}
-.topic{--c:var(--blue);position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:16px;align-items:center;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 10%,#fff) 0%,#fff 55%);border:1px solid color-mix(in srgb,var(--c) 28%,#fff);border-left:5px solid var(--c);border-radius:14px;padding:13px 16px 13px 14px;transition:transform .25s,box-shadow .25s,background .25s;overflow:hidden}
+.topic{--c:var(--blue);position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:16px;align-items:center;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 9%,#fff) 0%,#fff 58%);border:1.5px solid var(--c);border-left:5px solid var(--c);border-radius:14px;padding:13px 16px 13px 14px;transition:transform .25s,box-shadow .25s,background .25s;overflow:hidden}
 .topic::after{content:"";position:absolute;right:-40px;top:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--c) 22%,transparent),transparent 70%);transition:transform .4s}
 .topic:hover{transform:translateX(5px);box-shadow:0 16px 32px -22px color-mix(in srgb,var(--c) 70%,transparent);background:linear-gradient(90deg,color-mix(in srgb,var(--c) 16%,#fff) 0%,#fff 70%)}
 .topic:hover::after{transform:scale(1.5)}
@@ -193,7 +193,7 @@ main{flex:1}
 .tk-ico{width:44px;height:44px;border-radius:12px;background:var(--blue-soft);display:flex;align-items:center;justify-content:center;color:var(--blue);transition:background .25s,color .25s}
 .t-ico svg,.tk-ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .topic:hover .t-ico{transform:rotate(-6deg) scale(1.08)}
-.t-n{font-size:12px;font-weight:900;color:var(--c);opacity:.55;letter-spacing:.1em;position:relative}
+.t-n{font-size:12px;font-weight:900;color:var(--c);letter-spacing:.1em;position:relative}
 .topic p{font-size:14.5px;line-height:1.45;color:var(--ink);font-weight:500}
 .topics{margin-top:14px}
 .ov-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:32px;align-items:start}

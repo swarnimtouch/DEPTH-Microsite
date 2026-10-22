@@ -1,5 +1,5 @@
 <section class="view wrap" data-view="overview">
-  <div class="member-head"><div><h1 class="h1">Program overview</h1><p class="overview-welcome" id="ov-welcome">Welcome</p></div></div>
+  <div class="member-head"><div><p class="overview-welcome" id="ov-welcome">Welcome</p><h1 class="h1">Program Overview</h1></div></div>
   <div class="ov-grid">
     <div><p class="lead">A focused expert-led webinar on <b>recognising and managing depression in primary care</b> — from hidden presentations and red flags to diagnosis, referral and real-world management.</p><div class="topics" id="ov-topics"></div></div>
     <aside><div class="card pad grad kv-card"><div class="kicker light">Your program</div><div class="progress-line"><div class="bar"><i id="ov-bar"></i></div><b id="ov-pct">0%</b></div><p id="ov-progress-note" class="small light"></p><div class="btn-row" style="margin-top:16px"><button class="btn btn-white sm" data-go="live">Live session</button><button class="btn btn-line-light sm" data-go="cases">Case booklets</button></div></div><div class="card pad" style="margin-top:16px"><div class="kicker">Next up</div><div id="ov-next"></div></div></aside>

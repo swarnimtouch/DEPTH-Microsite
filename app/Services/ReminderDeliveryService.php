@@ -44,6 +44,10 @@ class ReminderDeliveryService
         $body = $this->render($template->body, $module, $user);
 
         if ($template->channel === 'email') {
+            if (!config('mail.enabled')) {
+                return ['status' => 'skipped', 'response' => 'Outgoing email is disabled'];
+            }
+
             $subject = $this->render($template->subject ?: $template->name, $module, $user);
             Mail::html($body, fn($message) => $message->to($recipient)->subject($subject));
 

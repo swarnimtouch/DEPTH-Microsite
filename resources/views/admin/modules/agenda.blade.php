@@ -49,16 +49,23 @@
                             <div class="card-title">
                                 <div>
                                     <div class="fs-3 fw-bolder">Set Agenda</div>
-                                    <div class="text-muted fs-7">{{ $module->title }}</div>
+                                    <div class="text-muted fs-7">{{ $module->title }} · Add/edit rows, then click Save Agenda.</div>
                                 </div>
                             </div>
                             <div class="card-toolbar">
                                 <button type="button" class="btn btn-light-primary btn-sm me-2" id="addSectionRow">Add Topic Row</button>
-                                <button type="button" class="btn btn-light-primary btn-sm" id="addPersonRow">Add Person Row</button>
+                                <button type="button" class="btn btn-light-primary btn-sm me-2" id="addPersonRow">Add Person Row</button>
+                                <button type="submit" class="btn btn-primary btn-sm" data-save-agenda>Save Agenda</button>
                             </div>
                         </div>
 
                         <div class="card-body border-top p-9">
+                            @if(!$module->agenda)
+                                <div class="alert alert-warning d-flex align-items-center mb-6" role="status">
+                                    <i class="bi bi-exclamation-circle fs-3 me-3"></i>
+                                    <div><strong>Agenda is not saved yet.</strong> Fill the required row details and click <strong>Save Agenda</strong>.</div>
+                                </div>
+                            @endif
                             <div class="episode-agenda-preview mb-8">
                                 <div class="episode-agenda-preview-title">Topic : {{ $module->title }}</div>
                                 <div class="table-responsive">
@@ -146,7 +153,7 @@
                         </div>
                         <div class="card-footer d-flex justify-content-end py-6 px-9">
                             <a href="{{ route('admin.modules') }}" class="btn btn-light btn-active-light-primary me-2">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Save Agenda</button>
+                            <button type="submit" class="btn btn-primary" data-save-agenda>Save Agenda</button>
                         </div>
                     </div>
                 </form>
@@ -161,6 +168,12 @@
         KTUtil.onDOMContentLoaded(function () {
             const agendaRows = document.getElementById('agendaRows');
             const archiveRows = document.getElementById('archiveRows');
+            const form = document.getElementById('episode_agenda_form');
+            const saveButtons = form.querySelectorAll('[data-save-agenda]');
+
+            function markUnsaved() {
+                saveButtons.forEach(button => button.textContent = 'Save Agenda *');
+            }
 
             function refreshNames() {
                 agendaRows.querySelectorAll('.agenda-row').forEach((row, index) => {
@@ -236,11 +249,13 @@
             document.getElementById('addSectionRow').addEventListener('click', () => {
                 agendaRows.insertAdjacentHTML('beforeend', agendaRow('section'));
                 renderPreview();
+                markUnsaved();
             });
 
             document.getElementById('addPersonRow').addEventListener('click', () => {
                 agendaRows.insertAdjacentHTML('beforeend', agendaRow('person'));
                 renderPreview();
+                markUnsaved();
             });
 
             document.getElementById('addArchiveSegment').addEventListener('click', () => {
@@ -262,6 +277,7 @@
                         <button type="button" class="btn btn-light-danger remove-archive-row w-100">X</button>
                     </div>
                 </div>`);
+                markUnsaved();
             });
 
             document.addEventListener('click', e => {
@@ -269,15 +285,25 @@
                     e.target.closest('.agenda-row').remove();
                     refreshNames();
                     renderPreview();
+                    markUnsaved();
                 }
                 if (e.target.classList.contains('remove-archive-row')) {
                     e.target.closest('.archive-row').remove();
                     refreshNames();
+                    markUnsaved();
                 }
             });
 
-            agendaRows.addEventListener('input', renderPreview);
-            agendaRows.addEventListener('change', renderPreview);
+            agendaRows.addEventListener('input', () => { renderPreview(); markUnsaved(); });
+            agendaRows.addEventListener('change', () => { renderPreview(); markUnsaved(); });
+            archiveRows.addEventListener('input', markUnsaved);
+            archiveRows.addEventListener('change', markUnsaved);
+            form.addEventListener('submit', () => {
+                saveButtons.forEach(button => {
+                    button.disabled = true;
+                    button.textContent = 'Saving...';
+                });
+            });
             renderPreview();
         });
     </script>

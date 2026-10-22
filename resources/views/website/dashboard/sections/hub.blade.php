@@ -1,5 +1,5 @@
 <section class="view wrap" data-view="hub">
-  <div class="member-head"><div><h1 class="h1">Post-event hub</h1></div><div class="meta">Recording • Post-read • Takeaways • Certificate</div></div>
+  <div class="member-head"><div><h1 class="h1">Post-event hub</h1></div></div>
   <div class="hub-grid" id="hub-recordings"></div>
   <div class="sec-head section-head"><div><div class="kicker">Post-read materials</div><h2 class="h2">Continue the learning</h2></div></div>
   <div class="pr-grid" id="hub-postread"></div>
