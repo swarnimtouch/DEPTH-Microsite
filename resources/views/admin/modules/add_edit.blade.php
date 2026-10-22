@@ -113,9 +113,10 @@
                             </div>
 
                             <div class="row mb-6">
-                                <label class="col-lg-3 col-form-label fw-bold fs-6"><span class="required">Duration / CME Credit</span></label>
+                                <label class="col-lg-3 col-form-label fw-bold fs-6"><span class="required">Duration (H:MM) / CME Credit</span></label>
                                 <div class="col-lg-4">
-                                    <input type="text" name="duration" value="{{ old('duration', $module->duration) }}" class="form-control form-control-lg form-control-solid" placeholder="45 mins"/>
+                                    <input type="text" name="duration" value="{{ old('duration', $module->duration) }}" class="form-control form-control-lg form-control-solid" placeholder="1:30" aria-describedby="durationHelp"/>
+                                    <div id="durationHelp" class="form-text">Use H:MM format, for example 1:30 for 1 hour 30 minutes.</div>
                                 </div>
                                 <div class="col-lg-4">
                                     <input type="number" step="0.1" min="0" name="cme_credit" value="{{ old('cme_credit', $module->cme_credit ?? 1) }}" class="form-control form-control-lg form-control-solid" placeholder="CME credit"/>

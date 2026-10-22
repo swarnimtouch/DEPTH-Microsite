@@ -297,6 +297,8 @@ class ModuleController
             ->except(['start_at', 'end_at', 'certificate_template', 'certificate_template_remove', 'resource_labels', 'resource_categories', 'resource_descriptions', 'resource_types', 'resource_available_at', 'resource_statuses', 'resource_urls', 'resource_files', 'resource_thumbnails', 'existing_resource_labels', 'existing_resource_categories', 'existing_resource_descriptions', 'existing_resource_types', 'existing_resource_available_at', 'existing_resource_statuses', 'existing_resource_urls', 'existing_resource_files', 'existing_resource_thumbnails', 'remove_resources', 'speakers', 'speaker_images', 'brand_logos', 'brand_crops'])
             ->toArray();
 
+        $moduleData['duration'] = trim($validated['duration']);
+
         foreach (['certificate_name_x', 'certificate_name_y', 'certificate_font_size'] as $nullableNumberField) {
             if (array_key_exists($nullableNumberField, $moduleData) && $moduleData[$nullableNumberField] === '') {
                 $moduleData[$nullableNumberField] = null;
