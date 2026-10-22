@@ -104,6 +104,20 @@ class Module extends Model
         return $startAt !== null && $startAt->lte(now('UTC'));
     }
 
+    public function getDisplayDurationAttribute(): ?string
+    {
+        $startAt = $this->utcDateTime('start_at');
+        $endAt = $this->utcDateTime('end_at');
+
+        if ($startAt && $endAt && $endAt->gt($startAt)) {
+            $minutes = (int) $startAt->diffInMinutes($endAt);
+
+            return intdiv($minutes, 60) . ':' . str_pad((string) ($minutes % 60), 2, '0', STR_PAD_LEFT);
+        }
+
+        return $this->duration;
+    }
+
     public function getStartAtUtcIsoAttribute(): ?string
     {
         return $this->utcDateTime('start_at')?->toIso8601String();

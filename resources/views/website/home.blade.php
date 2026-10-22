@@ -16,7 +16,7 @@
         'date_short' => $sessionStart?->format('d M Y') ?? '20 Nov 2026',
         'day' => $sessionStart?->format('l') ?? 'Friday',
         'time' => ($sessionStart && $sessionEnd) ? $sessionStart->format('g:i A') . ' - ' . $sessionEnd->format('g:i A') . ' IST' : '4:00 PM - 5:00 PM IST',
-        'duration' => $programModule?->duration,
+        'duration' => $programModule?->display_duration,
         'start_iso' => $programModule?->start_at_utc_iso ?? '2026-11-20T10:30:00+00:00',
         'speaker' => $programModule?->speaker_name ?? 'Prof. Siegfried Kasper',
     ];

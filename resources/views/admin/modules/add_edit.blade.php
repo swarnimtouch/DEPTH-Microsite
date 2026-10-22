@@ -346,17 +346,17 @@
                                     <input type="number" min="0" name="sort_order" value="{{ old('sort_order', $module->sort_order ?? 0) }}" class="form-control form-control-lg form-control-solid" placeholder="Sort order"/>
                                 </div>
                                 <div class="col-lg-3">
-                                    <input type="text" name="start_at" value="{{ old('start_at', optional($module->start_at)->format('Y-m-d H:i')) }}" class="form-control form-control-lg form-control-solid module-datetime" placeholder="Start date time"/>
+                                    <input type="text" id="chapterStartAt" name="start_at" value="{{ old('start_at', optional($module->start_at)->format('Y-m-d H:i')) }}" class="form-control form-control-lg form-control-solid module-datetime" placeholder="Start date time"/>
                                 </div>
                                 <div class="col-lg-3">
-                                    <input type="text" name="end_at" value="{{ old('end_at', optional($module->end_at)->format('Y-m-d H:i')) }}" class="form-control form-control-lg form-control-solid module-datetime" placeholder="End date time"/>
+                                    <input type="text" id="chapterEndAt" name="end_at" value="{{ old('end_at', optional($module->end_at)->format('Y-m-d H:i')) }}" class="form-control form-control-lg form-control-solid module-datetime" placeholder="End date time"/>
                                 </div>
                             </div>
 
                             <div class="row mb-6">
                                 <label class="col-lg-3 col-form-label fw-bold fs-6"><span class="required">Chapter Duration (HH:MM)</span></label>
                                 <div class="col-lg-5">
-                                    <input type="text" name="duration" value="{{ old('duration', $module->duration) }}" class="form-control form-control-lg form-control-solid" placeholder="1:30" inputmode="numeric" aria-describedby="durationHelp"/>
+                                    <input type="text" id="chapterDuration" name="duration" value="{{ old('duration', $module->display_duration) }}" class="form-control form-control-lg form-control-solid" placeholder="1:30" inputmode="numeric" aria-describedby="durationHelp"/>
                                     <div id="durationHelp" class="form-text">Enter <strong>1:30</strong> for 1 hour 30 minutes. This value is shown on the participant pages.</div>
                                 </div>
                                 <div class="col-lg-4">
@@ -509,12 +509,29 @@
                 });
             });
 
+            function syncChapterDuration() {
+                const startValue = document.getElementById('chapterStartAt')?.value;
+                const endValue = document.getElementById('chapterEndAt')?.value;
+                const durationInput = document.getElementById('chapterDuration');
+                const parseDateTime = value => {
+                    const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})$/);
+                    return match ? new Date(+match[1], +match[2] - 1, +match[3], +match[4], +match[5]) : null;
+                };
+                const start = parseDateTime(startValue);
+                const end = parseDateTime(endValue);
+                if (!start || !end || end <= start || !durationInput) return;
+                const minutes = Math.round((end - start) / 60000);
+                durationInput.value = `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}`;
+            }
+
             $('.module-datetime').flatpickr({
                 enableTime: true,
                 dateFormat: "Y-m-d H:i",
                 altInput: true,
                 altFormat: "d M Y, h:i K",
+                onChange: syncChapterDuration,
             });
+            syncChapterDuration();
 
             function certificateSampleTextWidth(fontSize) {
                 return certificateNameMarker.textContent.length * fontSize * 0.56;

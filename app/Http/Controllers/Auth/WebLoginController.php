@@ -247,7 +247,7 @@ class WebLoginController
                 : ($agendaModule->duration ?: 'Time to be announced'),
             'start' => $agendaModule->start_at_utc_iso,
             'end' => $agendaModule->end_at_utc_iso,
-            'duration' => $agendaModule->duration,
+            'duration' => $agendaModule->display_duration,
             'joinEnabled' => (bool) $agendaModule->join_enabled,
             'videoPageUrl' => route('modules.show', $agendaModule->slug),
             'recordingAvailable' => (bool) ($agendaModule->video_url || $fullRecordingReady),

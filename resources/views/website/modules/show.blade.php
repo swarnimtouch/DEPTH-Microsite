@@ -138,7 +138,7 @@
                             <img src="{{ $thumbnail }}" alt="Video Thumbnail" class="img-fluid w-100 video-thumbnail">
                             <div class="video-play-btn shadow" id="playVideoBtn"></div>
                         @endif
-                        <div class="video-time">{{ $module->duration ?: 'Chapter Video' }}</div>
+                        <div class="video-time">{{ $module->display_duration ?: 'Chapter Video' }}</div>
                     </div>
 
                     <ul class="nav nav-tabs custom-video-tabs" id="moduleTab" role="tablist">
@@ -165,7 +165,7 @@
                             </div>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <div class="info-pill-box bg-white">Duration: {{ $module->duration ?: 'Chapter' }}</div>
+                                    <div class="info-pill-box bg-white">Duration: {{ $module->display_duration ?: 'Chapter' }}</div>
                                 </div>
                             </div>
                         </div>
