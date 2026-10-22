@@ -256,7 +256,7 @@
     const s = status(); const casesRead = (load('depth.cases', [])).length;
     const pct = Math.min(100, Math.round((casesRead / Math.max(1, CASES.length)) * 60 + (s === 'replay' ? 40 : 0)));
     $('ov-bar').style.width = pct + '%'; $('ov-pct').textContent = pct + '%';
-    $('ov-progress-note').textContent = `${casesRead} of ${CASES.length} case booklets opened · Live session progress: ${s === 'replay' ? 'completed' : s}.`;
+    $('ov-progress-note').textContent = `${casesRead} of ${CASES.length} case booklets opened · Live session progress`;
     const liveAction = s === 'live'
       ? '<button class="btn btn-grad sm" data-join="1">Join webinar →</button>'
       : '<button class="btn btn-soft sm" data-go="live">Session details</button>';
@@ -347,7 +347,7 @@
       : '<button class="btn btn-line sm" disabled>Coming soon</button>';
     $('hub-recordings').innerHTML = `
       <article class="rec-card${ready ? '' : ' locked'}"><div class="rec-img"><img src="${depthAsset('assets/visual/doctor-patient-consultation.png')}" alt="Doctor consulting with a patient"><div class="play"><span></span></div><span class="time-badge">${ico('clock')}${esc(EVENT.duration || '~60 min')}</span></div><div class="rec-body"><div class="wc-label"><span>Full webinar recording</span><i></i></div><h3>Watch the full session</h3><p>${esc(fullRecording?.label || EVENT.full)}</p><div class="small muted">Webinar date ${EVENT.date}</div><div class="wc-foot">${recordingAction}</div></div></article>
-      <div class="syn-card"><div class="wc-label"><span>1-page post-read / synopsis</span><i></i></div><h3>${esc(postRead?.label || EVENT.title)}</h3><p>${esc(EVENT.desc)}</p><div class="kicker">Key discussion areas</div><ul>${EVENT.synopsis.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><div class="btn-row">${postReadAction}<button class="btn btn-soft sm" data-go="takeaways">Key takeaways →</button></div></div>`;
+      <div class="syn-card"><div class="wc-label"><span>Post Event Synopsis</span><i></i></div><h3>${esc(postRead?.label || EVENT.title)}</h3><p>${esc(EVENT.desc)}</p><div class="kicker">Key discussion areas</div><ul>${EVENT.synopsis.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><div class="btn-row">${postReadAction}<button class="btn btn-soft sm" data-go="takeaways">Key takeaways →</button></div></div>`;
     const learningCards = [
       ['pearl', 'Key clinical pearls', keyPearls?.description || 'Short, memorable messages from the session — recognition, assessment and next steps.', resourceButton(keyPearls, 'Explore')],
       ['refs', 'Selected evidence / references', references?.description || 'The studies and guidelines cited by the speaker, with links.', resourceButton(references, 'Explore')],
@@ -361,7 +361,7 @@
     learningCards.push(['cert', 'Certificate of participation', certificateText, certificateButton]);
     $('hub-postread').innerHTML = learningCards.map(([k, t, d, b], i) => `<div class="pr-card" style="--d:${i * 70}ms"><span class="t-ico">${ico(k)}</span><div><b>${esc(t)}</b><p>${esc(d)}</p>${b}</div></div>`).join('');
     const res = [[fullRecording?.label || 'Full Webinar Recording', 'Video', recordingReady ? `<a class="link" href="${esc(EVENT.videoPageUrl || '#live')}">Watch</a>` : '<button class="link" disabled>Coming soon</button>']];
-    res.push([postRead?.label || '1-Page Post-read / Synopsis', 'PDF', resourceButton(postRead, 'View', 'link')]);
+    res.push([postRead?.label || 'Post Event Synopsis', 'PDF', resourceButton(postRead, 'View', 'link')]);
     res.push([snippet?.label || 'Snippet videos', 'Video', resourceButton(snippet, 'Watch', 'link')]);
     res.push([`Case Booklets 1–${CASES.length}`, `${CASES.length} × 4-page PDFs`, availableCases.length ? '<button class="link" data-go="cases">Open</button>' : '<button class="link" disabled>Coming soon</button>']);
     res.push(['Certificate of participation', 'PDF', ready && EVENT.certificateUnlocked ? `<a class="link" href="${esc(EVENT.certificateUrl)}">Download</a>` : `<button class="link" disabled>${ready ? 'Locked' : 'Available after event'}</button>`]);
