@@ -108,9 +108,6 @@
                                 <th>Speciality</th>
                                 <th>Email</th>
                                 <th>Full Mobile</th>
-                                <th>Mobile Code</th>
-                                <th>Mobile ISO</th>
-                                <th>Local Mobile</th>
                                 <th>Hospital</th>
                                 <th>Country</th>
                                 <th>City</th>
@@ -184,19 +181,6 @@
                         },
                         {
                             data: 'mobile'
-                        },
-                        {
-                            data: 'mobile_country_code',
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'mobile_country_iso',
-                            defaultContent: '-',
-                            render: data => data ? String(data).toUpperCase() : '-'
-                        },
-                        {
-                            data: 'mobile_number',
-                            defaultContent: '-'
                         },
                         {
                             data: 'hospital'

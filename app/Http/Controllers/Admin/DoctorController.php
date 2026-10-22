@@ -102,9 +102,6 @@ class DoctorController
             $doctor->country,
             $doctor->city ?: '-',
             $doctor->mobile,
-            $doctor->mobile_country_code ?: '-',
-            strtoupper($doctor->mobile_country_iso ?: '-'),
-            $doctor->mobile_number ?: '-',
             $doctor->email,
             $doctor->registeredModule?->title ?: '-',
             $doctor->registration_consent_at ? 'Yes' : 'No',
@@ -117,7 +114,7 @@ class DoctorController
 
         return ExcelExport::download(
             'doctors-' . now()->format('Y-m-d-His'),
-            ['No.', 'Name', 'Speciality', 'Hospital', 'Country', 'City', 'Full Mobile Number', 'Mobile Country Code', 'Mobile Country ISO', 'Local Mobile Number', 'Email Id', 'Selected Event', 'Consent Given', 'Consent Date', 'Last Login', 'Registered At', 'Status'],
+            ['No.', 'Name', 'Speciality', 'Hospital', 'Country', 'City', 'Full Mobile Number', 'Email Id', 'Selected Event', 'Consent Given', 'Consent Date', 'Last Login', 'Registered At', 'Status'],
             $rows
         );
     }
