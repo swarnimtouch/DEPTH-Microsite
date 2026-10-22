@@ -18,15 +18,19 @@ class DoctorController
 
     public function datatable(Request $request)
     {
-        $query = User::where('type', 'doctor');
+        $query = User::with(['speciality:id,name', 'registeredModule:id,title'])->where('type', 'doctor');
         if ($request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%$search%");
                 $q->orWhere('email', 'LIKE', "%$search%");
                 $q->orWhere('mobile', 'LIKE', "%$search%");
+                $q->orWhere('mobile_number', 'LIKE', "%$search%");
                 $q->orWhere('country', 'LIKE', "%$search%");
                 $q->orWhere('hospital', 'LIKE', "%$search%");
+                $q->orWhere('city', 'LIKE', "%$search%");
+                $q->orWhereHas('speciality', fn($speciality) => $speciality->where('name', 'LIKE', "%$search%"));
+                $q->orWhereHas('registeredModule', fn($module) => $module->where('title', 'LIKE', "%$search%"));
             });
         }
         if ($request->has('order')) {
@@ -42,6 +46,7 @@ class DoctorController
                     'email' => 'email',
                     'country' => 'country',
                     'hospital' => 'hospital',
+                    'city' => 'city',
                     default => 'id'
                 };
 
@@ -54,7 +59,14 @@ class DoctorController
         $data = $query
             ->skip($request->start)
             ->take($request->length)
-            ->get();
+            ->get()
+            ->each(function ($doctor) {
+                $doctor->setAttribute('speciality_name', $doctor->speciality?->name ?: '-');
+                $doctor->setAttribute('registered_event', $doctor->registeredModule?->title ?: '-');
+                $doctor->setAttribute('registration_consent', $doctor->registration_consent_at ? 'Yes' : 'No');
+                $doctor->setAttribute('registration_consent_date', $doctor->registration_consent_at?->format('d-m-Y h:i A') ?: '-');
+                $doctor->setAttribute('registered_at', $doctor->created_at?->format('d-m-Y h:i A') ?: '-');
+            });
         return response()->json([
             "draw" => intval($request->draw),
             "recordsTotal" => $recordsTotal,
@@ -65,14 +77,18 @@ class DoctorController
 
     public function export(Request $request)
     {
-        $doctors = User::where('type', 'doctor')
+        $doctors = User::with(['speciality:id,name', 'registeredModule:id,title'])->where('type', 'doctor')
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%$search%");
                     $q->orWhere('email', 'LIKE', "%$search%");
                     $q->orWhere('mobile', 'LIKE', "%$search%");
+                    $q->orWhere('mobile_number', 'LIKE', "%$search%");
                     $q->orWhere('country', 'LIKE', "%$search%");
                     $q->orWhere('hospital', 'LIKE', "%$search%");
+                    $q->orWhere('city', 'LIKE', "%$search%");
+                    $q->orWhereHas('speciality', fn($speciality) => $speciality->where('name', 'LIKE', "%$search%"));
+                    $q->orWhereHas('registeredModule', fn($module) => $module->where('title', 'LIKE', "%$search%"));
                 });
             })
             ->orderBy('name')
@@ -81,10 +97,18 @@ class DoctorController
         $rows = $doctors->map(fn($doctor, $index) => [
             $index + 1,
             $doctor->name,
+            $doctor->speciality?->name ?: '-',
             $doctor->hospital,
             $doctor->country,
+            $doctor->city ?: '-',
             $doctor->mobile,
+            $doctor->mobile_country_code ?: '-',
+            strtoupper($doctor->mobile_country_iso ?: '-'),
+            $doctor->mobile_number ?: '-',
             $doctor->email,
+            $doctor->registeredModule?->title ?: '-',
+            $doctor->registration_consent_at ? 'Yes' : 'No',
+            $doctor->registration_consent_at?->format('d-m-Y h:i A') ?: '-',
             $doctor->last_login_at?->format('d-m-Y h:i A')
                 ?: $doctor->updated_at?->format('d-m-Y h:i A'),
             $doctor->created_at?->format('d-m-Y h:i A'),
@@ -93,7 +117,7 @@ class DoctorController
 
         return ExcelExport::download(
             'doctors-' . now()->format('Y-m-d-His'),
-            ['No.', 'Name', 'Hospital', 'Country', 'Mobile Number', 'Email Id', 'Last Login', 'Created At', 'Status'],
+            ['No.', 'Name', 'Speciality', 'Hospital', 'Country', 'City', 'Full Mobile Number', 'Mobile Country Code', 'Mobile Country ISO', 'Local Mobile Number', 'Email Id', 'Selected Event', 'Consent Given', 'Consent Date', 'Last Login', 'Registered At', 'Status'],
             $rows
         );
     }

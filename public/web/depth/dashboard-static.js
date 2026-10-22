@@ -273,7 +273,7 @@
       : `<b>Live session — ${esc(EVENT.title)}</b><div class="small muted">${EVENT.date} · ${EVENT.time}</div><div class="countdown" id="ov-cd"></div><div class="btn-row" style="margin-top:14px"><button class="btn btn-line sm" data-ics="1">Add to calendar</button>${liveAction}</div>`;
     if (s !== 'replay') countdown($('ov-cd'), EVENT.start, 'Opens in');
     $('ov-strip').innerHTML = stripRow();
-    $('ov-cards').innerHTML = `<article class="web-card ov"><img class="wc-img event-consultation-img" src="${EVENT.img}" alt="Doctor consulting with a patient"><div class="wc-body"><div class="wc-label"><span>Live session</span><i></i><em class="tagchip">Case-based webinar</em></div><h3>${esc(EVENT.full)}</h3><div class="wc-date">${ico('calendar')}<b>${EVENT.dateShort}</b><span>${EVENT.time}</span></div><p><b>Learning proposition —</b> ${esc(EVENT.proposition)}</p>${speakerMini(EVENT.speaker)}<div class="wc-foot">${pill()}<span class="btn-row">${liveAction}<button class="btn btn-line sm" data-go="agenda">View details →</button></span></div></div></article>`;
+    $('ov-cards').innerHTML = `<article class="web-card ov"><img class="wc-img event-consultation-img" src="${EVENT.img}" alt="Doctor consulting with a patient"><div class="wc-body"><div class="wc-label"><span>Live session</span><i></i><em class="tagchip">Case-based webinar</em></div><h3>${esc(EVENT.full)}</h3><div class="wc-date">${ico('calendar')}<b>${EVENT.dateShort}</b><span>${EVENT.time}${EVENT.duration ? ` · Duration: ${esc(EVENT.duration)}` : ''}</span></div><p><b>Learning proposition —</b> ${esc(EVENT.proposition)}</p>${speakerMini(EVENT.speaker)}<div class="wc-foot">${pill()}<span class="btn-row">${liveAction}<button class="btn btn-line sm" data-go="agenda">View details →</button></span></div></div></article>`;
     $('ov-cases').innerHTML = CASES.map((c) => caseCard(c, true)).join('');
   }
 
@@ -322,7 +322,7 @@
       : `<button class="btn btn-soft lg" disabled>Join webinar</button>`;
     const eventCountdown = eventStartsInFuture() ? '<div class="countdown dark" id="live-cd"></div>' : '';
     const speakerNames = Object.values(SPEAKERS).map((speaker) => speaker.name).join(', ');
-    $('live-cards').innerHTML = `<article class="live-card${s === 'live' ? ' is-live' : ''}"><img class="lc-img event-consultation-img" src="${EVENT.img}" alt="Doctor consulting with a patient"><div class="lc-body"><div class="wc-label light"><span>Live session</span><i></i></div><h2>${esc(EVENT.full)}</h2><table class="table mini"><tr><th>Date</th><th>Time</th><th>Speaker</th></tr><tr><td>${EVENT.date} (${EVENT.day})</td><td>${EVENT.time}</td><td>${esc(speakerNames)}</td></tr></table><div class="lc-foot">${pill()}${cta}${eventCountdown}</div></div></article>`;
+    $('live-cards').innerHTML = `<article class="live-card${s === 'live' ? ' is-live' : ''}"><img class="lc-img event-consultation-img" src="${EVENT.img}" alt="Doctor consulting with a patient"><div class="lc-body"><div class="wc-label light"><span>Live session</span><i></i></div><h2>${esc(EVENT.full)}</h2><table class="table mini"><tr><th>Date</th><th>Time</th><th>Duration</th><th>Speaker</th></tr><tr><td>${EVENT.date} (${EVENT.day})</td><td>${EVENT.time}</td><td>${esc(EVENT.duration || 'TBA')}</td><td>${esc(speakerNames)}</td></tr></table><div class="lc-foot">${pill()}${cta}${eventCountdown}</div></div></article>`;
     if (eventStartsInFuture()) countdown($('live-cd'), EVENT.start, 'Opens in', true);
     liveClock();
   }

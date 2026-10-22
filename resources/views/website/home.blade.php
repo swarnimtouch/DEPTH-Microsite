@@ -16,6 +16,7 @@
         'date_short' => $sessionStart?->format('d M Y') ?? '20 Nov 2026',
         'day' => $sessionStart?->format('l') ?? 'Friday',
         'time' => ($sessionStart && $sessionEnd) ? $sessionStart->format('g:i A') . ' - ' . $sessionEnd->format('g:i A') . ' IST' : '4:00 PM - 5:00 PM IST',
+        'duration' => $programModule?->duration,
         'start_iso' => $programModule?->start_at_utc_iso ?? '2026-11-20T10:30:00+00:00',
         'speaker' => $programModule?->speaker_name ?? 'Prof. Siegfried Kasper',
     ];
@@ -84,7 +85,7 @@
                                 <input type="hidden" name="registration_context" value="landing">
                                 <fieldset class="events epic-events span2">
                                     <legend>Select event <em>*</em></legend>
-                                    <label class="ev"><input type="radio" name="event" value="{{ $programModule?->id ?? 1 }}" checked><span><b>Depression in primary care - live session</b><small>{{ $event['date_short'] }} ({{ $event['day'] }}) · {{ $event['time'] }} · {{ $event['speaker'] }}</small></span></label>
+                                    <label class="ev"><input type="radio" name="event" value="{{ $programModule?->id ?? 1 }}" checked><span><b>Depression in primary care - live session</b><small>{{ $event['date_short'] }} ({{ $event['day'] }}) · {{ $event['time'] }}@if($event['duration']) · Duration: {{ $event['duration'] }}@endif · {{ $event['speaker'] }}</small></span></label>
                                 </fieldset>
 
                                 <label class="field span2"><span>Full name <em>*</em></span><input class="input" id="homepage-name" type="text" name="name" value="{{ old('name') }}" autocomplete="name" placeholder="Dr. Maria Santos" required></label>
@@ -130,7 +131,7 @@
                             <div class="bc-title">DEPTH</div>
                             <div class="bc-sub">Depression Education Program for Therapeutic Excellence</div>
                             <div class="bc-tag">by Hetero · Case-based learning &rarr; Live session &rarr; Post-read</div>
-                            <div class="bc-dates"><div><small>Live session</small><b>{{ $event['date_short'] }} · {{ $event['day'] }}</b><span>{{ $event['time'] }}</span></div><div><small>Speaker</small><b>{{ $event['speaker'] }}</b><span>Medical University of Vienna, Austria</span></div></div>
+                            <div class="bc-dates"><div><small>Live session</small><b>{{ $event['date_short'] }} · {{ $event['day'] }}</b><span>{{ $event['time'] }}@if($event['duration']) · Duration: {{ $event['duration'] }}@endif</span></div><div><small>Speaker</small><b>{{ $event['speaker'] }}</b><span>Medical University of Vienna, Austria</span></div></div>
                         </div>
                     </div>
                     <div class="countdown" data-countdown="{{ $event['start_iso'] }}"><strong class="label">Live session opens in</strong><div class="cd"><div><b data-days>00</b><span>Days</span></div><div><b data-hours>00</b><span>Hrs</span></div><div><b data-minutes>00</b><span>Min</span></div><div><b data-seconds>00</b><span>Sec</span></div></div></div>

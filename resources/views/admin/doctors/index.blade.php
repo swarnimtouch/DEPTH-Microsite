@@ -105,10 +105,19 @@
                                 </th>
                                 @endunless
                                 <th>Name</th>
+                                <th>Speciality</th>
                                 <th>Email</th>
-                                <th>Mobile</th>
+                                <th>Full Mobile</th>
+                                <th>Mobile Code</th>
+                                <th>Mobile ISO</th>
+                                <th>Local Mobile</th>
                                 <th>Hospital</th>
                                 <th>Country</th>
+                                <th>City</th>
+                                <th>Selected Event</th>
+                                <th>Consent</th>
+                                <th>Consent Date</th>
+                                <th>Registered At</th>
                                 <th>Status</th>
                                 @unless($isSubAdmin)<th>Actions</th>@endunless
                             </tr>
@@ -144,6 +153,7 @@
                 doctorTable = $('#kt_table_doctor').DataTable({
                     processing: true,
                     serverSide: true,
+                    scrollX: true,
                     searchDelay: 500,
                     ajax: {
                         url: '{{ route("admin.doctors.datatable") }}',
@@ -165,16 +175,58 @@
                             data: 'name'
                         },
                         {
+                            data: 'speciality_name',
+                            orderable: false,
+                            defaultContent: '-'
+                        },
+                        {
                             data: 'email'
                         },
                         {
                             data: 'mobile'
                         },
                         {
+                            data: 'mobile_country_code',
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'mobile_country_iso',
+                            defaultContent: '-',
+                            render: data => data ? String(data).toUpperCase() : '-'
+                        },
+                        {
+                            data: 'mobile_number',
+                            defaultContent: '-'
+                        },
+                        {
                             data: 'hospital'
                         },
                         {
                             data: 'country'
+                        },
+                        {
+                            data: 'city',
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'registered_event',
+                            orderable: false,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'registration_consent',
+                            orderable: false,
+                            render: data => `<span class="badge ${data === 'Yes' ? 'badge-light-success' : 'badge-light-secondary'}">${data || 'No'}</span>`
+                        },
+                        {
+                            data: 'registration_consent_date',
+                            orderable: false,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'registered_at',
+                            orderable: false,
+                            defaultContent: '-'
                         },
                         {
                             data: 'status',

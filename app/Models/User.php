@@ -31,10 +31,16 @@ class User extends Authenticatable
         'email_verified_at',
         'password',
         'mobile',
+        'mobile_country_code',
+        'mobile_country_iso',
+        'mobile_number',
         'country',
         'hospital',
+        'city',
         'role',
         'speciality_id',
+        'registered_module_id',
+        'registration_consent_at',
         'license_no',
         'profile_image',
         'remember_token',
@@ -64,6 +70,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'registration_consent_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -103,6 +110,11 @@ class User extends Authenticatable
     public function speciality(): BelongsTo
     {
         return $this->belongsTo(Speciality::class);
+    }
+
+    public function registeredModule(): BelongsTo
+    {
+        return $this->belongsTo(Module::class, 'registered_module_id');
     }
 
 }

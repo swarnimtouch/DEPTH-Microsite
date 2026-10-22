@@ -381,8 +381,13 @@ class WebLoginController
             'city' => $validated['city'] ?? null,
             'country' => $validated['country'] ?? null,
             'mobile' => $validated['mobile'] ?? null,
+            'mobile_country_code' => $validated['mobile_country_code'] ?? null,
+            'mobile_country_iso' => isset($validated['mobile_country_iso']) ? strtolower($validated['mobile_country_iso']) : null,
+            'mobile_number' => $validated['mobile_number'] ?? null,
             'email' => $validated['email'],
             'speciality_id' => $validated['speciality_id'],
+            'registered_module_id' => $validated['event'] ?? null,
+            'registration_consent_at' => $request->boolean('consent') ? now() : null,
         ]);
 
         Auth::guard('web')->login($doctor);
