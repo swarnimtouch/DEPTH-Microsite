@@ -24,10 +24,14 @@
                         @if($doctor->country)<br><strong>Country:</strong> {{ $doctor->country }}@endif
                     </td></tr>
                 </table>
-                <p style="font-size:15px;line-height:1.7;margin:0 0 24px;color:#4e5661;">You can use your registered email address to access the programme dashboard. No password is required.</p>
-                <table role="presentation" cellspacing="0" cellpadding="0"><tr><td style="border-radius:7px;background:#9d1118;">
-                    <a href="{{ route('home', ['auth' => 'login']) }}#register" style="display:inline-block;padding:13px 22px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">Open DEPTH</a>
-                </td></tr></table>
+                @if(!\App\Models\Course::participantAccessEnabled())
+                    <p style="font-size:15px;line-height:1.7;margin:0 0 24px;color:#4e5661;">Your registration has been received. Access to the DEPTH programme will be enabled later.</p>
+                @else
+                    <p style="font-size:15px;line-height:1.7;margin:0 0 24px;color:#4e5661;">You can use your registered email address to access the programme dashboard. No password is required.</p>
+                    <table role="presentation" cellspacing="0" cellpadding="0"><tr><td style="border-radius:7px;background:#9d1118;">
+                        <a href="{{ route('home', ['auth' => 'login']) }}#register" style="display:inline-block;padding:13px 22px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">Open DEPTH</a>
+                    </td></tr></table>
+                @endif
                 <p style="font-size:13px;line-height:1.6;margin:28px 0 0;color:#7a828c;">If you did not make this registration, please ignore this email.</p>
             </td></tr>
             <tr><td style="padding:20px 36px 28px;color:#8b929b;font-size:12px;line-height:1.6;border-top:1px solid #eceef1;">This is an automated confirmation from DEPTH. Please do not reply to this email.</td></tr>

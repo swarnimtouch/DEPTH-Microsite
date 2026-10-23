@@ -113,6 +113,7 @@ Route::middleware(['auth:admin', 'admin.access'])->group(function () {
         Route::get('/add-edit/{id?}', [CourseController::class, 'addEditForm'])->name('courses.add_edit_form');
         Route::match(['POST', 'PUT'], '/save/{id?}', [CourseController::class, 'save'])->name('courses.save');
         Route::post('/status-change/{id}', [CourseController::class, 'statusChange'])->name('courses.status_change');
+        Route::post('/access-change/{id}', [CourseController::class, 'accessChange'])->name('courses.access_change');
         Route::post('/delete/{id}', [CourseController::class, 'delete'])->name('courses.delete');
         Route::post('/delete-multiple', [CourseController::class, 'deleteMultiple'])->name('courses.delete_multiple');
     });

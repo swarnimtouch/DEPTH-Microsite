@@ -22,7 +22,10 @@ class CourseController
     {
         return view('admin.courses.add_edit', [
             'title' => __('Programme'),
-            'course' => $id ? Course::findOrFail($id) : new Course(['status' => 'inactive']),
+            'course' => $id ? Course::findOrFail($id) : new Course([
+                'status' => 'inactive',
+                'microsite_access_enabled' => false,
+            ]),
             'breadcrumb' => breadcrumb([__('Programme') => route('admin.courses'), ($id ? 'Edit' : 'Add Programme') => '']),
         ]);
     }
@@ -43,6 +46,7 @@ class CourseController
             'speaker_images' => ['nullable', 'array'],
             'speaker_images.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
+            'microsite_access_enabled' => ['required', 'boolean'],
         ]);
 
         $oldImages = collect($course->speakers ?? [])->pluck('image')->filter()->values();
@@ -107,6 +111,22 @@ class CourseController
         $course->save();
 
         return response()->json(['success' => true]);
+    }
+
+    public function accessChange(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'enabled' => ['required', 'boolean'],
+        ]);
+
+        $course = Course::findOrFail($id);
+        $course->microsite_access_enabled = (bool) $validated['enabled'];
+        $course->save();
+
+        return response()->json([
+            'success' => true,
+            'enabled' => $course->microsite_access_enabled,
+        ]);
     }
 
     public function delete($id)

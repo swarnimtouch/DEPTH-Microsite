@@ -390,10 +390,6 @@ class WebLoginController
             'registration_consent_at' => $request->boolean('consent') ? now() : null,
         ]);
 
-        Auth::guard('web')->login($doctor);
-        $doctor->forceFill(['last_login_at' => now()])->save();
-        $request->session()->regenerate();
-
         if (config('mail.enabled')) {
             try {
                 Mail::to($doctor->email)->send(new RegistrationConfirmation($doctor));
@@ -405,6 +401,16 @@ class WebLoginController
                 ]);
             }
         }
+
+        if (!Course::participantAccessEnabled()) {
+            return redirect()
+                ->to(route('home') . '#register')
+                ->with('success', 'Registration completed successfully. Microsite access will be enabled later.');
+        }
+
+        Auth::guard('web')->login($doctor);
+        $doctor->forceFill(['last_login_at' => now()])->save();
+        $request->session()->regenerate();
 
         return redirect()
             ->route('dashboard')

@@ -112,6 +112,16 @@
                                     <div class="form-text">Only one programme can be active at a time.</div>
                                 </div>
                             </div>
+                            <div class="row mb-6">
+                                <label class="col-lg-3 col-form-label fw-bold fs-6"><span class="required">Microsite Access</span></label>
+                                <div class="col-lg-9">
+                                    <select name="microsite_access_enabled" class="form-select form-select-lg form-select-solid">
+                                        <option value="0" @selected(!(bool) old('microsite_access_enabled', $course->microsite_access_enabled))>No — registration only</option>
+                                        <option value="1" @selected((bool) old('microsite_access_enabled', $course->microsite_access_enabled))>Yes — allow participant access</option>
+                                    </select>
+                                    <div class="form-text">Select No to keep registration open while blocking login, dashboard, chapters and participant resources.</div>
+                                </div>
+                            </div>
                         </div>
                         <div class="card-footer d-flex justify-content-end py-6 px-9">
                             <a href="{{ route('admin.courses') }}" class="btn btn-light me-2">Cancel</a>

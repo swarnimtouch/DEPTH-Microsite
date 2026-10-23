@@ -40,6 +40,7 @@
                                 <th>Title</th>
                                 <th>Subtitle</th>
                                 <th>Status</th>
+                                <th>Microsite Access</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
@@ -57,6 +58,16 @@
                                         <label class="form-check form-switch form-check-custom form-check-solid">
                                             <input class="form-check-input status-change" data-id="{{ $course->id }}" type="checkbox" {{ $course->status === 'active' ? 'checked' : '' }}>
                                         </label>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <label class="form-check form-switch form-check-custom form-check-solid mb-0">
+                                                <input class="form-check-input access-change" data-id="{{ $course->id }}" type="checkbox" {{ $course->microsite_access_enabled ? 'checked' : '' }}>
+                                            </label>
+                                            <span class="access-label badge {{ $course->microsite_access_enabled ? 'badge-light-success' : 'badge-light-danger' }}">
+                                                {{ $course->microsite_access_enabled ? 'Yes' : 'No' }}
+                                            </span>
+                                        </div>
                                     </td>
                                     <td>
                                         <a href="{{ route('admin.courses.add_edit_form', $course->id) }}" class="btn btn-sm"><i class="bi bi-pencil-fill"></i></a>
@@ -83,6 +94,29 @@
                     setTimeout(() => window.location.reload(), 500);
                 })
                 .fail(() => toastr.error('Status update failed'));
+        });
+
+        document.addEventListener('change', e => {
+            if (!e.target.classList.contains('access-change')) return;
+
+            const checkbox = e.target;
+            const enabled = checkbox.checked;
+            const label = checkbox.closest('td').querySelector('.access-label');
+
+            $.post('{{ route("admin.courses.access_change", ":id") }}'.replace(':id', checkbox.dataset.id), {
+                _token: '{{ csrf_token() }}',
+                enabled: enabled ? 1 : 0
+            })
+                .done(() => {
+                    label.textContent = enabled ? 'Yes' : 'No';
+                    label.classList.toggle('badge-light-success', enabled);
+                    label.classList.toggle('badge-light-danger', !enabled);
+                    toastr.success(enabled ? 'Microsite access enabled' : 'Microsite access disabled');
+                })
+                .fail(() => {
+                    checkbox.checked = !enabled;
+                    toastr.error('Microsite access update failed');
+                });
         });
 
         const toolbarBase = document.querySelector('[data-kt-course-table-toolbar="base"]');
