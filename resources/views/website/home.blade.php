@@ -77,7 +77,7 @@
                         @else
                         <div class="reg-card" id="landing-registration-card" @if($showLandingLogin) hidden @endif>
                             <div class="reg-head">
-                                <h2>Register for the DEPTH Series</h2>
+                                <h2>Registration </h2>
                                 <p>Join an expert-led session exploring practical approaches to recognising, assessing and managing depression through evidence and case-based discussion. Free for healthcare professionals.</p>
                             </div>
                             <form method="POST" action="{{ route('register.store') }}" id="homepageRegistrationForm" class="reg" data-check-email-url="{{ route('check_email') }}" data-check-mobile-url="{{ route('check_mobile') }}" data-csrf-token="{{ csrf_token() }}">
