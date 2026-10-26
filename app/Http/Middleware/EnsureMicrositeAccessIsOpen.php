@@ -12,14 +12,12 @@ class EnsureMicrositeAccessIsOpen
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (Course::participantAccessEnabled()) {
+        if ($request->routeIs('login', 'login.post') || Auth::guard('web')->check()) {
             return $next($request);
         }
 
-        if (Auth::guard('web')->check()) {
-            Auth::guard('web')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+        if (Course::participantAccessEnabled()) {
+            return $next($request);
         }
 
         return redirect()
