@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Module;
 use App\Models\ModuleUserProgress;
 use App\Models\ModuleViewSession;
+use App\Models\LiveQuestion;
 use App\Models\Speciality;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -103,6 +104,40 @@ class DashboardController extends Controller
             ->take(12)
             ->get();
 
+        $responseScope = function ($query) use ($userScope, $since) {
+            $query->whereHas('user', $userScope);
+            if ($since) $query->where('answered_at', '>=', $since);
+        };
+
+        $liveQuestionProgress = LiveQuestion::query()
+            ->with([
+                'module:id,title',
+                'options' => fn ($query) => $query->withCount(['responses' => $responseScope]),
+            ])
+            ->withCount(['responses' => $responseScope])
+            ->whereIn('module_id', $moduleIds)
+            ->latest('id')
+            ->take(6)
+            ->get()
+            ->map(function (LiveQuestion $question) {
+                $totalResponses = (int) $question->responses_count;
+
+                return [
+                    'id' => $question->id,
+                    'question' => $question->question,
+                    'type' => $question->type,
+                    'status' => $question->status,
+                    'module' => $question->module?->title ?: '-',
+                    'responses' => $totalResponses,
+                    'options' => $question->options->map(fn ($option) => [
+                        'label' => $option->option_text,
+                        'responses' => (int) $option->responses_count,
+                        'rate' => $totalResponses ? (int) round($option->responses_count / $totalResponses * 100) : 0,
+                        'is_correct' => $question->type === 'quiz' && $option->is_correct,
+                    ])->values(),
+                ];
+            });
+
         $periodCutoffs = [
             '30' => now()->subDays(30)->startOfDay(),
             '90' => now()->subDays(90)->startOfDay(),
@@ -124,6 +159,7 @@ class DashboardController extends Controller
             'chapterProgress' => $chapterProgress,
             'specialityBreakdown' => $specialityBreakdown,
             'countryBreakdown' => $countryBreakdown,
+            'liveQuestionProgress' => $liveQuestionProgress,
             'countries' => User::where('type', 'doctor')->whereNotNull('country')->where('country', '!=', '')->distinct()->orderBy('country')->pluck('country'),
             'allModules' => Module::active()->orderBy('sort_order')->orderBy('id')->get(['id', 'title']),
             'periodCutoffs' => $periodCutoffs,
