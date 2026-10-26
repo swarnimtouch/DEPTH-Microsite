@@ -235,6 +235,7 @@ class WebLoginController
             && (!$fullRecordingResource->getRawOriginal('available_at')
                 || CarbonImmutable::parse($fullRecordingResource->getRawOriginal('available_at'), 'UTC')->lte(now('UTC')));
         $depthEvent = $agendaModule ? [
+            'moduleId' => $agendaModule->id,
             'title' => $agendaModule->title,
             'full' => $agendaModule->title,
             'tagline' => trim(strip_tags((string) $agendaModule->overview)),
@@ -254,6 +255,8 @@ class WebLoginController
             'roomUrl' => $agendaModule->join_url ?: route('modules.show', $agendaModule->slug),
             'certificateUrl' => route('modules.certificate', $agendaModule->slug),
             'certificateUnlocked' => (bool) $moduleProgress?->video_completed_at,
+            'liveQuestionsUrl' => route('live_questions.state', $agendaModule),
+            'liveQuestionsChannel' => 'live-questions.module.' . $agendaModule->id,
         ] : [];
 
         $caseFallbackImages = [
@@ -402,19 +405,9 @@ class WebLoginController
             }
         }
 
-        if (!Course::participantAccessEnabled()) {
-            return redirect()
-                ->to(route('home') . '#register')
-                ->with('success', 'Registration completed successfully. Microsite access will be enabled later.');
-        }
-
-        Auth::guard('web')->login($doctor);
-        $doctor->forceFill(['last_login_at' => now()])->save();
-        $request->session()->regenerate();
-
         return redirect()
-            ->route('dashboard')
-            ->with('success', 'Doctor registered successfully');
+            ->to(route('home') . '#register')
+            ->with('success', 'Registration completed successfully. The learning portal will open shortly.');
     }
 
     public function loginPost(Request $request)

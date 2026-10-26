@@ -118,6 +118,20 @@ function getModules($user_type = 'admin', ?string $role = null): array
                 'all_routes' => ['admin.quizzes.submissions', 'admin.quizzes.submissions.show']
             ],
             [
+                'route' => route('admin.live_questions'),
+                'name' => 'Live Polls & Quizzes',
+                'icon' => 'bi bi-broadcast fs-3',
+                'child' => [],
+                'all_routes' => ['admin.live_questions', 'admin.live_questions.form']
+            ],
+            [
+                'route' => route('admin.live_questions.logs'),
+                'name' => 'Poll / Quiz Logs',
+                'icon' => 'bi bi-list-check fs-3',
+                'child' => [],
+                'all_routes' => ['admin.live_questions.logs', 'admin.live_questions.logs.datatable', 'admin.live_questions.logs.export']
+            ],
+            [
                 'route' => route('admin.comments'),
                 'name' => 'Comments',
                 'icon' => 'bi bi-chat-left-text fs-3',
@@ -214,6 +228,13 @@ function getModules($user_type = 'admin', ?string $role = null): array
                 'icon' => 'bi bi-award fs-3',
                 'child' => [],
                 'all_routes' => ['admin.certificate_logs'],
+            ],
+            [
+                'route' => route('admin.live_questions.logs'),
+                'name' => 'Poll / Quiz Logs',
+                'icon' => 'bi bi-list-check fs-3',
+                'child' => [],
+                'all_routes' => ['admin.live_questions.logs', 'admin.live_questions.logs.datatable', 'admin.live_questions.logs.export'],
             ],
         ];
     }

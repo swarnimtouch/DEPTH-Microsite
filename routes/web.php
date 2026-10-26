@@ -5,6 +5,7 @@ use App\Http\Controllers\Website\HomeController;
 use App\Http\Controllers\Website\ModuleController;
 use App\Http\Controllers\Website\ProfileController;
 use App\Http\Middleware\EnsureMicrositeAccessIsOpen;
+use App\Http\Controllers\Website\LiveQuestionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -16,6 +17,8 @@ Route::middleware(EnsureMicrositeAccessIsOpen::class)->group(function () {
     Route::get('/dashboard/cases', [WebLoginController::class, 'cases'])->name('dashboard.cases');
     Route::get('/dashboard/speakers', [WebLoginController::class, 'speakers'])->name('dashboard.speakers');
     Route::get('/dashboard/live', [WebLoginController::class, 'live'])->name('dashboard.live');
+    Route::get('/live-questions/{module}', [LiveQuestionController::class, 'state'])->name('live_questions.state');
+    Route::post('/live-questions/{liveQuestion}/answer', [LiveQuestionController::class, 'answer'])->name('live_questions.answer');
     Route::get('/dashboard/post-event-hub', [WebLoginController::class, 'hub'])->name('dashboard.hub');
     Route::get('/dashboard/takeaways', [WebLoginController::class, 'takeaways'])->name('dashboard.takeaways');
     Route::get('/dashboard/certificate', [WebLoginController::class, 'dashboardCertificate'])->name('dashboard.certificate');

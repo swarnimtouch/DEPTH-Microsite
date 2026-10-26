@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ $title }} · DEPTH by Hetero</title>
 <meta name="description" content="Recognising &amp; Managing Depression in Primary Care — an expert-led live session with Prof. Siegfried Kasper and four case booklets. A Hetero educational initiative.">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@include('partials.reverb_meta')
 <link rel="icon" href="{{ siteSettingAsset('Favicon', 'web/depth/assets/hetero.png') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -117,9 +119,11 @@ window.DEPTH_FLASH_SUCCESS = @json(session('success'));
 window.DEPTH_AGENDA = @json($depthAgenda);
 window.DEPTH_SPEAKERS = @json($depthSpeakers);
 window.DEPTH_EVENT = @json($depthEvent);
+window.DEPTH_LIVE_QUESTION_ANSWER_URL = @json(route('live_questions.answer', ['liveQuestion' => '__QUESTION__']));
 window.DEPTH_RESOURCES = @json($depthResources);
 localStorage.setItem('depth.user', JSON.stringify(@json($depthUser)));
 </script>
 <script src="{{ asset('web/depth/dashboard-static.js') }}?v={{ filemtime(public_path('web/depth/dashboard-static.js')) }}"></script>
+@vite('resources/js/app.js')
 </body>
 </html>

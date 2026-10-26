@@ -7,6 +7,7 @@
     <meta charset="utf-8" />
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('partials.reverb_meta')
 
     <link rel="icon" href="{{ siteSettingAsset('Favicon', 'web/depth/assets/hetero.png') }}" />
     <!--begin::Fonts-->

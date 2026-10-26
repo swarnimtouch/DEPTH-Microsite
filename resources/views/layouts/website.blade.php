@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('partials.reverb_meta')
     <title>@yield('page_title', $title . ' | ' . siteSetting('site_name', 'DEPTH Microsite'))</title>
     <link rel="icon" href="@yield('page_favicon', siteSettingAsset('Favicon', 'web/depth/assets/hetero.png'))">
 

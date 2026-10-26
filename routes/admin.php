@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\FAQController;
 use App\Http\Controllers\Admin\DatabaseServersController;
 use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\CertificateLogController;
+use App\Http\Controllers\Admin\LiveQuestionController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -144,6 +145,17 @@ Route::middleware(['auth:admin', 'admin.access'])->group(function () {
         Route::post('/status-change/{id}', [QuizController::class, 'statusChange'])->name('quizzes.status_change');
         Route::post('/delete/{id}', [QuizController::class, 'delete'])->name('quizzes.delete');
         Route::post('/delete-multiple', [QuizController::class, 'deleteMultiple'])->name('quizzes.delete_multiple');
+    });
+
+    Route::prefix('live-questions')->group(function () {
+        Route::get('/', [LiveQuestionController::class, 'index'])->name('live_questions');
+        Route::get('/logs', [LiveQuestionController::class, 'logs'])->name('live_questions.logs');
+        Route::get('/logs/datatable', [LiveQuestionController::class, 'logsDatatable'])->name('live_questions.logs.datatable');
+        Route::get('/logs/export', [LiveQuestionController::class, 'exportLogs'])->name('live_questions.logs.export');
+        Route::get('/form/{id?}', [LiveQuestionController::class, 'form'])->name('live_questions.form');
+        Route::match(['POST', 'PUT'], '/save/{id?}', [LiveQuestionController::class, 'save'])->name('live_questions.save');
+        Route::post('/{liveQuestion}/toggle', [LiveQuestionController::class, 'toggle'])->name('live_questions.toggle');
+        Route::delete('/{liveQuestion}', [LiveQuestionController::class, 'destroy'])->name('live_questions.destroy');
     });
 
     Route::prefix('comments')->group(function () {

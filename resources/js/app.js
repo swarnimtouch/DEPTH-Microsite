@@ -1,4 +1,5 @@
 import './bootstrap';
+import './live-questions';
 
 document.addEventListener('DOMContentLoaded', () => {
     const panel = document.querySelector('[data-comments-panel], [data-session-comments-panel]');

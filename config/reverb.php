@@ -4,6 +4,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Browser Client
+    |--------------------------------------------------------------------------
+    |
+    | These values are rendered at request time, so the same compiled assets
+    | can be deployed locally and in production. Keep REVERB_HOST for the PHP
+    | server connection and use REVERB_CLIENT_* for the public WebSocket URL.
+    |
+    */
+
+    'client' => [
+        'key' => env('REVERB_APP_KEY'),
+        'host' => env('REVERB_CLIENT_HOST', env('VITE_REVERB_HOST', env('REVERB_HOST'))),
+        'port' => env('REVERB_CLIENT_PORT', env('VITE_REVERB_PORT', env('REVERB_PORT', 8080))),
+        'scheme' => env('REVERB_CLIENT_SCHEME', env('VITE_REVERB_SCHEME', env('REVERB_SCHEME', 'http'))),
+        'path' => env('REVERB_CLIENT_PATH', env('VITE_REVERB_PATH', '')),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Default Reverb Server
     |--------------------------------------------------------------------------
     |

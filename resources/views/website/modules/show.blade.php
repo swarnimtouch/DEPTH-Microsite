@@ -27,6 +27,18 @@
         .simple-comments .module-comment-topline span{color:#7c8494;font-size:12px}
         .simple-comments .module-comment-body p{margin:0;color:#4f5768;white-space:pre-wrap}
         .simple-comments .module-comments-empty{padding:24px;text-align:center;color:#7c8494;background:#f7f8fa;border-radius:12px}
+        .room-live-question{position:relative;border:1px solid #dce3ee!important;box-shadow:0 10px 28px rgba(31,42,68,.07);overflow:hidden}
+        .room-live-question::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,#d71920,#667fbd)}
+        .room-live-question__head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+        .room-live-question__head h5{color:#17345b;line-height:1.4}
+        .live-question-kicker{display:block;color:#d71920;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+        .live-question-pulse{flex:none;padding:5px 9px;border-radius:999px;background:#fff0f1;color:#d71920;font-size:10px;font-weight:900}
+        .live-question-options{display:grid;gap:10px;margin-bottom:16px}
+        .live-question-option{position:relative;display:flex;align-items:center;gap:9px;padding:12px;border:1px solid #dce3ee;border-radius:9px;background:#fff;color:#263650;cursor:pointer;overflow:hidden}
+        .live-question-option:has(input:checked){border-color:#d71920;background:#fff7f7}.live-question-option input{flex:none}
+        .live-question-result{position:absolute;inset:0 auto 0 0;background:#eaf3ff;z-index:0}.live-question-option span,.live-question-option strong,.live-question-option input{position:relative;z-index:1}.live-question-option span{flex:1}.live-question-option strong{font-size:12px}
+        .live-question-option.is-correct{border-color:#2a9762;background:#effbf5}.live-question-option.is-wrong{border-color:#d71920;background:#fff3f3}
+        .live-question-message{margin-top:13px;padding:11px 12px;border-radius:8px;background:#f2f5f9;color:#34405a;font-size:13px;font-weight:700}
         @media(max-width:760px){.depth-room-header__top,.depth-room-tabs__inner{padding-left:18px;padding-right:18px}.depth-room-logo{height:38px}.depth-room-user{gap:10px}.depth-room-user__name{display:none}.depth-room-tab{padding:12px 13px;font-size:10px}.module-comments-panel.simple-comments{padding:20px}.simple-comments .module-comment-composer,.simple-comments .module-comment-item{grid-template-columns:36px minmax(0,1fr)}.simple-comments .module-comment-avatar{width:36px;height:36px}}
     </style>
 @endpush
@@ -316,6 +328,25 @@
                                 <a href="{{ route('modules.quiz', $module->slug) }}" class="btn module-feedback-btn w-100 py-2">Give Feedback</a>
                             </div>
                         @endif
+                    </div>
+
+                    <div
+                        class="card room-live-question bg-white p-4 mb-4"
+                        data-live-questions
+                        data-live-questions-url="{{ route('live_questions.state', $module) }}"
+                        data-live-questions-channel="live-questions.module.{{ $module->id }}"
+                        data-live-question-answer-url="{{ route('live_questions.answer', ['liveQuestion' => '__QUESTION__']) }}"
+                        hidden
+                    >
+                        <div class="room-live-question__head">
+                            <div><span class="live-question-kicker" data-live-question-type>Live Poll</span><h5 class="fw-bold mb-0 mt-1" data-live-question-text></h5></div>
+                            <span class="live-question-pulse">LIVE</span>
+                        </div>
+                        <form data-live-question-form>
+                            <div class="live-question-options" data-live-question-options></div>
+                            <button class="btn btn-primary-custom w-100 py-2" type="submit" data-live-question-submit>Submit Answer</button>
+                        </form>
+                        <div class="live-question-message" data-live-question-message hidden></div>
                     </div>
 
 
