@@ -154,6 +154,8 @@ Route::middleware(['auth:admin', 'admin.access'])->group(function () {
         Route::get('/logs/export', [LiveQuestionController::class, 'exportLogs'])->name('live_questions.logs.export');
         Route::get('/form/{id?}', [LiveQuestionController::class, 'form'])->name('live_questions.form');
         Route::match(['POST', 'PUT'], '/save/{id?}', [LiveQuestionController::class, 'save'])->name('live_questions.save');
+        Route::get('/{liveQuestion}/analytics', [LiveQuestionController::class, 'analytics'])->name('live_questions.analytics');
+        Route::get('/{liveQuestion}/responses/export', [LiveQuestionController::class, 'exportQuestionResponses'])->name('live_questions.responses.export');
         Route::post('/{liveQuestion}/toggle', [LiveQuestionController::class, 'toggle'])->name('live_questions.toggle');
         Route::delete('/{liveQuestion}', [LiveQuestionController::class, 'destroy'])->name('live_questions.destroy');
     });

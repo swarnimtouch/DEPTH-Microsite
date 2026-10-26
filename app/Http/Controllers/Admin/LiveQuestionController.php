@@ -134,6 +134,73 @@ class LiveQuestionController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function analytics(LiveQuestion $liveQuestion)
+    {
+        $liveQuestion->load([
+            'module',
+            'options' => fn ($query) => $query->withCount('responses'),
+            'responses.user',
+            'responses.option',
+        ]);
+
+        $responses = $liveQuestion->responses->sortByDesc('answered_at')->values();
+        $responses->each(fn (LiveQuestionResponse $response) => $response->setRelation('question', $liveQuestion));
+        $correct = $liveQuestion->type === 'quiz' ? $responses->where('is_correct', true)->count() : null;
+
+        return response()->json([
+            'question' => [
+                'id' => $liveQuestion->id,
+                'text' => $liveQuestion->question,
+                'type' => ucfirst($liveQuestion->type),
+                'module' => $liveQuestion->module?->title ?: '-',
+                'status' => ucfirst($liveQuestion->status),
+            ],
+            'summary' => [
+                'total' => $responses->count(),
+                'correct' => $correct,
+                'incorrect' => $liveQuestion->type === 'quiz' ? $responses->count() - $correct : null,
+            ],
+            'options' => $liveQuestion->options->map(fn ($option) => [
+                'id' => $option->id,
+                'label' => $option->option_text,
+                'responses' => (int) $option->responses_count,
+                'is_correct' => $liveQuestion->type === 'quiz' ? (bool) $option->is_correct : null,
+            ])->values(),
+            'responses' => $responses->map(fn (LiveQuestionResponse $response) => $this->formatResponseLog($response))->values(),
+        ]);
+    }
+
+    public function exportQuestionResponses(LiveQuestion $liveQuestion)
+    {
+        $liveQuestion->load(['module', 'responses.user', 'responses.option']);
+        $responses = $liveQuestion->responses->sortByDesc('answered_at')->values();
+        $responses->each(fn (LiveQuestionResponse $response) => $response->setRelation('question', $liveQuestion));
+        $rows = $responses
+            ->map(function (LiveQuestionResponse $response, int $index) use ($liveQuestion) {
+                $row = $this->formatResponseLog($response);
+
+                return [
+                    $index + 1,
+                    $row['user_name'],
+                    $row['email'],
+                    $row['mobile'],
+                    $row['module'],
+                    $row['type'],
+                    $liveQuestion->question,
+                    $row['answer'],
+                    $row['result'],
+                    $row['answered_at'],
+                ];
+            });
+
+        return ExcelExport::download(
+            'poll-quiz-question-' . $liveQuestion->id . '-responses-' . now()->format('Y-m-d-His'),
+            ['No.', 'Participant', 'Email', 'Mobile', 'Session', 'Type', 'Question', 'Selected Answer', 'Result', 'Answered At'],
+            $rows,
+            'Question Responses'
+        );
+    }
+
     public function logs()
     {
         return view('admin.live_questions.logs', [

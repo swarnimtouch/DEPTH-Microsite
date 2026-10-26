@@ -51,6 +51,8 @@ class EnsureAdminAreaAccess
             'admin.live_questions.logs.datatable',
             'admin.live_questions.logs.export',
             'admin.live_questions',
+            'admin.live_questions.analytics',
+            'admin.live_questions.responses.export',
             'admin.profile',
             'admin.profile.update',
             'admin.password',
