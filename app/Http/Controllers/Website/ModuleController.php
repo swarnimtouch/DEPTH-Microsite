@@ -141,14 +141,16 @@ class ModuleController
         $progress->save();
 
         if ($request->expectsJson()) {
+            $certificateUnlocked = (bool) $module->certificate_enabled;
+
             return response()->json([
                 'success' => true,
                 'message' => 'Video marked as completed',
                 'quiz_url' => route('modules.quiz', $module->slug),
-                'certificate_url' => route('modules.certificate', $module->slug),
+                'certificate_url' => $certificateUnlocked ? route('modules.certificate', $module->slug) : null,
                 'progress_percent' => $progress->progress_percent,
                 'completed_at' => $progress->video_completed_at?->format('d M Y, h:i A'),
-                'certificate_unlocked' => (bool) $progress->video_completed_at,
+                'certificate_unlocked' => $certificateUnlocked,
             ]);
         }
 
@@ -313,7 +315,7 @@ class ModuleController
         $progress->save();
 
         return redirect()->route('modules.show', $module->slug)
-            ->with('success', 'Feedback submitted successfully. Your certificate is now available.');
+            ->with('success', 'Feedback submitted successfully.');
     }
 
     public function certificate($slug)
@@ -327,14 +329,10 @@ class ModuleController
 
         $module = Module::active()->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
 
-        $progress = ModuleUserProgress::where('module_id', $module->id)
-            ->where('user_id', Auth::guard('web')->id())
-            ->first();
-
-        if (!$progress?->video_completed_at) {
+        if (!$module->certificate_enabled) {
             return redirect()
                 ->route('modules.show', $module->slug)
-                ->with('error', 'Please complete the video first');
+                ->with('error', 'Certificate downloads are not available yet');
         }
 
         $templatePath = $module->certificate_template

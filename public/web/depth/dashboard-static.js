@@ -360,17 +360,17 @@
       ['practice', 'Practical takeaways', practical?.description || 'Five key takeaways from the session, designed for easy consumption and sharing.', '<button class="btn btn-line sm" data-go="takeaways">View takeaways</button>'],
       ['case', `Case booklets 1–${CASES.length}`, 'Revisit the four case booklets that anchor the discussion.', availableCases.length ? '<button class="btn btn-line sm" data-go="cases">Open the cases</button>' : '<button class="btn btn-line sm" disabled>Coming soon</button>'],
     ];
-    const certificateText = ready ? (EVENT.certificateUnlocked ? 'Your personalised certificate is ready to download.' : 'Complete the full session to unlock your certificate.') : 'Available after event.';
-    const certificateButton = ready && EVENT.certificateUnlocked
+    const certificateText = EVENT.certificateUnlocked ? 'Your personalised certificate is ready to download.' : 'Certificate is not available yet.';
+    const certificateButton = EVENT.certificateUnlocked
       ? `<a class="btn btn-grad sm" href="${esc(EVENT.certificateUrl)}">Download</a>`
-      : `<button class="btn btn-grad sm" disabled>${ready ? 'Locked' : 'Available after event'}</button>`;
+      : '<button class="btn btn-grad sm" disabled>Not Available</button>';
     learningCards.push(['cert', 'Certificate of participation', certificateText, certificateButton]);
     $('hub-postread').innerHTML = learningCards.map(([k, t, d, b], i) => `<div class="pr-card" style="--d:${i * 70}ms"><span class="t-ico">${ico(k)}</span><div><b>${esc(t)}</b><p>${esc(d)}</p>${b}</div></div>`).join('');
     const res = [[fullRecording?.label || 'Full Webinar Recording', 'Video', recordingReady ? `<a class="link" href="${esc(EVENT.videoPageUrl || '#live')}">Watch</a>` : '<button class="link" disabled>Coming soon</button>']];
     res.push([postRead?.label || 'Post Event Synopsis', 'PDF', resourceButton(postRead, 'View', 'link')]);
     res.push([snippet?.label || 'Snippet videos', 'Video', resourceButton(snippet, 'Watch', 'link')]);
     res.push([`Case Booklets 1–${CASES.length}`, `${CASES.length} × 4-page PDFs`, availableCases.length ? '<button class="link" data-go="cases">Open</button>' : '<button class="link" disabled>Coming soon</button>']);
-    res.push(['Certificate of participation', 'PDF', ready && EVENT.certificateUnlocked ? `<a class="link" href="${esc(EVENT.certificateUrl)}">Download</a>` : `<button class="link" disabled>${ready ? 'Locked' : 'Available after event'}</button>`]);
+    res.push(['Certificate of participation', 'PDF', EVENT.certificateUnlocked ? `<a class="link" href="${esc(EVENT.certificateUrl)}">Download</a>` : '<button class="link" disabled>Not Available</button>']);
     $('hub-resources').innerHTML = res.map((r) => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td class="r">${r[2]}</td></tr>`).join('');
   }
 
@@ -388,11 +388,11 @@
 
   /* ---------- certificate ---------- */
   function renderCertificate() {
-    const ready = status() === 'replay' && EVENT.certificateUnlocked;
+    const ready = EVENT.certificateEnabled && EVENT.certificateUnlocked;
     $('cert-name').textContent = drName();
     $('cert-actions').innerHTML = ready
       ? `<a class="btn btn-grad" href="${esc(EVENT.certificateUrl)}">Download PDF</a>`
-      : `<span class="status s-upcoming">${status() === 'replay' ? 'Complete the full session to unlock' : 'Available after event'}</span>`;
+      : '<span class="status s-upcoming">Certificate not available</span>';
     $('cert-card').classList.toggle('locked', !ready);
   }
 

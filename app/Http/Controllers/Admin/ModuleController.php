@@ -72,7 +72,10 @@ class ModuleController
 
     public function addEditForm($id = null)
     {
-        $module = $id ? Module::with('resourceDocuments')->findOrFail($id) : new Module(['status' => 'active']);
+        $module = $id ? Module::with('resourceDocuments')->findOrFail($id) : new Module([
+            'status' => 'active',
+            'certificate_enabled' => false,
+        ]);
 
         return view('admin.modules.add_edit', [
             'module' => $module,
@@ -427,6 +430,22 @@ class ModuleController
                 'message' => 'Error updating status',
             ], 500);
         }
+    }
+
+    public function certificateChange(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'enabled' => ['required', 'boolean'],
+        ]);
+
+        $module = Module::findOrFail($id);
+        $module->certificate_enabled = (bool) $validated['enabled'];
+        $module->save();
+
+        return response()->json([
+            'success' => true,
+            'enabled' => $module->certificate_enabled,
+        ]);
     }
 
     public function delete($id)

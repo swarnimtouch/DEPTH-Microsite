@@ -42,12 +42,14 @@ class Module extends Model
         'end_at',
         'is_locked',
         'join_enabled',
+        'certificate_enabled',
         'status',
     ];
 
     protected $casts = [
         'is_locked' => 'boolean',
         'join_enabled' => 'boolean',
+        'certificate_enabled' => 'boolean',
         'cme_credit' => 'decimal:1',
         'certificate_name_x' => 'decimal:2',
         'certificate_name_y' => 'decimal:2',

@@ -65,6 +65,7 @@
                                 <th>Start Date</th>
                                 <th>End Date</th>
                                 <th>Status</th>
+                                <th>Certificate</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
@@ -129,6 +130,14 @@
                             </label>`
                         },
                         {
+                            data: 'certificate_enabled',
+                            orderable: false,
+                            searchable: false,
+                            render: (enabled, type, row) => `<label class="form-check form-switch form-check-custom form-check-solid">
+                                <input class="form-check-input certificate-change" data-id="${row.id}" type="checkbox" ${enabled ? 'checked="checked"' : ''}/>
+                            </label>`
+                        },
+                        {
                             data: 'id',
                             orderable: false,
                             render: id => `<div>
@@ -146,6 +155,23 @@
             });
 
             document.addEventListener('change', e => {
+                if (e.target.classList.contains('certificate-change')) {
+                    const checkbox = e.target;
+                    const enabled = checkbox.checked;
+
+                    $.post('{{ route("admin.modules.certificate_change", ":id") }}'.replace(':id', checkbox.dataset.id), {
+                        _token: '{{ csrf_token() }}',
+                        enabled: enabled ? 1 : 0
+                    })
+                        .done(() => toastr.success(enabled ? 'Certificate enabled' : 'Certificate disabled'))
+                        .fail(() => {
+                            checkbox.checked = !enabled;
+                            toastr.error('Certificate setting could not be updated');
+                        });
+
+                    return;
+                }
+
                 if (e.target.classList.contains('status-change')) {
                     const checkbox = e.target;
                     const id = checkbox.dataset.id;

@@ -226,7 +226,6 @@ class WebLoginController
         $eventEnd = $agendaModule?->getRawOriginal('end_at')
             ? CarbonImmutable::parse($agendaModule->getRawOriginal('end_at'), 'UTC')->setTimezone('Asia/Kolkata')
             : null;
-        $moduleProgress = $agendaModule ? $progress->get($agendaModule->id) : null;
         $fullRecordingResource = $agendaModule?->resourceDocuments
             ?->firstWhere('category', 'full_recording');
         $fullRecordingReady = $fullRecordingResource
@@ -253,8 +252,9 @@ class WebLoginController
             'videoPageUrl' => route('modules.show', $agendaModule->slug),
             'recordingAvailable' => (bool) ($agendaModule->video_url || $fullRecordingReady),
             'roomUrl' => $agendaModule->join_url ?: route('modules.show', $agendaModule->slug),
+            'certificateEnabled' => (bool) $agendaModule->certificate_enabled,
             'certificateUrl' => route('modules.certificate', $agendaModule->slug),
-            'certificateUnlocked' => (bool) $moduleProgress?->video_completed_at,
+            'certificateUnlocked' => (bool) $agendaModule->certificate_enabled,
             'liveQuestionsUrl' => route('live_questions.state', $agendaModule),
             'liveQuestionsChannel' => 'live-questions.module.' . $agendaModule->id,
         ] : [];

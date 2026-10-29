@@ -128,6 +128,7 @@ Route::middleware(['auth:admin', 'admin.access'])->group(function () {
         Route::get('/{id}/agenda', [ModuleController::class, 'agendaForm'])->name('modules.agenda_form');
         Route::put('/{id}/agenda', [ModuleController::class, 'saveAgenda'])->name('modules.agenda_save');
         Route::post('/status-change/{id}', [ModuleController::class, 'statusChange'])->name('modules.status_change');
+        Route::post('/certificate-change/{id}', [ModuleController::class, 'certificateChange'])->name('modules.certificate_change');
         Route::post('/delete/{id}', [ModuleController::class, 'delete'])->name('modules.delete');
         Route::post('/delete-multiple', [ModuleController::class, 'deleteMultiple'])->name('modules.delete_multiple');
     });

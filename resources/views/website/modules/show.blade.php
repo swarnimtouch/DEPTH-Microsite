@@ -77,7 +77,7 @@
                 ?: ($fullRecordingResource?->file ? asset('storage/' . $fullRecordingResource->file) : null));
         $youtubeEmbedUrl = \App\Models\Module::youtubeEmbedUrl($recordingUrl);
         $directVideoUrl = $recordingUrl && !$youtubeEmbedUrl ? $recordingUrl : null;
-        $certificateUnlocked = (bool) $progress->video_completed_at;
+        $certificateUnlocked = (bool) $module->certificate_enabled;
         $youtubeApiUrl = fn(?string $url) => $url ? $url . (str_contains($url, '?') ? '&' : '?') . 'enablejsapi=1&playsinline=1' : null;
         $archiveSegments = collect($module->archive_segments ?: [])
             ->map(function ($segment) use ($module, $youtubeApiUrl) {
@@ -311,21 +311,23 @@
                         @if(!$progress->video_completed_at)
                             <p class="quiz-unlock-text mb-3" id="videoAutoCompleteText">Start the video to complete your progress.</p>
                             <div class="d-grid gap-2">
-                                {{--<a href="{{ route('modules.certificate', $module->slug) }}" class="btn btn-primary-custom w-100 py-2 d-none" id="videoCertificateLink">Download Certificate</a>--}}
+                                @if($certificateUnlocked)
+                                    <a href="{{ route('modules.certificate', $module->slug) }}" class="btn btn-primary-custom w-100 py-2" id="certificateDownloadLink">Download Certificate</a>
+                                @else
+                                    <button type="button" class="btn btn-locked w-100 py-2" disabled>Certificate Not Available</button>
+                                @endif
                                 <a href="{{ route('modules.quiz', $module->slug) }}" class="btn module-feedback-btn w-100 py-2 d-none" id="videoFeedbackLink">Give Feedback</a>
                             </div>
                             <button type="button" class="btn btn-locked w-100 py-2" id="videoFeedbackLocked" disabled>Feedback Locked</button>
-                        @elseif($certificateUnlocked)
-                            <p class="quiz-unlock-text mb-3">Video completed {{ $progress->video_completed_at->format('d M Y, h:i A') }}</p>
-                            <div class="d-grid gap-2">
-                                {{--<a href="{{ route('modules.certificate', $module->slug) }}" class="btn btn-primary-custom w-100 py-2">Download Certificate</a>--}}
-                                <a href="{{ route('modules.quiz', $module->slug) }}" class="btn module-feedback-btn w-100 py-2">{{ $feedbackSubmitted ? 'View Feedback' : 'Give Feedback' }}</a>
-                            </div>
                         @else
                             <p class="quiz-unlock-text mb-3">Video completed {{ $progress->video_completed_at->format('d M Y, h:i A') }}</p>
                             <div class="d-grid gap-2">
-                                <a href="{{ route('modules.certificate', $module->slug) }}" class="btn btn-primary-custom w-100 py-2">Download Certificate</a>
-                                <a href="{{ route('modules.quiz', $module->slug) }}" class="btn module-feedback-btn w-100 py-2">Give Feedback</a>
+                                @if($certificateUnlocked)
+                                    <a href="{{ route('modules.certificate', $module->slug) }}" class="btn btn-primary-custom w-100 py-2" id="certificateDownloadLink">Download Certificate</a>
+                                @else
+                                    <button type="button" class="btn btn-locked w-100 py-2" disabled>Certificate Not Available</button>
+                                @endif
+                                <a href="{{ route('modules.quiz', $module->slug) }}" class="btn module-feedback-btn w-100 py-2">{{ $feedbackSubmitted ? 'View Feedback' : 'Give Feedback' }}</a>
                             </div>
                         @endif
                     </div>
@@ -363,7 +365,7 @@
                             </div>
                             <div class="tracker-item">
                                 <div class="tracker-circle {{ $certificateUnlocked ? 'done' : 'pending' }}" id="certificateProgressCircle"></div>
-                                <span class="{{ $certificateUnlocked ? 'fw-bold text-dark-green' : 'text-muted' }} text-sm" id="certificateProgressText">Certificate</span>
+                                <span class="{{ $certificateUnlocked ? 'fw-bold text-dark-green' : 'text-muted' }} text-sm" id="certificateProgressText">{{ $module->certificate_enabled ? 'Certificate' : 'Certificate not released' }}</span>
                             </div>
                             <div class="tracker-item">
                                 <div class="tracker-circle {{ $progress->progress_percent == 100 ? 'done' : 'pending' }}" id="overallProgressCircle"></div>
@@ -466,15 +468,18 @@
                     lockedButton?.classList.add('d-none');
                     /*videoCertificateLink?.classList.remove('d-none');*/
                     videoFeedbackLink?.classList.remove('d-none');
-                    certificateDownloadLink?.classList.remove('d-none');
-                    certificateLockedWrap?.classList.add('d-none');
                     videoProgressCircle?.classList.remove('pending');
                     videoProgressCircle?.classList.add('done');
                     videoProgressStatus && (videoProgressStatus.textContent = 'Done');
-                    certificateProgressCircle?.classList.remove('pending');
-                    certificateProgressCircle?.classList.add('done');
-                    certificateProgressText?.classList.remove('text-muted');
-                    certificateProgressText?.classList.add('fw-bold', 'text-dark-green');
+                    if (data.certificate_unlocked) {
+                        certificateDownloadLink?.classList.remove('d-none');
+                        certificateLockedWrap?.classList.add('d-none');
+                        certificateProgressCircle?.classList.remove('pending');
+                        certificateProgressCircle?.classList.add('done');
+                        certificateProgressText?.classList.remove('text-muted');
+                        certificateProgressText?.classList.add('fw-bold', 'text-dark-green');
+                        certificateProgressText && (certificateProgressText.textContent = 'Certificate');
+                    }
                     overallProgressCircle?.classList.remove('pending');
                     overallProgressCircle?.classList.add('done');
                     overallProgressText && (overallProgressText.textContent = `Complete ${data.progress_percent || 100}%`);
