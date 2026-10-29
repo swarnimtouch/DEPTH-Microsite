@@ -18,7 +18,7 @@
                 <div class="card">
                     <div class="card-header border-0 pt-6">
                         <div class="card-title gap-3 flex-wrap">
-                            <input type="text" data-kt-comments-table-filter="search" class="form-control form-control-solid w-250px" placeholder="Search comments"/>
+                            <input type="text" data-kt-comments-table-filter="search" class="form-control form-control-solid w-250px" placeholder="Search comment, user or country"/>
                             <select data-kt-comments-table-filter="module" class="form-select form-select-solid w-250px">
                                 <option value="">All Chapters</option>
                                 @foreach($modules as $module)
@@ -45,6 +45,7 @@
                             <tr class="text-start text-muted fw-bolder fs-7 text-uppercase gs-0">
                                 <th>Chapter</th>
                                 <th>User</th>
+                                <th>Country</th>
                                 <th>Comment</th>
                                 <th>Posted</th>
                                 <th>Status</th>
@@ -98,6 +99,11 @@
                                 <span class="text-muted fs-7">${email}</span>
                             </div>`;
                         }
+                    },
+                    {
+                        data: 'user.country',
+                        defaultContent: '-',
+                        render: data => `<span class="fw-semibold text-gray-700">${escapeHtml(data || '-')}</span>`
                     },
                     {
                         data: 'comment',

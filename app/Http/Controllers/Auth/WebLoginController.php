@@ -405,6 +405,16 @@ class WebLoginController
             }
         }
 
+        if (Course::participantAccessEnabled()) {
+            Auth::guard('web')->login($doctor);
+            $doctor->forceFill(['last_login_at' => now()])->save();
+            $request->session()->regenerate();
+
+            return redirect()
+                ->route('dashboard')
+                ->with('success', 'Registration completed successfully.');
+        }
+
         return redirect()
             ->to(route('home') . '#register')
             ->with('success', 'Registration completed successfully. The learning portal will open shortly.');

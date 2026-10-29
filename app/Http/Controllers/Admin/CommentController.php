@@ -37,7 +37,8 @@ class CommentController
                 $q->orWhereHas('module', fn($module) => $module->where('title', 'LIKE', "%$search%"));
                 $q->orWhereHas('user', fn($user) => $user
                     ->where('name', 'LIKE', "%$search%")
-                    ->orWhere('email', 'LIKE', "%$search%"));
+                    ->orWhere('email', 'LIKE', "%$search%")
+                    ->orWhere('country', 'LIKE', "%$search%"));
             });
         }
 
@@ -66,7 +67,8 @@ class CommentController
                         ->orWhereHas('module', fn($module) => $module->where('title', 'LIKE', "%$search%"))
                         ->orWhereHas('user', fn($user) => $user
                             ->where('name', 'LIKE', "%$search%")
-                            ->orWhere('email', 'LIKE', "%$search%"));
+                            ->orWhere('email', 'LIKE', "%$search%")
+                            ->orWhere('country', 'LIKE', "%$search%"));
                 });
             })
             ->latest()
@@ -77,6 +79,7 @@ class CommentController
             $comment->module?->title ?: '-',
             $comment->user?->name ?: 'Delegate',
             $comment->user?->email ?: '-',
+            $comment->user?->country ?: '-',
             $comment->comment,
             $comment->created_at?->format('d M Y, h:i A') ?: '-',
             ucfirst($comment->status),
@@ -84,7 +87,7 @@ class CommentController
 
         return ExcelExport::download(
             'comments-' . now()->format('Y-m-d-His'),
-            ['No.', 'Chapter', 'User', 'Email', 'Comment', 'Posted At', 'Status'],
+            ['No.', 'Chapter', 'User', 'Email', 'Country', 'Comment', 'Posted At', 'Status'],
             $rows
         );
     }
