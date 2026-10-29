@@ -253,6 +253,7 @@ class WebLoginController
             'recordingAvailable' => (bool) ($agendaModule->video_url || $fullRecordingReady),
             'roomUrl' => $agendaModule->join_url ?: route('modules.show', $agendaModule->slug),
             'certificateEnabled' => (bool) $agendaModule->certificate_enabled,
+            'certificateStatusUrl' => route('modules.certificate_status', $agendaModule->slug),
             'certificateUrl' => route('modules.certificate', $agendaModule->slug),
             'certificateUnlocked' => (bool) $agendaModule->certificate_enabled,
             'liveQuestionsUrl' => route('live_questions.state', $agendaModule),

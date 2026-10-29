@@ -311,22 +311,12 @@
                         @if(!$progress->video_completed_at)
                             <p class="quiz-unlock-text mb-3" id="videoAutoCompleteText">Start the video to complete your progress.</p>
                             <div class="d-grid gap-2">
-                                @if($certificateUnlocked)
-                                    <a href="{{ route('modules.certificate', $module->slug) }}" class="btn btn-primary-custom w-100 py-2" id="certificateDownloadLink">Download Certificate</a>
-                                @else
-                                    <button type="button" class="btn btn-locked w-100 py-2" disabled>Certificate Not Available</button>
-                                @endif
                                 <a href="{{ route('modules.quiz', $module->slug) }}" class="btn module-feedback-btn w-100 py-2 d-none" id="videoFeedbackLink">Give Feedback</a>
                             </div>
                             <button type="button" class="btn btn-locked w-100 py-2" id="videoFeedbackLocked" disabled>Feedback Locked</button>
                         @else
                             <p class="quiz-unlock-text mb-3">Video completed {{ $progress->video_completed_at->format('d M Y, h:i A') }}</p>
                             <div class="d-grid gap-2">
-                                @if($certificateUnlocked)
-                                    <a href="{{ route('modules.certificate', $module->slug) }}" class="btn btn-primary-custom w-100 py-2" id="certificateDownloadLink">Download Certificate</a>
-                                @else
-                                    <button type="button" class="btn btn-locked w-100 py-2" disabled>Certificate Not Available</button>
-                                @endif
                                 <a href="{{ route('modules.quiz', $module->slug) }}" class="btn module-feedback-btn w-100 py-2">{{ $feedbackSubmitted ? 'View Feedback' : 'Give Feedback' }}</a>
                             </div>
                         @endif
@@ -353,8 +343,15 @@
 
 
 
-                    <div class="card tracker-widget bg-white p-4">
-                        <h6 class="fw-bold text-dark-green mb-4">Chapter Progress</h6>
+                    <div class="card tracker-widget bg-white p-4" id="certificateAvailability" data-status-url="{{ route('modules.certificate_status', $module->slug) }}" data-certificate-enabled="{{ $certificateUnlocked ? '1' : '0' }}">
+                        <h6 class="fw-bold text-dark-green mb-3">Chapter Progress</h6>
+                        <div class="d-grid mb-4">
+                            @if($certificateUnlocked)
+                                <a href="{{ route('modules.certificate', $module->slug) }}" class="btn btn-primary-custom w-100 py-2" id="certificateDownloadLink">Download Certificate</a>
+                            @else
+                                <button type="button" class="btn btn-locked w-100 py-2" id="certificateDownloadLink" disabled>Not Available</button>
+                            @endif
+                        </div>
                         <div class="tracker-list">
                             <div class="tracker-item">
                                 <div class="tracker-circle {{ $progress->video_completed_at ? 'done' : 'pending' }}" id="videoProgressCircle"></div>
@@ -490,6 +487,74 @@
                     moduleVideoCompletionRequestSent = false;
                 });
         }
+
+        const certificateAvailability = document.getElementById('certificateAvailability');
+
+        function syncCertificateAvailability() {
+            if (!certificateAvailability?.dataset.statusUrl || document.hidden) {
+                return;
+            }
+
+            fetch(certificateAvailability.dataset.statusUrl, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                cache: 'no-store',
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Unable to check certificate availability');
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    const enabled = Boolean(data.enabled);
+                    const enabledValue = enabled ? '1' : '0';
+                    if (certificateAvailability.dataset.certificateEnabled === enabledValue) {
+                        return;
+                    }
+
+                    certificateAvailability.dataset.certificateEnabled = enabledValue;
+                    const currentButton = document.getElementById('certificateDownloadLink');
+                    const replacement = document.createElement(enabled ? 'a' : 'button');
+                    replacement.id = 'certificateDownloadLink';
+                    replacement.className = enabled
+                        ? 'btn btn-primary-custom w-100 py-2'
+                        : 'btn btn-locked w-100 py-2';
+                    replacement.textContent = enabled ? 'Download Certificate' : 'Not Available';
+
+                    if (enabled && data.url) {
+                        replacement.href = data.url;
+                    } else {
+                        replacement.type = 'button';
+                        replacement.disabled = true;
+                    }
+
+                    currentButton?.replaceWith(replacement);
+
+                    const progressCircle = document.getElementById('certificateProgressCircle');
+                    const progressText = document.getElementById('certificateProgressText');
+                    progressCircle?.classList.toggle('done', enabled);
+                    progressCircle?.classList.toggle('pending', !enabled);
+                    progressText?.classList.toggle('fw-bold', enabled);
+                    progressText?.classList.toggle('text-dark-green', enabled);
+                    progressText?.classList.toggle('text-muted', !enabled);
+
+                    if (progressText) {
+                        progressText.textContent = enabled ? 'Certificate' : 'Certificate not released';
+                    }
+                })
+                .catch(() => {});
+        }
+
+        window.setInterval(syncCertificateAvailability, 3000);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                syncCertificateAvailability();
+            }
+        });
 
         function initModuleYoutubePlayer() {
             const frame = document.getElementById('moduleVideoFrame');

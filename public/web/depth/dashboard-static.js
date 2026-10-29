@@ -396,6 +396,31 @@
     $('cert-card').classList.toggle('locked', !ready);
   }
 
+  function syncCertificateAvailability() {
+    if (!EVENT.certificateStatusUrl || document.hidden || !['hub', 'certificate'].includes(state.view)) return;
+
+    fetch(EVENT.certificateStatusUrl, {
+      headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      cache: 'no-store',
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Unable to check certificate availability');
+        return response.json();
+      })
+      .then((data) => {
+        const enabled = Boolean(data.enabled);
+        if (EVENT.certificateUnlocked === enabled) return;
+
+        EVENT.certificateEnabled = enabled;
+        EVENT.certificateUnlocked = enabled;
+        if (data.url) EVENT.certificateUrl = data.url;
+
+        if (state.view === 'hub') renderHub();
+        if (state.view === 'certificate') renderCertificate();
+      })
+      .catch(() => {});
+  }
+
   /* ---------- profile ---------- */
   function renderProfile() {
     $('pf-name').textContent = drName();
@@ -513,6 +538,10 @@
   const first = window.DEPTH_INITIAL_VIEW || location.hash.replace('#', '') || 'overview';
   state.view = first;
   render();
+  window.setInterval(syncCertificateAvailability, 3000);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) syncCertificateAvailability();
+  });
   let wasJoinOpen = joinOpen();
   if (!wasJoinOpen && eventStartsInFuture()) {
     window.setInterval(() => {

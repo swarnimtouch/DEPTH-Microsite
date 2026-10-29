@@ -157,6 +157,26 @@ class ModuleController
         return back()->with('success', 'Video marked as completed');
     }
 
+    public function certificateStatus($slug)
+    {
+        if (!Auth::guard('web')->check()) {
+            return response()->json(['message' => 'Please login first'], 401);
+        }
+
+        $activeCourse = Course::active()->first();
+        abort_if(!$activeCourse, 404);
+
+        $module = Module::active()
+            ->where('course_id', $activeCourse->id)
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        return response()->json([
+            'enabled' => (bool) $module->certificate_enabled,
+            'url' => $module->certificate_enabled ? route('modules.certificate', $module->slug) : null,
+        ]);
+    }
+
     public function trackViewHeartbeat(Request $request, $slug)
     {
         if (!Auth::guard('web')->check()) {

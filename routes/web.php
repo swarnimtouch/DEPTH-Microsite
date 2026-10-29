@@ -30,6 +30,7 @@ Route::middleware(EnsureMicrositeAccessIsOpen::class)->group(function () {
     Route::get('/modules/{slug}', [ModuleController::class, 'show'])->name('modules.show');
     Route::post('/modules/{slug}/comments', [ModuleController::class, 'storeComment'])->name('modules.comments.store');
     Route::post('/modules/{slug}/complete-video', [ModuleController::class, 'completeVideo'])->name('modules.complete_video');
+    Route::get('/modules/{slug}/certificate-status', [ModuleController::class, 'certificateStatus'])->name('modules.certificate_status');
     Route::post('/modules/{slug}/view-heartbeat', [ModuleController::class, 'trackViewHeartbeat'])->name('modules.view_heartbeat');
     Route::get('/modules/{slug}/quiz', [ModuleController::class, 'quiz'])->name('modules.quiz');
     Route::post('/modules/{slug}/quiz', [ModuleController::class, 'submitQuiz'])->name('modules.quiz.submit');
