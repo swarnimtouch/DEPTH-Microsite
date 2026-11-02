@@ -55,7 +55,7 @@ final class ParticipantTimeZone
 
         return $india
             .' · '.self::formatRange($myanmar['start'], $myanmar['end'], 'Myanmar')
-            .' · '.self::formatRange($utcPlusEight['start'], $utcPlusEight['end'], 'SG/MY/PH')
+            .' · '.self::formatRange($utcPlusEight['start'], $utcPlusEight['end'], 'SG/PH')
             .' · '.self::formatRange($utcPlusSeven['start'], $utcPlusSeven['end'], 'TH/VN');
     }
 
@@ -73,7 +73,7 @@ final class ParticipantTimeZone
         return [
             self::formatRange($india['start'], $india['end'], 'IST'),
             self::formatRange($myanmar['start'], $myanmar['end'], 'Myanmar'),
-            self::formatRange($utcPlusEight['start'], $utcPlusEight['end'], 'SG/MY/PH'),
+            self::formatRange($utcPlusEight['start'], $utcPlusEight['end'], 'SG/PH'),
             self::formatRange($utcPlusSeven['start'], $utcPlusSeven['end'], 'TH/VN'),
         ];
     }
