@@ -30,11 +30,11 @@
     $showLandingLogin = $forceLandingLogin
         || session('show_login')
         || old('login_context') === 'landing';
-    $countdownStart = \Carbon\CarbonImmutable::parse($event['start_iso']);
+    $countdownTarget = '2026-11-20T10:30:00Z';
     $countdownSchedules = [
-        ['zone' => 'IST', 'time' => $event['time_lines'][0] ?? '4:00 PM - 5:30 PM IST', 'target' => $countdownStart->toIso8601String()],
-        ['zone' => 'SG/MY/PH', 'time' => $event['time_lines'][1] ?? '6:30 PM - 8:00 PM SG/MY/PH', 'target' => $countdownStart->addMinutes(150)->toIso8601String()],
-        ['zone' => 'TH/VN', 'time' => $event['time_lines'][2] ?? '5:30 PM - 7:00 PM TH/VN', 'target' => $countdownStart->addMinutes(90)->toIso8601String()],
+        ['zone' => 'IST', 'time' => $event['time_lines'][0] ?? '4:00 PM - 5:30 PM IST'],
+        ['zone' => 'SG/MY/PH', 'time' => $event['time_lines'][1] ?? '6:30 PM - 8:00 PM SG/MY/PH'],
+        ['zone' => 'TH/VN', 'time' => $event['time_lines'][2] ?? '5:30 PM - 7:00 PM TH/VN'],
     ];
 @endphp
 
@@ -151,7 +151,7 @@
                     </div>
                     <div class="countdowns timezone-countdowns" aria-label="Live session countdowns by time zone">
                         @foreach($countdownSchedules as $countdownSchedule)
-                            <div class="countdown" data-countdown="{{ $countdownSchedule['target'] }}">
+                            <div class="countdown" data-countdown="{{ $countdownTarget }}">
                                 <strong class="label"><span>{{ $countdownSchedule['zone'] }} countdown</span><small>{{ $countdownSchedule['time'] }}</small></strong>
                                 <div class="cd"><div><b data-days>00</b><span>Days</span></div><div><b data-hours>00</b><span>Hrs</span></div><div><b data-minutes>00</b><span>Min</span></div><div><b data-seconds>00</b><span>Sec</span></div></div>
                             </div>
