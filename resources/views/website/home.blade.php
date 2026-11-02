@@ -26,9 +26,16 @@
         'end_iso' => $programModule?->end_at_utc_iso ?? '2026-11-20T12:00:00+00:00',
         'speaker' => $programModule?->speaker_name ?? 'Prof. Siegfried Kasper',
     ];
-    $showLandingLogin = request('auth') === 'login'
+    $forceLandingLogin = request('auth') === 'login';
+    $showLandingLogin = $forceLandingLogin
         || session('show_login')
         || old('login_context') === 'landing';
+    $countdownStart = \Carbon\CarbonImmutable::parse($event['start_iso']);
+    $countdownSchedules = [
+        ['zone' => 'IST', 'time' => $event['time_lines'][0] ?? '4:00 PM - 5:30 PM IST', 'target' => $countdownStart->toIso8601String()],
+        ['zone' => 'SG/MY/PH', 'time' => $event['time_lines'][1] ?? '6:30 PM - 8:00 PM SG/MY/PH', 'target' => $countdownStart->addMinutes(150)->toIso8601String()],
+        ['zone' => 'TH/VN', 'time' => $event['time_lines'][2] ?? '5:30 PM - 7:00 PM TH/VN', 'target' => $countdownStart->addMinutes(90)->toIso8601String()],
+    ];
 @endphp
 
 <div class="page depth-page">
@@ -40,13 +47,13 @@
                 <img class="logo-depth-brand" src="{{ $depthAsset('depth-logo.png') }}" alt="DEPTH — Depression Education Program for Therapeutic Excellence">
             </a>
             <nav class="hdr-nav" aria-label="Primary navigation">
-                @auth('web')
+                @if(auth('web')->check() && ! $forceLandingLogin)
                     <a class="btn btn-line sm" href="{{ route('dashboard') }}">Dashboard</a>
                     <a class="btn btn-grad sm" href="{{ route('logout') }}">Log out</a>
                 @else
                     <a class="btn btn-grad sm header-login-link" href="#register" data-show-login>Log in</a>
                     <a class="btn btn-grad sm header-register-link" href="#register">Register now</a>
-                @endauth
+                @endif
             </nav>
         </div>
     </header>
@@ -61,15 +68,15 @@
                         <p class="hero-it">{{ $event['tagline'] }}</p>
                         <p class="hero-sub">An expert-led clinical session combining evidence, case-based insights and practical approaches to recognising, diagnosing and managing depression in primary care.</p>
                         <ul class="hero-line"><li>Recognise the signs</li><li>Close the gaps</li><li>Transform care</li></ul>
-                        @auth('web')
+                        @if(auth('web')->check() && ! $forceLandingLogin)
                             <div class="btn-row"><a class="btn btn-grad lg" href="{{ route('modules') }}">Open learning &rarr;</a><a class="btn btn-line lg" href="#program">Explore the program</a></div>
                         @else
                             <div class="btn-row"><a class="btn btn-grad lg hero-register-link" href="#register">Register now &rarr;</a><a class="btn btn-line lg" href="#program">Explore the program</a></div>
-                        @endauth
+                        @endif
                     </div>
 
                     <aside class="hero-form" id="register">
-                        @auth('web')
+                        @if(auth('web')->check() && ! $forceLandingLogin)
                         <div class="reg-card landing-member-card">
                             <div class="reg-head">
                                 <span class="landing-auth-eyebrow">You are signed in</span>
@@ -128,7 +135,7 @@
                                 <div class="reg-actions span2"><button type="submit" class="btn btn-grad lg wide">Log in &rarr;</button><div class="hint">New to DEPTH? <button class="link" type="button" data-show-register>Register now</button></div></div>
                             </form>
                         </div>
-                        @endauth
+                        @endif
                     </aside>
                 </div>
 
@@ -143,9 +150,9 @@
                         </div>
                     </div>
                     <div class="countdowns timezone-countdowns" aria-label="Live session countdowns by time zone">
-                        @foreach(['IST', 'SG/MY/PH', 'TH/VN'] as $countdownIndex => $countdownZone)
-                            <div class="countdown" data-countdown="{{ $event['start_iso'] }}">
-                                <strong class="label"><span>{{ $countdownZone }} countdown</span>@if(isset($event['time_lines'][$countdownIndex]))<small>{{ $event['time_lines'][$countdownIndex] }}</small>@endif</strong>
+                        @foreach($countdownSchedules as $countdownSchedule)
+                            <div class="countdown" data-countdown="{{ $countdownSchedule['target'] }}">
+                                <strong class="label"><span>{{ $countdownSchedule['zone'] }} countdown</span><small>{{ $countdownSchedule['time'] }}</small></strong>
                                 <div class="cd"><div><b data-days>00</b><span>Days</span></div><div><b data-hours>00</b><span>Hrs</span></div><div><b data-minutes>00</b><span>Min</span></div><div><b data-seconds>00</b><span>Sec</span></div></div>
                             </div>
                         @endforeach
