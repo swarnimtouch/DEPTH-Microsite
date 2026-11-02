@@ -14,6 +14,7 @@ class ParticipantTimeZoneTest extends TestCase
             'Singapore' => ['Singapore', '6:30 PM - 8:00 PM SGT'],
             'Malaysia' => ['Malaysia', '6:30 PM - 8:00 PM MYT'],
             'Philippines' => ['Philippines', '6:30 PM - 8:00 PM PHT'],
+            'Myanmar' => ['Myanmar', '5:00 PM - 6:30 PM MMT'],
             'Thailand' => ['Thailand', '5:30 PM - 7:00 PM ICT'],
             'Vietnam' => ['Vietnam', '5:30 PM - 7:00 PM ICT'],
             'fallback India' => ['India', '4:00 PM - 5:30 PM IST'],
@@ -37,7 +38,7 @@ class ParticipantTimeZoneTest extends TestCase
         $summary = ParticipantTimeZone::seaSummary('2026-11-20 10:30:00', '2026-11-20 12:00:00');
 
         $this->assertSame(
-            '4:00 PM - 5:30 PM IST · 6:30 PM - 8:00 PM SG/MY/PH · 5:30 PM - 7:00 PM TH/VN',
+            '4:00 PM - 5:30 PM IST · 5:00 PM - 6:30 PM Myanmar · 6:30 PM - 8:00 PM SG/MY/PH · 5:30 PM - 7:00 PM TH/VN',
             $summary,
         );
     }
@@ -46,6 +47,7 @@ class ParticipantTimeZoneTest extends TestCase
     {
         $this->assertSame([
             '4:00 PM - 5:30 PM IST',
+            '5:00 PM - 6:30 PM Myanmar',
             '6:30 PM - 8:00 PM SG/MY/PH',
             '5:30 PM - 7:00 PM TH/VN',
         ], ParticipantTimeZone::seaLines('2026-11-20 10:30:00', '2026-11-20 12:00:00'));

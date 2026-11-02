@@ -10,6 +10,7 @@ final class ParticipantTimeZone
         'singapore' => ['Asia/Singapore', 'SGT'],
         'malaysia' => ['Asia/Kuala_Lumpur', 'MYT'],
         'philippines' => ['Asia/Manila', 'PHT'],
+        'myanmar' => ['Asia/Yangon', 'MMT'],
         'thailand' => ['Asia/Bangkok', 'ICT'],
         'vietnam' => ['Asia/Ho_Chi_Minh', 'ICT'],
     ];
@@ -48,10 +49,12 @@ final class ParticipantTimeZone
         }
 
         $india = self::eventDetails($startAt, $endAt, null)['time'];
+        $myanmar = self::eventDetails($startAt, $endAt, 'Myanmar');
         $utcPlusEight = self::eventDetails($startAt, $endAt, 'Singapore');
         $utcPlusSeven = self::eventDetails($startAt, $endAt, 'Thailand');
 
         return $india
+            .' · '.self::formatRange($myanmar['start'], $myanmar['end'], 'Myanmar')
             .' · '.self::formatRange($utcPlusEight['start'], $utcPlusEight['end'], 'SG/MY/PH')
             .' · '.self::formatRange($utcPlusSeven['start'], $utcPlusSeven['end'], 'TH/VN');
     }
@@ -63,11 +66,13 @@ final class ParticipantTimeZone
         }
 
         $india = self::eventDetails($startAt, $endAt, null);
+        $myanmar = self::eventDetails($startAt, $endAt, 'Myanmar');
         $utcPlusEight = self::eventDetails($startAt, $endAt, 'Singapore');
         $utcPlusSeven = self::eventDetails($startAt, $endAt, 'Thailand');
 
         return [
             self::formatRange($india['start'], $india['end'], 'IST'),
+            self::formatRange($myanmar['start'], $myanmar['end'], 'Myanmar'),
             self::formatRange($utcPlusEight['start'], $utcPlusEight['end'], 'SG/MY/PH'),
             self::formatRange($utcPlusSeven['start'], $utcPlusSeven['end'], 'TH/VN'),
         ];

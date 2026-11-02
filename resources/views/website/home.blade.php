@@ -30,10 +30,7 @@
     $showLandingLogin = $forceLandingLogin
         || session('show_login')
         || old('login_context') === 'landing';
-    $countdownTarget = '2026-11-20T10:30:00Z';
-    $countdownSchedules = [
-        ['zone' => 'IST', 'time' => $event['time_lines'][0] ?? '4:00 PM - 5:30 PM IST'],
-    ];
+    $countdownTarget = $event['start_iso'];
 @endphp
 
 <div class="page depth-page">
@@ -148,12 +145,10 @@
                         </div>
                     </div>
                     <div class="countdowns timezone-countdowns" aria-label="IST live session countdown">
-                        @foreach($countdownSchedules as $countdownSchedule)
-                            <div class="countdown" data-countdown="{{ $countdownTarget }}">
-                                <strong class="label"><span>{{ $countdownSchedule['zone'] }} countdown</span><small>{{ $countdownSchedule['time'] }}</small></strong>
-                                <div class="cd"><div><b data-days>00</b><span>Days</span></div><div><b data-hours>00</b><span>Hrs</span></div><div><b data-minutes>00</b><span>Min</span></div><div><b data-seconds>00</b><span>Sec</span></div></div>
-                            </div>
-                        @endforeach
+                        <div class="countdown" data-countdown="{{ $countdownTarget }}">
+                            <strong class="label"><span>IST countdown</span><small>{{ $event['time_lines'][0] ?? 'Time to be announced' }}</small></strong>
+                            <div class="cd"><div><b data-days>00</b><span>Days</span></div><div><b data-hours>00</b><span>Hrs</span></div><div><b data-minutes>00</b><span>Min</span></div><div><b data-seconds>00</b><span>Sec</span></div></div>
+                        </div>
                     </div>
                 </div>
             </div>
