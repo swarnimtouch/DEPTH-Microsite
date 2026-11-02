@@ -1,46 +1,49 @@
 (function () {
     'use strict';
 
-    const countdowns = Array.from(document.querySelectorAll('[data-countdown]'));
-    if (!countdowns.length) return;
+    const clocks = Array.from(document.querySelectorAll('[data-time-zone]'));
+    if (!clocks.length) return;
 
-    const target = Date.parse(countdowns[0].dataset.countdown);
-    if (!Number.isFinite(target)) return;
+    const formatters = new Map();
 
-    let timer = null;
+    function formatterFor(timeZone) {
+        if (!formatters.has(timeZone)) {
+            formatters.set(timeZone, new Intl.DateTimeFormat('en-US', {
+                timeZone: timeZone,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+            }));
+        }
 
-    function updateCountdowns() {
-        const difference = Math.max(0, target - Date.now());
-        const values = {
-            days: String(Math.floor(difference / 86400000)).padStart(2, '0'),
-            hours: String(Math.floor(difference / 3600000) % 24).padStart(2, '0'),
-            minutes: String(Math.floor(difference / 60000) % 60).padStart(2, '0'),
-            seconds: String(Math.floor(difference / 1000) % 60).padStart(2, '0'),
-        };
+        return formatters.get(timeZone);
+    }
 
-        countdowns.forEach(function (element) {
-            const days = element.querySelector('[data-days]');
+    function updateClocks() {
+        const now = new Date(Date.now());
+
+        clocks.forEach(function (element) {
+            const parts = formatterFor(element.dataset.timeZone).formatToParts(now);
+            const values = Object.fromEntries(parts.map(function (part) {
+                return [part.type, part.value];
+            }));
             const hours = element.querySelector('[data-hours]');
             const minutes = element.querySelector('[data-minutes]');
             const seconds = element.querySelector('[data-seconds]');
+            const period = element.querySelector('[data-period]');
 
-            if (!days || !hours || !minutes || !seconds) return;
+            if (!hours || !minutes || !seconds || !period) return;
 
-            element.classList.toggle('is-finished', difference === 0);
-            days.textContent = values.days;
-            hours.textContent = values.hours;
-            minutes.textContent = values.minutes;
-            seconds.textContent = values.seconds;
+            hours.textContent = values.hour;
+            minutes.textContent = values.minute;
+            seconds.textContent = values.second;
+            period.textContent = values.dayPeriod;
         });
-
-        if (difference === 0 && timer !== null) {
-            window.clearInterval(timer);
-            timer = null;
-        }
     }
 
-    updateCountdowns();
-    if (target > Date.now()) timer = window.setInterval(updateCountdowns, 1000);
+    updateClocks();
+    window.setInterval(updateClocks, 1000);
 })();
 
 (function ($) {

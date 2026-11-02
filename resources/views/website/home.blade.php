@@ -30,11 +30,10 @@
     $showLandingLogin = $forceLandingLogin
         || session('show_login')
         || old('login_context') === 'landing';
-    $countdownTarget = '2026-11-20T10:30:00Z';
     $countdownSchedules = [
-        ['zone' => 'IST', 'time' => $event['time_lines'][0] ?? '4:00 PM - 5:30 PM IST'],
-        ['zone' => 'SG/MY/PH', 'time' => $event['time_lines'][1] ?? '6:30 PM - 8:00 PM SG/MY/PH'],
-        ['zone' => 'TH/VN', 'time' => $event['time_lines'][2] ?? '5:30 PM - 7:00 PM TH/VN'],
+        ['zone' => 'IST', 'time_zone' => 'Asia/Kolkata', 'time' => $event['time_lines'][0] ?? '4:00 PM - 5:30 PM IST'],
+        ['zone' => 'SG/MY/PH', 'time_zone' => 'Asia/Singapore', 'time' => $event['time_lines'][1] ?? '6:30 PM - 8:00 PM SG/MY/PH'],
+        ['zone' => 'TH/VN', 'time_zone' => 'Asia/Bangkok', 'time' => $event['time_lines'][2] ?? '5:30 PM - 7:00 PM TH/VN'],
     ];
 @endphp
 
@@ -149,11 +148,11 @@
                             <div class="bc-dates"><div><small>Live session</small><b>{{ $event['date_short'] }} · {{ $event['day'] }}</b><span class="session-time-stack">@forelse($event['time_lines'] as $timeLine)<span>{{ $timeLine }}</span>@empty<span>Time to be announced</span>@endforelse @if($event['duration'])<span>Duration: {{ $event['duration'] }}</span>@endif</span></div><div><small>Speaker</small><b>{{ $event['speaker'] }}</b><span>Medical University of Vienna, Austria</span></div></div>
                         </div>
                     </div>
-                    <div class="countdowns timezone-countdowns" aria-label="Live session countdowns by time zone">
+                    <div class="countdowns timezone-countdowns" aria-label="Live local times by time zone">
                         @foreach($countdownSchedules as $countdownSchedule)
-                            <div class="countdown" data-countdown="{{ $countdownTarget }}">
-                                <strong class="label"><span>{{ $countdownSchedule['zone'] }} countdown</span><small>{{ $countdownSchedule['time'] }}</small></strong>
-                                <div class="cd"><div><b data-days>00</b><span>Days</span></div><div><b data-hours>00</b><span>Hrs</span></div><div><b data-minutes>00</b><span>Min</span></div><div><b data-seconds>00</b><span>Sec</span></div></div>
+                            <div class="countdown" data-time-zone="{{ $countdownSchedule['time_zone'] }}">
+                                <strong class="label"><span>{{ $countdownSchedule['zone'] }} live time</span><small>{{ $countdownSchedule['time'] }}</small></strong>
+                                <div class="cd"><div><b data-hours>00</b><span>Hrs</span></div><div><b data-minutes>00</b><span>Min</span></div><div><b data-seconds>00</b><span>Sec</span></div><div><b data-period>AM</b><span>Period</span></div></div>
                             </div>
                         @endforeach
                     </div>
@@ -186,7 +185,7 @@
 <style>
 .depth-page .logo-hetero{height:48px;width:auto}.depth-page .brand-divider{width:1px;height:46px;background:#d9dee7}.depth-page .logo-depth-brand{height:48px;width:auto;max-width:250px}.depth-page .trust-row.solo .t-hetero{height:44px}.depth-page .arm-logos .a-hetero{height:34px}.depth-page .micro-error{display:block;color:#b8141b;font-size:12px;margin-top:5px}.depth-page .micro-error.epic-span{grid-column:1/-1;margin-top:-9px}.depth-page .input.is-invalid{border-color:#b8141b}.depth-page #register{scroll-margin-top:100px}
 .depth-page .landing-login-form{grid-template-columns:1fr}.depth-page .landing-auth-alert{margin:0 24px 18px;padding:11px 13px;border:1px solid #f1b8bc;border-radius:9px;background:#fff1f2;color:#a01016;font-size:13px;line-height:1.45}.depth-page .landing-auth-eyebrow{display:inline-block;margin-bottom:10px;color:#c4161c;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.depth-page .landing-member-actions{display:grid;gap:12px;padding:0 24px 24px}.depth-page .landing-logout-link{text-align:center;color:#6b7080;font-size:13px;font-weight:700}.depth-page .landing-logout-link:hover{color:#b8141b}.depth-page button.link{appearance:none;border:0;background:none;padding:0}.depth-page .session-time-stack{display:grid;gap:3px;margin-top:5px}.depth-page .session-time-stack>span{display:block;white-space:nowrap}
-.depth-page .timezone-countdowns{width:min(100%,680px);gap:10px}.depth-page .timezone-countdowns .countdown{display:grid;grid-template-columns:230px auto;align-items:center;justify-content:center;gap:14px;width:100%}.depth-page .timezone-countdowns .countdown .label{min-width:0;text-align:right}.depth-page .timezone-countdowns .countdown .label span,.depth-page .timezone-countdowns .countdown .label small{display:block}.depth-page .timezone-countdowns .countdown .label small{margin-top:4px;color:var(--navy);font-size:11px;font-weight:700;letter-spacing:0;text-transform:none}.depth-page .timezone-countdowns .cd{justify-content:flex-start}
+.depth-page .timezone-countdowns{width:min(100%,680px);gap:10px}.depth-page .timezone-countdowns .countdown{display:grid;grid-template-columns:230px auto;align-items:center;justify-content:center;gap:14px;width:100%}.depth-page .timezone-countdowns .countdown .label{min-width:0;text-align:right}.depth-page .timezone-countdowns .countdown .label span,.depth-page .timezone-countdowns .countdown .label small{display:block}.depth-page .timezone-countdowns .countdown .label small{margin-top:4px;color:var(--navy);font-size:11px;font-weight:700;letter-spacing:0;text-transform:none}.depth-page .timezone-countdowns .cd{justify-content:flex-start}.depth-page .timezone-countdowns [data-period]{font-size:16px;line-height:22px}
 @media(max-width:760px){.depth-page .hdr-in{flex-wrap:nowrap}.depth-page .brand{flex:1 1 auto;min-width:0;gap:9px}.depth-page .logo-hetero{height:38px}.depth-page .brand-divider{height:34px}.depth-page .logo-depth-brand{height:34px;max-width:min(36vw,150px)}.depth-page .trust-row.solo .t-hetero{height:38px}.depth-page .arm-logos .a-hetero{height:30px}.depth-page .hdr-nav{display:grid;grid-template-columns:repeat(2,max-content);gap:6px;margin-left:auto}.depth-page .hdr-nav .btn{padding:10px 11px;font-size:9.5px;letter-spacing:.03em}.depth-page .hdr-nav .header-program-link{display:none}.depth-page .hdr-nav>a:not(.btn){display:none}.depth-page .hero-register-link{display:none!important}.depth-page .timezone-countdowns .countdown{grid-template-columns:1fr;gap:8px}.depth-page .timezone-countdowns .countdown .label{text-align:center}.depth-page .timezone-countdowns .cd{justify-content:center}}
 </style>
 @endpush
