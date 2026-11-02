@@ -1,3 +1,38 @@
+(function () {
+    'use strict';
+
+    function updateCountdowns() {
+        document.querySelectorAll('[data-countdown]').forEach(function (element) {
+            const target = new Date(element.dataset.countdown).getTime();
+            const difference = target - Date.now();
+            const days = element.querySelector('[data-days]');
+            const hours = element.querySelector('[data-hours]');
+            const minutes = element.querySelector('[data-minutes]');
+            const seconds = element.querySelector('[data-seconds]');
+
+            if (!Number.isFinite(target) || !days || !hours || !minutes || !seconds) return;
+
+            if (difference <= 0) {
+                element.classList.add('is-finished');
+                days.textContent = '00';
+                hours.textContent = '00';
+                minutes.textContent = '00';
+                seconds.textContent = '00';
+                return;
+            }
+
+            element.classList.remove('is-finished');
+            days.textContent = String(Math.floor(difference / 86400000)).padStart(2, '0');
+            hours.textContent = String(Math.floor(difference / 3600000) % 24).padStart(2, '0');
+            minutes.textContent = String(Math.floor(difference / 60000) % 60).padStart(2, '0');
+            seconds.textContent = String(Math.floor(difference / 1000) % 60).padStart(2, '0');
+        });
+    }
+
+    updateCountdowns();
+    window.setInterval(updateCountdowns, 1000);
+})();
+
 (function ($) {
     'use strict';
 
@@ -147,23 +182,6 @@
             unhighlight: function (element) { $(element).removeClass('is-invalid'); }
         });
 
-        function updateCountdowns() {
-            document.querySelectorAll('[data-countdown]').forEach(function (element) {
-                const difference = new Date(element.dataset.countdown).getTime() - Date.now();
-                if (difference <= 0) {
-                    element.classList.add('is-finished');
-                    element.querySelector('div').innerHTML = '<span class="epic-countdown-status">Webinar access opens soon</span>';
-                    return;
-                }
-                element.querySelector('[data-days]').textContent = String(Math.floor(difference / 86400000)).padStart(2, '0');
-                element.querySelector('[data-hours]').textContent = String(Math.floor(difference / 3600000) % 24).padStart(2, '0');
-                element.querySelector('[data-minutes]').textContent = String(Math.floor(difference / 60000) % 60).padStart(2, '0');
-                element.querySelector('[data-seconds]').textContent = String(Math.floor(difference / 1000) % 60).padStart(2, '0');
-            });
-        }
-
-        updateCountdowns();
-        window.setInterval(updateCountdowns, 1000);
         $form.on('submit', syncMobile);
     });
 })(jQuery);
