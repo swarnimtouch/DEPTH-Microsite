@@ -9,6 +9,7 @@ use App\Models\Module;
 use App\Models\ModuleUserProgress;
 use App\Models\Speciality;
 use App\Models\User;
+use App\Support\ParticipantTimeZone;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -220,12 +221,13 @@ class WebLoginController
             ];
         })->values();
 
-        $eventStart = $agendaModule?->getRawOriginal('start_at')
-            ? CarbonImmutable::parse($agendaModule->getRawOriginal('start_at'), 'UTC')->setTimezone('Asia/Kolkata')
-            : null;
-        $eventEnd = $agendaModule?->getRawOriginal('end_at')
-            ? CarbonImmutable::parse($agendaModule->getRawOriginal('end_at'), 'UTC')->setTimezone('Asia/Kolkata')
-            : null;
+        $participantSession = ParticipantTimeZone::eventDetails(
+            $agendaModule?->getRawOriginal('start_at'),
+            $agendaModule?->getRawOriginal('end_at'),
+            $doctor->country,
+        );
+        $eventStart = $participantSession['start'];
+        $eventEnd = $participantSession['end'];
         $fullRecordingResource = $agendaModule?->resourceDocuments
             ?->firstWhere('category', 'full_recording');
         $fullRecordingReady = $fullRecordingResource
@@ -242,9 +244,9 @@ class WebLoginController
             'date' => $eventStart?->format('d F Y'),
             'dateShort' => $eventStart?->format('d M Y'),
             'day' => $eventStart?->format('l'),
-            'time' => $eventStart && $eventEnd
-                ? $eventStart->format('g:i A') . ' – ' . $eventEnd->format('g:i A') . ' IST'
-                : ($agendaModule->duration ?: 'Time to be announced'),
+            'time' => $participantSession['time'] ?: ($agendaModule->duration ?: 'Time to be announced'),
+            'timeZone' => $participantSession['time_zone'],
+            'timeZoneLabel' => $participantSession['time_zone_label'],
             'start' => $agendaModule->start_at_utc_iso,
             'end' => $agendaModule->end_at_utc_iso,
             'duration' => $agendaModule->display_duration,

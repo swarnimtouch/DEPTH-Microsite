@@ -3,40 +3,75 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="x-apple-disable-message-reformatting">
     <title>DEPTH registration confirmed</title>
 </head>
-<body style="margin:0;background:#f5f6f8;color:#20242a;font-family:Arial,Helvetica,sans-serif;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f5f6f8;padding:28px 12px;">
-    <tr><td align="center">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 8px 24px rgba(24,32,44,.08);">
-            <tr><td style="background:#9d1118;padding:30px 36px;color:#ffffff;">
-                <div style="font-size:13px;letter-spacing:2px;font-weight:700;opacity:.82;">DEPTH</div>
-                <div style="font-size:27px;line-height:1.25;font-weight:700;margin-top:8px;">Registration confirmed</div>
-            </td></tr>
-            <tr><td style="padding:34px 36px 18px;">
-                <p style="font-size:17px;line-height:1.6;margin:0 0 18px;">Dear {{ $doctor->name }},</p>
-                <p style="font-size:15px;line-height:1.7;margin:0 0 18px;color:#4e5661;">Thank you for registering for the DEPTH learning programme. Your registration has been confirmed successfully.</p>
-                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8f1f1;border-left:4px solid #9d1118;border-radius:6px;margin:22px 0;">
-                    <tr><td style="padding:18px 20px;font-size:14px;line-height:1.7;color:#3c424a;">
-                        <strong>Name:</strong> {{ $doctor->name }}<br>
-                        <strong>Email:</strong> {{ $doctor->email }}
-                        @if($doctor->hospital)<br><strong>Hospital / Institution:</strong> {{ $doctor->hospital }}@endif
-                        @if($doctor->country)<br><strong>Country:</strong> {{ $doctor->country }}@endif
-                    </td></tr>
-                </table>
-                @if(!\App\Models\Course::participantAccessEnabled())
-                    <p style="font-size:15px;line-height:1.7;margin:0 0 24px;color:#4e5661;">Your registration has been received. Access to the DEPTH programme will be enabled later.</p>
-                @else
-                    <p style="font-size:15px;line-height:1.7;margin:0 0 24px;color:#4e5661;">You can use your registered email address to access the programme dashboard. No password is required.</p>
-                    <table role="presentation" cellspacing="0" cellpadding="0"><tr><td style="border-radius:7px;background:#9d1118;">
-                        <a href="{{ route('home', ['auth' => 'login']) }}#register" style="display:inline-block;padding:13px 22px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">Open DEPTH</a>
-                    </td></tr></table>
-                @endif
-                <p style="font-size:13px;line-height:1.6;margin:28px 0 0;color:#7a828c;">If you did not make this registration, please ignore this email.</p>
-            </td></tr>
-            <tr><td style="padding:20px 36px 28px;color:#8b929b;font-size:12px;line-height:1.6;border-top:1px solid #eceef1;">This is an automated confirmation from DEPTH. Please do not reply to this email.</td></tr>
-        </table>
-    </td></tr>
+@php
+    $participantName = trim(preg_replace('/^dr\.?\s*/i', '', $doctor->name));
+    $artworkPath = public_path('web/depth/assets/email');
+    $headerImage = $message->embed($artworkPath.'/thank-you-header.png');
+    $salutationImage = $message->embedData(
+        \App\Support\RegistrationEmailArtwork::salutation($participantName),
+        'thank-you-salutation.png',
+        'image/png',
+    );
+    $contentImage = $message->embed($artworkPath.'/thank-you-content.png');
+    $buttonLeftImage = $message->embed($artworkPath.'/thank-you-button-left.png');
+    $buttonRightImage = $message->embed($artworkPath.'/thank-you-button-right.png');
+    $resourcesImage = $message->embed($artworkPath.'/thank-you-resources.png');
+    $footerImage = $message->embed($artworkPath.'/thank-you-footer-bottom.png');
+@endphp
+<body style="margin:0;padding:0;background:#ececec;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+    Your registration for the Hetero DEPTH Series is confirmed.
+</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#ececec;">
+    <tr>
+        <td align="center" style="padding:18px 0;">
+            <table role="presentation" width="700" cellspacing="0" cellpadding="0" border="0" style="width:700px;background:#ffffff;border-collapse:collapse;">
+                <tr>
+                    <td style="font-size:0;line-height:0;">
+                        <img src="{{ $headerImage }}" width="700" height="141" alt="DEPTH - Hetero" style="display:block;width:700px;height:141px;border:0;">
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size:0;line-height:0;">
+                        <img src="{{ $salutationImage }}" width="700" height="39" alt="Dear Dr. {{ $participantName }}" style="display:block;width:700px;height:39px;border:0;">
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size:0;line-height:0;">
+                        <img src="{{ $contentImage }}" width="700" height="433" alt="DEPTH programme schedule and scientific session" style="display:block;width:700px;height:433px;border:0;">
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size:0;line-height:0;">
+                        <table role="presentation" width="700" height="42" cellspacing="0" cellpadding="0" border="0" style="width:700px;height:42px;border-collapse:collapse;">
+                            <tr>
+                                <td width="156" height="42" style="width:156px;height:42px;font-size:0;line-height:0;"><a href="{{ $accessUrl }}" target="_blank" aria-label="Access your programme and resources" style="display:block;text-decoration:none;"><img src="{{ $buttonLeftImage }}" width="156" height="42" alt="" style="display:block;width:156px;height:42px;border:0;"></a></td>
+                                <td width="388" height="42" align="center" valign="middle" style="width:388px;height:42px;background:#ffffff;font-family:Arial,Helvetica,sans-serif;">
+                                    <a href="{{ $accessUrl }}" target="_blank" aria-label="Access your programme and resources" style="display:block;width:384px;height:36px;border:2px solid #ffffff;border-radius:22px;background:#ed1c24;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;line-height:36px;box-shadow:0 0 0 2px #b6b6b6;white-space:nowrap;">ACCESS YOUR PROGRAMME &amp; RESOURCES</a>
+                                </td>
+                                <td width="156" height="42" style="width:156px;height:42px;font-size:0;line-height:0;"><a href="{{ $accessUrl }}" target="_blank" aria-label="Access your programme and resources" style="display:block;text-decoration:none;"><img src="{{ $buttonRightImage }}" width="156" height="42" alt="" style="display:block;width:156px;height:42px;border:0;"></a></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size:0;line-height:0;">
+                        <a href="{{ $accessUrl }}" target="_blank" aria-label="Access your programme and resources" style="display:block;text-decoration:none;">
+                            <img src="{{ $resourcesImage }}" width="700" height="168" alt="Clinical case booklets, educational materials, and diagnostic tools" style="display:block;width:700px;height:168px;border:0;">
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size:0;line-height:0;">
+                        <img src="{{ $footerImage }}" width="700" height="221" alt="Team Hetero" style="display:block;width:700px;height:221px;border:0;">
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
 </table>
 </body>
 </html>

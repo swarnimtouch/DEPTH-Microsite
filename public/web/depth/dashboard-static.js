@@ -14,8 +14,9 @@
     tagline: 'Understanding hidden presentations, red flags, diagnosis, referral and real-world management',
     desc: 'Gain practical, expert-led insights into recognising red flags, navigating diagnosis and referral, and addressing real-world challenges in depression management.',
     proposition: 'When should primary care clinicians suspect depression — and what should they do next?',
-    date: '20 November 2026', dateShort: '20 Nov 2026', day: 'Friday', time: '4:00 – 5:00 PM IST',
-    start: '2026-11-20T16:00:00+05:30', end: '2026-11-20T17:00:00+05:30',
+    date: '20 November 2026', dateShort: '20 Nov 2026', day: 'Friday', time: '4:00 – 5:30 PM IST',
+    timeZone: 'Asia/Kolkata', timeZoneLabel: 'IST',
+    start: '2026-11-20T16:00:00+05:30', end: '2026-11-20T17:30:00+05:30',
     img: depthAsset('assets/visual/doctor-patient-consultation.png'), speaker: 'kasper',
     agenda: [
       [5, 'Welcome and Introduction of International speaker', 'Medical Team, Hetero'],
@@ -299,7 +300,7 @@
     const date = new Date(2000, 0, 1, hours, minutes);
     return date.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }).toUpperCase();
   };
-  const fmtTime = (d) => d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' }).toUpperCase();
+  const fmtTime = (d) => d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', timeZone: EVENT.timeZone }).toUpperCase();
 
   /* ---------- cases ---------- */
   function renderCases() { $('case-cards').innerHTML = CASES.map((c) => caseCard(c)).join(''); }
@@ -326,7 +327,7 @@
     if (eventStartsInFuture()) countdown($('live-cd'), EVENT.start, 'Opens in', true);
     liveClock();
   }
-  function liveClock() { const el = $('live-clock'); if (!el) return; const t = () => { el.textContent = 'Now: ' + new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit', day: 'numeric', month: 'short' }) + ' IST'; }; t(); clearInterval(liveClock.i); liveClock.i = setInterval(t, 30000); }
+  function liveClock() { const el = $('live-clock'); if (!el) return; const t = () => { el.textContent = 'Now: ' + new Date().toLocaleString('en-IN', { timeZone: EVENT.timeZone, hour: 'numeric', minute: '2-digit', day: 'numeric', month: 'short' }) + ' ' + EVENT.timeZoneLabel; }; t(); clearInterval(liveClock.i); liveClock.i = setInterval(t, 30000); }
 
   /* ---------- hub ---------- */
   function renderHub() {

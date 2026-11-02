@@ -7,17 +7,23 @@
 @php
     $depthAsset = fn (string $file) => asset('web/depth/assets/' . $file);
     $programModule = $modules->first();
-    $sessionStart = $programModule?->getRawOriginal('start_at') ? \Carbon\CarbonImmutable::parse($programModule->getRawOriginal('start_at'), 'UTC')->timezone('Asia/Kolkata') : null;
-    $sessionEnd = $programModule?->getRawOriginal('end_at') ? \Carbon\CarbonImmutable::parse($programModule->getRawOriginal('end_at'), 'UTC')->timezone('Asia/Kolkata') : null;
+    $sessionStartRaw = $programModule?->getRawOriginal('start_at');
+    $sessionEndRaw = $programModule?->getRawOriginal('end_at');
+    $session = \App\Support\ParticipantTimeZone::eventDetails($sessionStartRaw, $sessionEndRaw, null);
+    $sessionStart = $session['start'];
+    $sessionEnd = $session['end'];
+    $sessionTimeLines = \App\Support\ParticipantTimeZone::seaLines($sessionStartRaw, $sessionEndRaw);
     $event = [
         'title' => $programModule?->title ?? 'Recognising & Managing Depression in Primary Care',
         'tagline' => $programModule?->overview ?? 'Understanding hidden presentations, red flags, diagnosis, referral and real-world management',
         'date' => $sessionStart?->format('d F Y') ?? '20 November 2026',
         'date_short' => $sessionStart?->format('d M Y') ?? '20 Nov 2026',
         'day' => $sessionStart?->format('l') ?? 'Friday',
-        'time' => ($sessionStart && $sessionEnd) ? $sessionStart->format('g:i A') . ' - ' . $sessionEnd->format('g:i A') . ' IST' : '4:00 PM - 5:00 PM IST',
+        'time' => \App\Support\ParticipantTimeZone::seaSummary($sessionStartRaw, $sessionEndRaw) ?? 'Time to be announced',
+        'time_lines' => $sessionTimeLines,
         'duration' => $programModule?->display_duration,
         'start_iso' => $programModule?->start_at_utc_iso ?? '2026-11-20T10:30:00+00:00',
+        'end_iso' => $programModule?->end_at_utc_iso ?? '2026-11-20T12:00:00+00:00',
         'speaker' => $programModule?->speaker_name ?? 'Prof. Siegfried Kasper',
     ];
     $showLandingLogin = request('auth') === 'login'
@@ -87,7 +93,7 @@
                                 <input type="hidden" name="registration_context" value="landing">
                                 <fieldset class="events epic-events span2">
                                     <legend>Select event <em>*</em></legend>
-                                    <label class="ev"><input type="radio" name="event" value="{{ $programModule?->id ?? 1 }}" checked><span><b>Depression in primary care - live session</b><small>{{ $event['date_short'] }} ({{ $event['day'] }}) · {{ $event['time'] }}@if($event['duration']) · Duration: {{ $event['duration'] }}@endif · {{ $event['speaker'] }}</small></span></label>
+                                    <label class="ev"><input type="radio" name="event" value="{{ $programModule?->id ?? 1 }}" checked><span><b>Depression in primary care - live session</b><small>{{ $event['date_short'] }} ({{ $event['day'] }}) · <time data-registration-local-time>{{ $session['time'] ?? 'Time to be announced' }}</time>@if($event['duration']) · Duration: {{ $event['duration'] }}@endif · {{ $event['speaker'] }}</small></span></label>
                                 </fieldset>
 
                                 <label class="field span2"><span>Full name <em>*</em></span><input class="input" id="homepage-name" type="text" name="name" value="{{ old('name') }}" autocomplete="name" placeholder="Dr. Maria Santos" required></label>
@@ -133,7 +139,7 @@
                             <span class="live-pill">Case-based live session</span>
                             <img class="bc-depth-logo" src="{{ $depthAsset('depth-logo.png') }}" alt="DEPTH — Depression Education Program for Therapeutic Excellence">
                             <div class="bc-tag">by Hetero · Case-based learning &rarr; Live session &rarr; Post-read</div>
-                            <div class="bc-dates"><div><small>Live session</small><b>{{ $event['date_short'] }} · {{ $event['day'] }}</b><span>{{ $event['time'] }}@if($event['duration']) · Duration: {{ $event['duration'] }}@endif</span></div><div><small>Speaker</small><b>{{ $event['speaker'] }}</b><span>Medical University of Vienna, Austria</span></div></div>
+                            <div class="bc-dates"><div><small>Live session</small><b>{{ $event['date_short'] }} · {{ $event['day'] }}</b><span class="session-time-stack">@forelse($event['time_lines'] as $timeLine)<span>{{ $timeLine }}</span>@empty<span>Time to be announced</span>@endforelse @if($event['duration'])<span>Duration: {{ $event['duration'] }}</span>@endif</span></div><div><small>Speaker</small><b>{{ $event['speaker'] }}</b><span>Medical University of Vienna, Austria</span></div></div>
                         </div>
                     </div>
                     <div class="countdown" data-countdown="{{ $event['start_iso'] }}"><strong class="label">Live session opens in</strong><div class="cd"><div><b data-days>00</b><span>Days</span></div><div><b data-hours>00</b><span>Hrs</span></div><div><b data-minutes>00</b><span>Min</span></div><div><b data-seconds>00</b><span>Sec</span></div></div></div>
@@ -165,7 +171,7 @@
 <link rel="stylesheet" href="{{ asset('web/depth/style.css') }}?v={{ filemtime(public_path('web/depth/style.css')) }}">
 <style>
 .depth-page .logo-hetero{height:48px;width:auto}.depth-page .brand-divider{width:1px;height:46px;background:#d9dee7}.depth-page .logo-depth-brand{height:48px;width:auto;max-width:250px}.depth-page .trust-row.solo .t-hetero{height:44px}.depth-page .arm-logos .a-hetero{height:34px}.depth-page .micro-error{display:block;color:#b8141b;font-size:12px;margin-top:5px}.depth-page .micro-error.epic-span{grid-column:1/-1;margin-top:-9px}.depth-page .input.is-invalid{border-color:#b8141b}.depth-page #register{scroll-margin-top:100px}
-.depth-page .landing-login-form{grid-template-columns:1fr}.depth-page .landing-auth-alert{margin:0 24px 18px;padding:11px 13px;border:1px solid #f1b8bc;border-radius:9px;background:#fff1f2;color:#a01016;font-size:13px;line-height:1.45}.depth-page .landing-auth-eyebrow{display:inline-block;margin-bottom:10px;color:#c4161c;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.depth-page .landing-member-actions{display:grid;gap:12px;padding:0 24px 24px}.depth-page .landing-logout-link{text-align:center;color:#6b7080;font-size:13px;font-weight:700}.depth-page .landing-logout-link:hover{color:#b8141b}.depth-page button.link{appearance:none;border:0;background:none;padding:0}
+.depth-page .landing-login-form{grid-template-columns:1fr}.depth-page .landing-auth-alert{margin:0 24px 18px;padding:11px 13px;border:1px solid #f1b8bc;border-radius:9px;background:#fff1f2;color:#a01016;font-size:13px;line-height:1.45}.depth-page .landing-auth-eyebrow{display:inline-block;margin-bottom:10px;color:#c4161c;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.depth-page .landing-member-actions{display:grid;gap:12px;padding:0 24px 24px}.depth-page .landing-logout-link{text-align:center;color:#6b7080;font-size:13px;font-weight:700}.depth-page .landing-logout-link:hover{color:#b8141b}.depth-page button.link{appearance:none;border:0;background:none;padding:0}.depth-page .session-time-stack{display:grid;gap:3px;margin-top:5px}.depth-page .session-time-stack>span{display:block;white-space:nowrap}
 @media(max-width:760px){.depth-page .hdr-in{flex-wrap:nowrap}.depth-page .brand{flex:1 1 auto;min-width:0;gap:9px}.depth-page .logo-hetero{height:38px}.depth-page .brand-divider{height:34px}.depth-page .logo-depth-brand{height:34px;max-width:min(36vw,150px)}.depth-page .trust-row.solo .t-hetero{height:38px}.depth-page .arm-logos .a-hetero{height:30px}.depth-page .hdr-nav{display:grid;grid-template-columns:repeat(2,max-content);gap:6px;margin-left:auto}.depth-page .hdr-nav .btn{padding:10px 11px;font-size:9.5px;letter-spacing:.03em}.depth-page .hdr-nav .header-program-link{display:none}.depth-page .hdr-nav>a:not(.btn){display:none}.depth-page .hero-register-link{display:none!important}}
 </style>
 @endpush
@@ -200,6 +206,31 @@
     });
 
     setLandingAuthMode(@json($showLandingLogin), false);
+
+    const registrationStart = @json($event['start_iso']);
+    const registrationEnd = @json($event['end_iso']);
+    const visitorTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
+    const knownTimeZoneLabels = {
+        'Asia/Kolkata': 'IST',
+        'Asia/Calcutta': 'IST',
+        'Asia/Singapore': 'SGT',
+        'Asia/Kuala_Lumpur': 'MYT',
+        'Asia/Manila': 'PHT',
+        'Asia/Bangkok': 'ICT',
+        'Asia/Ho_Chi_Minh': 'ICT',
+        'Asia/Saigon': 'ICT',
+    };
+    const timeFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: visitorTimeZone, hour: 'numeric', minute: '2-digit', hour12: true,
+    });
+    const zoneLabel = knownTimeZoneLabels[visitorTimeZone] || new Intl.DateTimeFormat('en-US', {
+        timeZone: visitorTimeZone, timeZoneName: 'short',
+    }).formatToParts(new Date(registrationStart)).find((part) => part.type === 'timeZoneName')?.value || visitorTimeZone;
+    const localTime = `${timeFormatter.format(new Date(registrationStart))} - ${timeFormatter.format(new Date(registrationEnd))} ${zoneLabel}`;
+    document.querySelectorAll('[data-registration-local-time]').forEach((element) => {
+        element.textContent = localTime;
+    });
+
 })();
 </script>
 @endpush
