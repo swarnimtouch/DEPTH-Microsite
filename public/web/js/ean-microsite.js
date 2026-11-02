@@ -92,6 +92,7 @@
             rules: {
                 event: { required: true },
                 consent: { required: true },
+                webinar_consent: { required: true },
                 name: { required: true, maxlength: 255 },
                 city: { required: true, maxlength: 255 },
                 email: {
@@ -119,6 +120,7 @@
             messages: {
                 event: { required: 'Please select a webinar' },
                 consent: { required: 'Please confirm your consent to continue' },
+                webinar_consent: { required: 'Please accept the webinar disclaimer' },
                 name: { required: 'Please enter your name' },
                 city: { required: 'Please enter your city' },
                 email: { required: 'Please enter your email address', email: 'Please enter a valid email address', remote: 'Email already exists' },
@@ -134,7 +136,7 @@
                 if (element.attr('name') === 'event') {
                     error.addClass('epic-span');
                     element.closest('.epic-events').after(error);
-                } else if (element.attr('name') === 'consent') {
+                } else if (element.attr('name') === 'consent' || element.attr('name') === 'webinar_consent') {
                     error.addClass('epic-span');
                     element.closest('.epic-consent').after(error);
                 } else {
