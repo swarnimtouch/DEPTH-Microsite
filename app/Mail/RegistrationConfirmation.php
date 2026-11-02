@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Support\ParticipantTimeZone;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -38,7 +39,10 @@ class RegistrationConfirmation extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Registration confirmed | DEPTH');
+        return new Envelope(
+            from: new Address(config('mail.from.address'), 'Hetero DEPTH Series'),
+            subject: 'Registration Confirmed | Hetero DEPTH Series – Depression Educational Program for Therapeutic Excellence',
+        );
     }
 
     public function content(): Content

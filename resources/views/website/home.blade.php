@@ -33,8 +33,6 @@
     $countdownTarget = '2026-11-20T10:30:00Z';
     $countdownSchedules = [
         ['zone' => 'IST', 'time' => $event['time_lines'][0] ?? '4:00 PM - 5:30 PM IST'],
-        ['zone' => 'SG/MY/PH', 'time' => $event['time_lines'][1] ?? '6:30 PM - 8:00 PM SG/MY/PH'],
-        ['zone' => 'TH/VN', 'time' => $event['time_lines'][2] ?? '5:30 PM - 7:00 PM TH/VN'],
     ];
 @endphp
 
@@ -149,7 +147,7 @@
                             <div class="bc-dates"><div><small>Live session</small><b>{{ $event['date_short'] }} · {{ $event['day'] }}</b><span class="session-time-stack">@forelse($event['time_lines'] as $timeLine)<span>{{ $timeLine }}</span>@empty<span>Time to be announced</span>@endforelse @if($event['duration'])<span>Duration: {{ $event['duration'] }}</span>@endif</span></div><div><small>Speaker</small><b>{{ $event['speaker'] }}</b><span>Medical University of Vienna, Austria</span></div></div>
                         </div>
                     </div>
-                    <div class="countdowns timezone-countdowns" aria-label="Live session countdowns by time zone">
+                    <div class="countdowns timezone-countdowns" aria-label="IST live session countdown">
                         @foreach($countdownSchedules as $countdownSchedule)
                             <div class="countdown" data-countdown="{{ $countdownTarget }}">
                                 <strong class="label"><span>{{ $countdownSchedule['zone'] }} countdown</span><small>{{ $countdownSchedule['time'] }}</small></strong>
