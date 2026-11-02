@@ -30,6 +30,8 @@
         <div class="hdr-in">
             <a class="brand" href="{{ route('home') }}" aria-label="DEPTH home">
                 <img class="logo-hetero" src="{{ $depthAsset('hetero.png') }}" alt="Hetero">
+                <span class="brand-divider" aria-hidden="true"></span>
+                <img class="logo-depth-brand" src="{{ $depthAsset('depth-logo.png') }}" alt="DEPTH — Depression Education Program for Therapeutic Excellence">
             </a>
             <nav class="hdr-nav" aria-label="Primary navigation">
                 @auth('web')
@@ -101,6 +103,7 @@
                                     <span class="tel-row micro-mobile-group"><select class="input isd" id="homepage-mobile-country" aria-label="Mobile country code"><option value="{{ old('mobile_country_iso', 'in') }}" data-dial="{{ old('mobile_country_code', '91') }}">+{{ old('mobile_country_code', '91') }}</option></select><input class="input" id="homepage-mobile-number" type="tel" name="mobile_number" value="{{ old('mobile_number') }}" autocomplete="tel-national" inputmode="numeric" placeholder="0000000000" required></span>
                                 </label>
                                 <label class="consent epic-consent span2"><input type="checkbox" name="consent" value="1" @checked(old('consent')) required><span>I consent to receive communication about this program and related educational content from Hetero. <em>*</em></span></label>
+                                <label class="consent epic-consent span2"><input type="checkbox" name="webinar_consent" value="1" @checked(old('webinar_consent')) required><span>By attending this webinar, you consent to the collection, use, and processing of your personal data in accordance with Hetero&rsquo;s Privacy Policy. You also agree to the recording of this webinar and grant Hetero the right to store, use, and share the content for educational, promotional, and operational objectives. <em>*</em></span></label>
                                 <div class="reg-actions span2"><button type="submit" class="btn btn-grad lg wide">Complete registration &rarr;</button><div class="hint">Already registered? <button class="link" type="button" data-show-login>Log in</button></div></div>
                             </form>
                         </div>
@@ -128,8 +131,7 @@
                         <img class="bc-kv" src="{{ $depthAsset('visual/doctor-patient-consultation.png') }}" alt="Doctor consulting with a patient">
                         <div class="bc-body">
                             <span class="live-pill">Case-based live session</span>
-                            <div class="bc-title">DEPTH</div>
-                            <div class="bc-sub">Depression Education Program for Therapeutic Excellence</div>
+                            <img class="bc-depth-logo" src="{{ $depthAsset('depth-logo.png') }}" alt="DEPTH — Depression Education Program for Therapeutic Excellence">
                             <div class="bc-tag">by Hetero · Case-based learning &rarr; Live session &rarr; Post-read</div>
                             <div class="bc-dates"><div><small>Live session</small><b>{{ $event['date_short'] }} · {{ $event['day'] }}</b><span>{{ $event['time'] }}@if($event['duration']) · Duration: {{ $event['duration'] }}@endif</span></div><div><small>Speaker</small><b>{{ $event['speaker'] }}</b><span>Medical University of Vienna, Austria</span></div></div>
                         </div>
@@ -162,9 +164,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('web/depth/style.css') }}?v={{ filemtime(public_path('web/depth/style.css')) }}">
 <style>
-.depth-page .logo-hetero{height:48px;width:auto}.depth-page .trust-row.solo .t-hetero{height:44px}.depth-page .arm-logos .a-hetero{height:34px}.depth-page .micro-error{display:block;color:#b8141b;font-size:12px;margin-top:5px}.depth-page .input.is-invalid{border-color:#b8141b}.depth-page #register{scroll-margin-top:100px}
+.depth-page .logo-hetero{height:48px;width:auto}.depth-page .brand-divider{width:1px;height:46px;background:#d9dee7}.depth-page .logo-depth-brand{height:48px;width:auto;max-width:250px}.depth-page .trust-row.solo .t-hetero{height:44px}.depth-page .arm-logos .a-hetero{height:34px}.depth-page .micro-error{display:block;color:#b8141b;font-size:12px;margin-top:5px}.depth-page .input.is-invalid{border-color:#b8141b}.depth-page #register{scroll-margin-top:100px}
 .depth-page .landing-login-form{grid-template-columns:1fr}.depth-page .landing-auth-alert{margin:0 24px 18px;padding:11px 13px;border:1px solid #f1b8bc;border-radius:9px;background:#fff1f2;color:#a01016;font-size:13px;line-height:1.45}.depth-page .landing-auth-eyebrow{display:inline-block;margin-bottom:10px;color:#c4161c;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.depth-page .landing-member-actions{display:grid;gap:12px;padding:0 24px 24px}.depth-page .landing-logout-link{text-align:center;color:#6b7080;font-size:13px;font-weight:700}.depth-page .landing-logout-link:hover{color:#b8141b}.depth-page button.link{appearance:none;border:0;background:none;padding:0}
-@media(max-width:760px){.depth-page .hdr-in{flex-wrap:nowrap}.depth-page .brand{flex:0 0 auto}.depth-page .logo-hetero{height:44px}.depth-page .trust-row.solo .t-hetero{height:38px}.depth-page .arm-logos .a-hetero{height:30px}.depth-page .hdr-nav{display:grid;grid-template-columns:repeat(2,max-content);gap:6px;margin-left:auto}.depth-page .hdr-nav .btn{padding:10px 11px;font-size:9.5px;letter-spacing:.03em}.depth-page .hdr-nav .header-program-link{display:none}.depth-page .hdr-nav>a:not(.btn){display:none}.depth-page .hero-register-link{display:none!important}}
+@media(max-width:760px){.depth-page .hdr-in{flex-wrap:nowrap}.depth-page .brand{flex:1 1 auto;min-width:0;gap:9px}.depth-page .logo-hetero{height:38px}.depth-page .brand-divider{height:34px}.depth-page .logo-depth-brand{height:34px;max-width:min(36vw,150px)}.depth-page .trust-row.solo .t-hetero{height:38px}.depth-page .arm-logos .a-hetero{height:30px}.depth-page .hdr-nav{display:grid;grid-template-columns:repeat(2,max-content);gap:6px;margin-left:auto}.depth-page .hdr-nav .btn{padding:10px 11px;font-size:9.5px;letter-spacing:.03em}.depth-page .hdr-nav .header-program-link{display:none}.depth-page .hdr-nav>a:not(.btn){display:none}.depth-page .hero-register-link{display:none!important}}
 </style>
 @endpush
 

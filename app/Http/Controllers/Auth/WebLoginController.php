@@ -365,6 +365,7 @@ class WebLoginController
                 Rule::exists('modules', 'id')->where(fn ($query) => $query->where('status', 'active')),
             ],
             'consent' => [$isLandingRegistration ? 'accepted' : 'nullable'],
+            'webinar_consent' => [$isLandingRegistration ? 'accepted' : 'nullable'],
             'name' => ['required', 'string', 'max:255'],
             'hospital' => ['required', 'string', 'max:255'],
             'city' => [$isLandingRegistration ? 'required' : 'nullable', 'string', 'max:255'],
@@ -392,6 +393,7 @@ class WebLoginController
             'speciality_id' => $validated['speciality_id'],
             'registered_module_id' => $validated['event'] ?? null,
             'registration_consent_at' => $request->boolean('consent') ? now() : null,
+            'webinar_consent_at' => $request->boolean('webinar_consent') ? now() : null,
         ]);
 
         if (config('mail.enabled')) {

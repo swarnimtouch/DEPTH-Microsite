@@ -19,6 +19,8 @@
     <div class="hdr-in">
         <a class="brand" href="{{ route('dashboard') }}" aria-label="DEPTH dashboard home">
             <img class="logo-hetero" src="{{ asset('web/depth/assets/hetero.png') }}" alt="Hetero">
+            <span class="brand-divider" aria-hidden="true"></span>
+            <img class="logo-depth-brand" src="{{ asset('web/depth/assets/depth-logo.png') }}" alt="DEPTH — Depression Education Program for Therapeutic Excellence">
         </a>
         <div class="hdr-right">
             <nav class="hdr-nav" aria-label="Account">

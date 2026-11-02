@@ -41,6 +41,7 @@ class User extends Authenticatable
         'speciality_id',
         'registered_module_id',
         'registration_consent_at',
+        'webinar_consent_at',
         'license_no',
         'profile_image',
         'remember_token',
@@ -71,6 +72,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'registration_consent_at' => 'datetime',
+            'webinar_consent_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

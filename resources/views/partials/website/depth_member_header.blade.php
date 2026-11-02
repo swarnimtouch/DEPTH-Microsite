@@ -1,7 +1,9 @@
 <header class="depth-room-header">
     <div class="depth-room-header__top">
-        <a href="{{ route('dashboard') }}" aria-label="DEPTH dashboard home">
+        <a class="depth-room-brand" href="{{ route('dashboard') }}" aria-label="DEPTH dashboard home">
             <img class="depth-room-logo" src="{{ asset('web/depth/assets/hetero.png') }}" alt="Hetero">
+            <span class="depth-room-brand__divider" aria-hidden="true"></span>
+            <img class="depth-room-depth-logo" src="{{ asset('web/depth/assets/depth-logo.png') }}" alt="DEPTH — Depression Education Program for Therapeutic Excellence">
         </a>
         <div class="depth-room-user">
             <span class="depth-room-user__name">{{ Auth::guard('web')->user()?->name ?: 'Participant' }}</span>

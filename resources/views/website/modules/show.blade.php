@@ -5,7 +5,10 @@
     <style>
         .depth-room-header{position:sticky;top:0;z-index:1030;background:rgba(255,255,255,.97);border-bottom:1px solid #e1e5ec;backdrop-filter:blur(10px)}
         .depth-room-header__top{max-width:1260px;margin:0 auto;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+        .depth-room-brand{display:flex;align-items:center;gap:16px;text-decoration:none;min-width:0}
         .depth-room-logo{display:block;width:auto;height:48px}
+        .depth-room-brand__divider{width:1px;height:46px;background:#d9dee7;flex:0 0 auto}
+        .depth-room-depth-logo{display:block;width:auto;height:48px;max-width:250px}
         .depth-room-user{display:flex;align-items:center;gap:20px;color:#1f2a44;font-size:12px;font-weight:700;letter-spacing:.04em}
         .depth-room-logout{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1px solid #d2d8e2;border-radius:10px;color:#1f2a44;text-decoration:none;text-transform:uppercase;letter-spacing:.08em;font-size:11px;font-weight:800;background:#fff}
         .depth-room-logout:hover{border-color:#d71920;color:#d71920}
@@ -39,7 +42,7 @@
         .live-question-result{position:absolute;inset:0 auto 0 0;background:#eaf3ff;z-index:0}.live-question-option span,.live-question-option strong,.live-question-option input{position:relative;z-index:1}.live-question-option span{flex:1}.live-question-option strong{font-size:12px}
         .live-question-option.is-correct{border-color:#2a9762;background:#effbf5}.live-question-option.is-wrong{border-color:#d71920;background:#fff3f3}
         .live-question-message{margin-top:13px;padding:11px 12px;border-radius:8px;background:#f2f5f9;color:#34405a;font-size:13px;font-weight:700}
-        @media(max-width:760px){.depth-room-header__top,.depth-room-tabs__inner{padding-left:18px;padding-right:18px}.depth-room-logo{height:38px}.depth-room-user{gap:10px}.depth-room-user__name{display:none}.depth-room-tab{padding:12px 13px;font-size:10px}.module-comments-panel.simple-comments{padding:20px}.simple-comments .module-comment-composer,.simple-comments .module-comment-item{grid-template-columns:36px minmax(0,1fr)}.simple-comments .module-comment-avatar{width:36px;height:36px}}
+        @media(max-width:760px){.depth-room-header__top,.depth-room-tabs__inner{padding-left:18px;padding-right:18px}.depth-room-brand{gap:9px;flex:1 1 auto}.depth-room-logo{height:36px}.depth-room-brand__divider{height:34px}.depth-room-depth-logo{height:34px;max-width:min(36vw,150px)}.depth-room-user{gap:10px}.depth-room-user__name{display:none}.depth-room-tab{padding:12px 13px;font-size:10px}.module-comments-panel.simple-comments{padding:20px}.simple-comments .module-comment-composer,.simple-comments .module-comment-item{grid-template-columns:36px minmax(0,1fr)}.simple-comments .module-comment-avatar{width:36px;height:36px}}
     </style>
 @endpush
 

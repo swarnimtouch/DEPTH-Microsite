@@ -112,8 +112,6 @@
                                 <th>Country</th>
                                 <th>City</th>
                                 <th>Selected Event</th>
-                                <th>Consent</th>
-                                <th>Consent Date</th>
                                 <th>Registered At</th>
                                 <th>Status</th>
                                 @unless($isSubAdmin)<th>Actions</th>@endunless
@@ -194,16 +192,6 @@
                         },
                         {
                             data: 'registered_event',
-                            orderable: false,
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'registration_consent',
-                            orderable: false,
-                            render: data => `<span class="badge ${data === 'Yes' ? 'badge-light-success' : 'badge-light-secondary'}">${data || 'No'}</span>`
-                        },
-                        {
-                            data: 'registration_consent_date',
                             orderable: false,
                             defaultContent: '-'
                         },

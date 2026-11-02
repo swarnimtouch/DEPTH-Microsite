@@ -12,9 +12,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('web/depth/style.css') }}?v={{ filemtime(public_path('web/depth/style.css')) }}">
 <style>
-.logo-hetero{height:48px}.trust-row.solo .t-hetero{height:44px}.arm-logos .a-hetero{height:34px}
+.logo-hetero{height:48px}.brand-divider{width:1px;height:46px;background:#d9dee7}.logo-depth-brand{height:48px;width:auto;max-width:250px}.trust-row.solo .t-hetero{height:44px}.arm-logos .a-hetero{height:34px}
 .profile-form-card{width:100%;max-width:1100px;padding:0;overflow:hidden}.profile-form-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:28px 36px;border-bottom:1px solid #d9dee7;background:#f7f9fc}.profile-form-head .kicker{margin-bottom:8px}.profile-form-card form,.profile-errors{margin-left:36px;margin-right:36px}.profile-form-card form{padding:30px 0 34px}.profile-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 24px}.profile-edit-grid .field{display:grid;gap:8px}.profile-edit-grid .field span{font-size:12px;font-weight:800;color:#4e5668;text-transform:uppercase;letter-spacing:.08em}.profile-edit-grid .field em{color:#e0242b;font-style:normal}.profile-edit-grid .input{width:100%;min-height:52px;border:1px solid #d9dee7;border-radius:9px;background:#fff;padding:12px 16px;color:#1f2a44;font:inherit}.profile-edit-grid .input:focus{outline:2px solid rgba(224,36,43,.14);border-color:#e0242b}.profile-edit-grid .span2{grid-column:1/-1}.profile-form-actions{display:flex;justify-content:flex-end;align-items:center;gap:14px;margin-top:28px}.profile-errors{margin-top:24px;margin-bottom:0;padding:14px 16px;border:1px solid #f2b3b7;border-radius:9px;background:#fff2f3;color:#a31319}.profile-errors ul{margin:6px 0 0 18px}
-@media(max-width:760px){.logo-hetero{height:36px}.trust-row.solo .t-hetero{height:38px}.arm-logos .a-hetero{height:30px}.profile-form-head{align-items:flex-start;padding:22px 20px;flex-direction:column}.profile-form-card form{padding:24px 0}.profile-form-card form,.profile-errors{margin-left:20px;margin-right:20px}.profile-edit-grid{grid-template-columns:1fr}.profile-edit-grid .span2{grid-column:auto}.profile-form-actions{align-items:stretch;flex-direction:column}}
+@media(max-width:760px){.brand{flex:1 1 auto;min-width:0;gap:9px}.logo-hetero{height:36px}.brand-divider{height:34px}.logo-depth-brand{height:34px;max-width:min(36vw,150px)}.trust-row.solo .t-hetero{height:38px}.arm-logos .a-hetero{height:30px}.profile-form-head{align-items:flex-start;padding:22px 20px;flex-direction:column}.profile-form-card form{padding:24px 0}.profile-form-card form,.profile-errors{margin-left:20px;margin-right:20px}.profile-edit-grid{grid-template-columns:1fr}.profile-edit-grid .span2{grid-column:auto}.profile-form-actions{align-items:stretch;flex-direction:column}}
 </style>
 </head>
 <body data-view="{{ $dashboardSection }}">
@@ -52,6 +52,7 @@
                 <label class="field"><span>Email ID <em>*</em></span><input class="input" id="reg-email" type="email" required autocomplete="email" placeholder="maria.santos@hospital.ph"></label>
                 <label class="field"><span>Mobile number <small>(optional)</small></span><span class="tel-row"><select class="input isd" id="reg-isd" aria-label="ISD code"></select><input class="input" id="reg-mobile" type="tel" autocomplete="tel" placeholder="917 123 4567"></span></label>
                 <label class="consent span2"><input type="checkbox" id="reg-consent" required><span>I consent to receive communication about this program and related educational content from Hetero. <em>*</em></span></label>
+                <label class="consent span2"><input type="checkbox" id="reg-webinar-consent" required><span>By attending this webinar, you consent to the collection, use, and processing of your personal data in accordance with Hetero&rsquo;s Privacy Policy. You also agree to the recording of this webinar and grant Hetero the right to store, use, and share the content for educational, promotional, and operational objectives. <em>*</em></span></label>
                 <div class="reg-actions span2"><button type="submit" class="btn btn-grad lg wide">Complete registration →</button><div class="hint">Already registered? <button type="button" class="link" data-show-login>Log in</button></div></div>
               </form>
             </div>
@@ -69,8 +70,7 @@
             <img class="bc-kv" src="{{ asset('web/depth/assets/visual/keyvisual-red.png') }}" alt="">
             <div class="bc-body">
               <span class="live-pill">▶ Case-based live session</span>
-              <div class="bc-title">DEPTH</div>
-              <div class="bc-sub">Depression Education Program for Therapeutic Excellence</div>
+              <img class="bc-depth-logo" src="{{ asset('web/depth/assets/depth-logo.png') }}" alt="DEPTH — Depression Education Program for Therapeutic Excellence">
               <div class="bc-tag">by Hetero · Case-based learning → Live session → Post-read</div>
               <div class="bc-dates"><div><small>Live session</small><b>20 Nov 2026 · Friday</b><span>4:00 – 5:00 PM IST</span></div><div><small>Speaker</small><b>Prof. Siegfried Kasper</b><span>Medical University of Vienna, Austria</span></div></div>
             </div>

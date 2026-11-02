@@ -63,8 +63,6 @@ class DoctorController
             ->each(function ($doctor) {
                 $doctor->setAttribute('speciality_name', $doctor->speciality?->name ?: '-');
                 $doctor->setAttribute('registered_event', $doctor->registeredModule?->title ?: '-');
-                $doctor->setAttribute('registration_consent', $doctor->registration_consent_at ? 'Yes' : 'No');
-                $doctor->setAttribute('registration_consent_date', $doctor->registration_consent_at?->format('d-m-Y h:i A') ?: '-');
                 $doctor->setAttribute('registered_at', $doctor->created_at?->format('d-m-Y h:i A') ?: '-');
             });
         return response()->json([
