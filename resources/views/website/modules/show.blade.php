@@ -424,11 +424,10 @@
                             </div>
                             <button class="btn btn-primary-custom w-100 py-2" type="submit" data-live-question-submit {{ data_get($initialLiveQuestion, 'answered') ? 'hidden' : '' }}>Submit Answer</button>
                         </form>
-                        <div class="live-question-message" data-live-question-message {{ data_get($initialLiveQuestion, 'answered') ? '' : 'hidden' }}>
+                        <div class="live-question-message" data-live-question-message {{ data_get($initialLiveQuestion, 'answered') && data_get($initialLiveQuestion, 'type') === 'quiz' ? '' : 'hidden' }}>
                             @if(data_get($initialLiveQuestion, 'answered'))
                                 @if(data_get($initialLiveQuestion, 'type') === 'quiz')
                                     {{ data_get($initialLiveQuestion, 'is_correct') ? 'Correct answer!' : 'Answer submitted. The correct option is highlighted.' }}
-                                
                                 @endif
                             @endif
                         </div>
