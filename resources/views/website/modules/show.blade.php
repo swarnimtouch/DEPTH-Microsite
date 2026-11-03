@@ -428,8 +428,7 @@
                             @if(data_get($initialLiveQuestion, 'answered'))
                                 @if(data_get($initialLiveQuestion, 'type') === 'quiz')
                                     {{ data_get($initialLiveQuestion, 'is_correct') ? 'Correct answer!' : 'Answer submitted. The correct option is highlighted.' }}
-                                @else
-                                    Vote submitted · {{ data_get($initialLiveQuestion, 'total_responses') }} {{ data_get($initialLiveQuestion, 'total_responses') === 1 ? 'response' : 'responses' }}
+                                
                                 @endif
                             @endif
                         </div>
