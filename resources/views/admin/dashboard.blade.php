@@ -85,7 +85,6 @@
                                         <span class="live-progress-badge">{{ strtoupper($question['type']) }}</span>
                                         <span class="live-progress-status is-{{ $question['status'] }}">{{ ucfirst($question['status']) }}</span>
                                     </div>
-                                    <span class="live-progress-response-count">{{ number_format($question['responses']) }} responses</span>
                                 </div>
                                 <small class="live-progress-module">{{ $question['module'] }}</small>
                                 <h3>{{ $question['question'] }}</h3>
@@ -94,7 +93,7 @@
                                         <div class="live-option-row">
                                             <div class="live-option-copy">
                                                 <span>{{ $option['label'] }} @if($option['is_correct'])<em>Correct</em>@endif</span>
-                                                <strong>{{ $option['responses'] }} · {{ $option['rate'] }}%</strong>
+                                                <strong>{{ $option['rate'] }}%</strong>
                                             </div>
                                             <div class="live-option-track"><i style="width:{{ $option['rate'] }}%"></i></div>
                                         </div>
