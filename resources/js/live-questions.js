@@ -27,11 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return `<label class="live-question-option${resultClass}">${currentQuestion.answered ? `<i class="live-question-result" style="width:${option.percent}%"></i>` : ''}<input type="radio" name="option_id" value="${option.id}" ${selected ? 'checked' : ''} ${currentQuestion.answered ? 'disabled' : ''}><span>${escapeHtml(option.text)}</span>${currentQuestion.answered ? `<strong>${option.percent}%</strong>` : ''}</label>`;
         }).join('');
         submit.hidden = currentQuestion.answered;
-        message.hidden = !currentQuestion.answered || currentQuestion.type !== 'quiz';
-        if (currentQuestion.answered && currentQuestion.type === 'quiz') {
+        const showQuizResult = currentQuestion.answered && currentQuestion.type === 'quiz';
+        message.hidden = !showQuizResult;
+        if (showQuizResult) {
             message.textContent = currentQuestion.is_correct
                 ? 'Correct answer!'
                 : 'Answer submitted. The correct option is highlighted.';
+        } else if (currentQuestion.answered) {
+            message.textContent = '';
         }
     }
 
