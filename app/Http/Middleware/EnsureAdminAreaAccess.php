@@ -36,6 +36,8 @@ class EnsureAdminAreaAccess
             'admin.quizzes.submissions.datatable',
             'admin.quizzes.submissions.export',
             'admin.quizzes.submissions.show',
+            'admin.surveys.responses',
+            'admin.surveys.responses.export',
             'admin.comments',
             'admin.comments.datatable',
             'admin.comments.export',

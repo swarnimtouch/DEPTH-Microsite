@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers\Website;
 
-use App\Support\CertificatePdf;
 use App\Models\CertificateDownloadLog;
 use App\Models\Comments;
-use App\Models\Module;
-use App\Models\ModuleViewSession;
 use App\Models\Course;
+use App\Models\Module;
 use App\Models\ModuleUserProgress;
+use App\Models\ModuleViewSession;
+use App\Models\SurveySubmission;
+use App\Support\CertificatePdf;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Carbon\CarbonImmutable;
 
 class ModuleController
 {
     public function index()
     {
-        if (!Auth::guard('web')->check()) {
+        if (! Auth::guard('web')->check()) {
             return redirect()->route('login')->with('error', 'Please login first');
         }
 
@@ -40,15 +41,15 @@ class ModuleController
 
     public function show($slug)
     {
-        if (!Auth::guard('web')->check()) {
+        if (! Auth::guard('web')->check()) {
             return redirect()->route('login')->with('error', 'Please login first');
         }
 
         $activeCourse = Course::active()->first();
-        abort_if(!$activeCourse, 404);
+        abort_if(! $activeCourse, 404);
         $module = Module::active()->with('resourceDocuments')->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
 
-        if (!$module->isJoinOpen()) {
+        if (! $module->isJoinOpen()) {
             return redirect()->route('dashboard.live')
                 ->with('error', 'This chapter will open when the administrator enables it or its scheduled start time is reached.');
         }
@@ -74,17 +75,19 @@ class ModuleController
                 'module_id' => $module->id,
                 'user_id' => Auth::guard('web')->id(),
             ]),
+            'initialSurveyState' => SurveyController::moduleState($module, Auth::guard('web')->id()),
+            'initialLiveQuestionState' => LiveQuestionController::moduleState($module, Auth::guard('web')->id()),
         ]);
     }
 
     public function storeComment(Request $request, $slug)
     {
-        if (!Auth::guard('web')->check()) {
+        if (! Auth::guard('web')->check()) {
             return response()->json(['message' => 'Please login first'], 401);
         }
 
         $activeCourse = Course::active()->first();
-        abort_if(!$activeCourse, 404);
+        abort_if(! $activeCourse, 404);
 
         $module = Module::active()->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
 
@@ -100,7 +103,7 @@ class ModuleController
             'status' => 'publish',
         ])->load('user');
 
-        if (!$request->expectsJson()) {
+        if (! $request->expectsJson()) {
             return redirect()
                 ->route('modules.show', $module->slug)
                 ->with('success', 'Comment posted successfully.');
@@ -125,12 +128,12 @@ class ModuleController
 
     public function completeVideo(Request $request, $slug)
     {
-        if (!Auth::guard('web')->check()) {
+        if (! Auth::guard('web')->check()) {
             return redirect()->route('login')->with('error', 'Please login first');
         }
 
         $activeCourse = Course::active()->first();
-        abort_if(!$activeCourse, 404);
+        abort_if(! $activeCourse, 404);
         $module = Module::active()->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
         $progress = ModuleUserProgress::firstOrCreate([
             'module_id' => $module->id,
@@ -141,7 +144,10 @@ class ModuleController
         $progress->save();
 
         if ($request->expectsJson()) {
-            $certificateUnlocked = (bool) $module->certificate_enabled;
+            $postSurveyComplete = SurveySubmission::where([
+                'module_id' => $module->id, 'user_id' => Auth::guard('web')->id(), 'survey_type' => 'post',
+            ])->exists();
+            $certificateUnlocked = (bool) $module->certificate_enabled && $postSurveyComplete;
 
             return response()->json([
                 'success' => true,
@@ -159,32 +165,42 @@ class ModuleController
 
     public function certificateStatus($slug)
     {
-        if (!Auth::guard('web')->check()) {
+        if (! Auth::guard('web')->check()) {
             return response()->json(['message' => 'Please login first'], 401);
         }
 
         $activeCourse = Course::active()->first();
-        abort_if(!$activeCourse, 404);
+        abort_if(! $activeCourse, 404);
 
         $module = Module::active()
             ->where('course_id', $activeCourse->id)
             ->where('slug', $slug)
             ->firstOrFail();
 
+        $progress = ModuleUserProgress::where('module_id', $module->id)
+            ->where('user_id', Auth::guard('web')->id())->first();
+        $postSurveyRequired = $module->surveyQuestions()->active()->where('survey_type', 'post')->exists();
+        $postSurveyComplete = SurveySubmission::where([
+            'module_id' => $module->id, 'user_id' => Auth::guard('web')->id(), 'survey_type' => 'post',
+        ])->exists();
+
         return response()->json([
             'enabled' => (bool) $module->certificate_enabled,
+            'unlocked' => (bool) $module->certificate_enabled && (bool) $progress?->video_completed_at && $postSurveyComplete,
+            'module_completed' => (bool) $progress?->video_completed_at,
+            'post_survey_required' => (bool) $postSurveyRequired,
             'url' => $module->certificate_enabled ? route('modules.certificate', $module->slug) : null,
         ]);
     }
 
     public function trackViewHeartbeat(Request $request, $slug)
     {
-        if (!Auth::guard('web')->check()) {
+        if (! Auth::guard('web')->check()) {
             return response()->json(['message' => 'Please login first'], 401);
         }
 
         $activeCourse = Course::active()->first();
-        abort_if(!$activeCourse, 404);
+        abort_if(! $activeCourse, 404);
 
         $module = Module::active()->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
         $validated = $request->validate([
@@ -240,24 +256,24 @@ class ModuleController
 
     public function quiz($slug)
     {
-        if (!Auth::guard('web')->check()) {
+        if (! Auth::guard('web')->check()) {
             return redirect()->route('login')->with('error', 'Please login first');
         }
 
         $activeCourse = Course::active()->first();
-        abort_if(!$activeCourse, 404);
+        abort_if(! $activeCourse, 404);
         $module = Module::active()->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
 
-//        if (!$module->isAvailable()) {
-//            return redirect()->route('modules')->with('error', 'This chapter is not available for today');
-//        }
+        //        if (!$module->isAvailable()) {
+        //            return redirect()->route('modules')->with('error', 'This chapter is not available for today');
+        //        }
 
         $progress = ModuleUserProgress::firstOrCreate([
             'module_id' => $module->id,
             'user_id' => Auth::guard('web')->id(),
         ]);
 
-        if (!$progress->video_completed_at) {
+        if (! $progress->video_completed_at) {
             return redirect()->route('modules.show', $module->slug)->with('error', 'Please complete the video first');
         }
 
@@ -267,7 +283,7 @@ class ModuleController
         }
 
         return view('website.modules.quiz', [
-            'title' => $module->title . ' Feedback',
+            'title' => $module->title.' Feedback',
             'module' => $module,
             'questions' => $questions,
             'progress' => $progress,
@@ -276,12 +292,12 @@ class ModuleController
 
     public function submitQuiz(Request $request, $slug)
     {
-        if (!Auth::guard('web')->check()) {
+        if (! Auth::guard('web')->check()) {
             return redirect()->route('login')->with('error', 'Please login first');
         }
 
         $activeCourse = Course::active()->first();
-        abort_if(!$activeCourse, 404);
+        abort_if(! $activeCourse, 404);
         $module = Module::active()->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
 
         $questions = $module->activeQuestions()->with('options')->get();
@@ -310,9 +326,9 @@ class ModuleController
             }
 
             $selectedOptionId = $validated['answers'][$question->id] ?? null;
-            $validOptionIds = $question->options->pluck('id')->map(fn($id) => (int) $id);
+            $validOptionIds = $question->options->pluck('id')->map(fn ($id) => (int) $id);
 
-            if (!$selectedOptionId || !$validOptionIds->contains((int) $selectedOptionId)) {
+            if (! $selectedOptionId || ! $validOptionIds->contains((int) $selectedOptionId)) {
                 return back()
                     ->withInput()
                     ->withErrors(['answers' => 'Please answer all feedback questions.']);
@@ -340,25 +356,41 @@ class ModuleController
 
     public function certificate($slug)
     {
-        if (!Auth::guard('web')->check()) {
+        if (! Auth::guard('web')->check()) {
             return redirect()->route('login')->with('error', 'Please login first');
         }
 
         $activeCourse = Course::active()->first();
-        abort_if(!$activeCourse, 404);
+        abort_if(! $activeCourse, 404);
 
         $module = Module::active()->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
 
-        if (!$module->certificate_enabled) {
+        if (! $module->certificate_enabled) {
             return redirect()
                 ->route('modules.show', $module->slug)
                 ->with('error', 'Certificate downloads are not available yet');
         }
 
+        $progress = ModuleUserProgress::where('module_id', $module->id)
+            ->where('user_id', Auth::guard('web')->id())->first();
+        if (! $progress?->video_completed_at) {
+            return redirect()->route('modules.show', $module->slug)
+                ->with('error', 'Please complete the module before downloading your certificate.');
+        }
+
+        if (! SurveySubmission::where([
+            'module_id' => $module->id,
+            'user_id' => Auth::guard('web')->id(),
+            'survey_type' => 'post',
+        ])->exists()) {
+            return redirect()->route('modules.show', $module->slug)
+                ->with('error', 'Please complete the post-event survey before downloading your certificate.');
+        }
+
         $templatePath = $module->certificate_template
             ? Storage::disk('public')->path($module->certificate_template)
             : resource_path('certificates/delegate_certificate.pdf');
-        abort_if(!is_file($templatePath), 404, 'Certificate template not found');
+        abort_if(! is_file($templatePath), 404, 'Certificate template not found');
 
         $doctor = Auth::guard('web')->user();
         $pdf = CertificatePdf::delegateCertificate(
@@ -369,7 +401,7 @@ class ModuleController
             $module->certificate_font_size ?: null,
             public_path('assets/fonts/Abril_Display_Italic.otf'),
         );
-        $fileName = Str::slug(($doctor->name ?? 'delegate') . '-' . $module->title . '-certificate') . '.pdf';
+        $fileName = Str::slug(($doctor->name ?? 'delegate').'-'.$module->title.'-certificate').'.pdf';
 
         CertificateDownloadLog::create([
             'module_id' => $module->id,
@@ -379,7 +411,7 @@ class ModuleController
 
         return response($pdf, 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
             'Content-Length' => strlen($pdf),
         ]);
     }

@@ -19,14 +19,20 @@ class LiveQuestionController
     {
         $userId = Auth::guard('web')->id();
         abort_unless($userId, 401, 'Please login first.');
+
+        return response()->json(static::moduleState($module, $userId));
+    }
+
+    public static function moduleState(Module $module, int $userId): array
+    {
         $question = LiveQuestion::with(['options' => fn ($query) => $query->withCount('responses')])
             ->where('module_id', $module->id)->where('status', 'live')->latest('started_at')->first();
 
-        if (!$question) return response()->json(['question' => null]);
+        if (!$question) return ['question' => null];
 
         $response = $question->responses()->where('user_id', $userId)->first();
         $total = $question->responses()->count();
-        return response()->json(['question' => [
+        return ['question' => [
             'id' => $question->id,
             'type' => $question->type,
             'question' => $question->question,
@@ -41,7 +47,7 @@ class LiveQuestionController
                 'percent' => $total ? round(($option->responses_count / $total) * 100) : 0,
                 'is_correct' => $response && $question->type === 'quiz' ? $option->is_correct : null,
             ])->values(),
-        ]]);
+        ]];
     }
 
     public function answer(Request $request, LiveQuestion $liveQuestion)

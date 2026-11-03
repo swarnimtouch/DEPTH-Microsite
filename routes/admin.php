@@ -1,33 +1,25 @@
 <?php
 
-use App\Http\Controllers\Admin\ContentController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\ImportDataController;
-use App\Http\Controllers\Admin\ProfileController;
-use App\Http\Controllers\Admin\SiteSettingsController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Admin\DivisionController;
-use App\Http\Controllers\Admin\HeadquarterController;
-use App\Http\Controllers\Admin\RegionsController;
-use App\Http\Controllers\Admin\AreaController;
-use App\Http\Controllers\Admin\SpecialitiesController;
-use App\Http\Controllers\Admin\EmployeeController;
-use App\Http\Controllers\Admin\DoctorController;
-use App\Http\Controllers\Admin\CourseController;
-use App\Http\Controllers\Admin\ModuleController;
-use App\Http\Controllers\Admin\QuizController;
-use App\Http\Controllers\Admin\CommentController;
-use App\Http\Controllers\Admin\ModuleViewReportController;
-use App\Http\Controllers\Admin\WebinarsController;
-use App\Http\Controllers\Admin\SessionViewUsersController;
-use App\Http\Controllers\Admin\SessionCommentsController;
-use App\Http\Controllers\Admin\FAQController;
-use App\Http\Controllers\Admin\DatabaseServersController;
-use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\CertificateLogController;
+use App\Http\Controllers\Admin\CommentController;
+use App\Http\Controllers\Admin\ContentController;
+use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DoctorController;
+use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\FAQController;
 use App\Http\Controllers\Admin\LiveQuestionController;
-
+use App\Http\Controllers\Admin\ModuleController;
+use App\Http\Controllers\Admin\ModuleViewReportController;
+use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\QuizController;
+use App\Http\Controllers\Admin\SiteSettingsController;
+use App\Http\Controllers\Admin\SpecialitiesController;
+use App\Http\Controllers\Admin\SubAdminController;
+use App\Http\Controllers\Admin\SurveyController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WebinarsController;
+use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -54,7 +46,6 @@ Route::middleware(['auth:admin', 'admin.access'])->group(function () {
     Route::get('site-settings', [SiteSettingsController::class, 'index'])->name('settings');
     Route::post('site-settings/update', [SiteSettingsController::class, 'update'])->name('settings.update');
 
-
     Route::get('content', [ContentController::class, 'index'])->name('content');
     Route::get('content/add-edit/{id?}', [ContentController::class, 'edit'])->name('content.add_edit_form');
     Route::put('content/update/{id}', [ContentController::class, 'update'])->name('content.update');
@@ -79,7 +70,6 @@ Route::middleware(['auth:admin', 'admin.access'])->group(function () {
         Route::post('/delete/{id}', [SpecialitiesController::class, 'delete'])->name('specialities.delete');
         Route::post('/delete-multiple', [SpecialitiesController::class, 'deleteMultiple'])->name('specialities.delete_multiple');
     });
-
 
     Route::prefix('employee')->group(function () {
         Route::get('/', [EmployeeController::class, 'index'])->name('employee');
@@ -146,6 +136,16 @@ Route::middleware(['auth:admin', 'admin.access'])->group(function () {
         Route::post('/status-change/{id}', [QuizController::class, 'statusChange'])->name('quizzes.status_change');
         Route::post('/delete/{id}', [QuizController::class, 'delete'])->name('quizzes.delete');
         Route::post('/delete-multiple', [QuizController::class, 'deleteMultiple'])->name('quizzes.delete_multiple');
+    });
+
+    Route::prefix('surveys')->group(function () {
+        Route::get('/', [SurveyController::class, 'index'])->name('surveys');
+        Route::get('/responses', [SurveyController::class, 'responses'])->name('surveys.responses');
+        Route::get('/responses/export', [SurveyController::class, 'export'])->name('surveys.responses.export');
+        Route::get('/form/{id?}', [SurveyController::class, 'form'])->name('surveys.form');
+        Route::match(['POST', 'PUT'], '/save/{id?}', [SurveyController::class, 'save'])->name('surveys.save');
+        Route::post('/question/{surveyQuestion}/toggle', [SurveyController::class, 'toggleQuestion'])->name('surveys.question.toggle');
+        Route::delete('/question/{surveyQuestion}', [SurveyController::class, 'destroy'])->name('surveys.question.delete');
     });
 
     Route::prefix('live-questions')->group(function () {

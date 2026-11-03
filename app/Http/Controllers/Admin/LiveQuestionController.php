@@ -41,21 +41,25 @@ class LiveQuestionController extends Controller
             'module_id' => ['required', Rule::exists('modules', 'id')],
             'type' => ['required', Rule::in(['poll', 'quiz'])],
             'question' => ['required', 'string', 'max:2000'],
-            'options' => ['required', 'array', 'min:2'],
-            'options.*' => ['nullable', 'string', 'max:255'],
+            'options_text' => ['required', 'string'],
             'correct_option' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        $options = collect($validated['options'])->map(fn ($value) => trim((string) $value));
-        $filledOptions = $options->filter(fn ($value) => $value !== '');
-        if ($filledOptions->count() < 2) {
-            return back()->withInput()->withErrors(['options' => 'Please enter at least two options.']);
+        $options = collect(preg_split('/\r\n|\r|\n/', $validated['options_text']))
+            ->map(fn ($value) => trim((string) $value))
+            ->filter(fn ($value) => $value !== '')
+            ->values();
+        if ($options->count() < 2) {
+            return back()->withInput()->withErrors(['options_text' => 'Please enter at least two options, one per line.']);
         }
-        if ($validated['type'] === 'quiz' && (!$request->filled('correct_option') || !$options->get((int) $validated['correct_option']))) {
+        if ($options->contains(fn ($value) => mb_strlen($value) > 255)) {
+            return back()->withInput()->withErrors(['options_text' => 'Each option may contain up to 255 characters.']);
+        }
+        if ($validated['type'] === 'quiz' && (!$request->filled('correct_option') || !$options->has((int) $validated['correct_option']))) {
             return back()->withInput()->withErrors(['correct_option' => 'Please select the correct quiz answer.']);
         }
 
-        $question = DB::transaction(function () use ($validated, $filledOptions, $options, $id) {
+        $question = DB::transaction(function () use ($validated, $options, $id) {
             $question = $id ? LiveQuestion::findOrFail($id) : new LiveQuestion();
             abort_if($question->exists && $question->status === 'live', 422, 'Stop this question before editing it.');
             $question->fill([
@@ -66,7 +70,6 @@ class LiveQuestionController extends Controller
             ])->save();
             $question->options()->delete();
             foreach ($options as $index => $text) {
-                if ($text === '') continue;
                 $question->options()->create([
                     'option_text' => $text,
                     'sort_order' => $index,

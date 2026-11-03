@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const options = shell.querySelector('[data-live-question-options]');
     const message = shell.querySelector('[data-live-question-message]');
     const submit = shell.querySelector('[data-live-question-submit]');
+    const initialState = document.getElementById('initialLiveQuestionState');
     let currentQuestion = null;
     const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
 
@@ -51,6 +52,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) { message.textContent = error.response?.data?.message || 'Unable to submit your answer.'; message.hidden = false; }
         finally { submit.disabled = false; }
     });
+
+    if (initialState?.textContent) {
+        try { render(JSON.parse(initialState.textContent)); }
+        catch (_) { /* the server-rendered poll remains visible */ }
+    }
 
     if (window.Echo && channel) {
         window.Echo.channel(channel).listen('.live-question.changed', (change) => {

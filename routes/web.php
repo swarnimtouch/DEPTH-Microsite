@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\Auth\WebLoginController;
 use App\Http\Controllers\Website\HomeController;
+use App\Http\Controllers\Website\LiveQuestionController;
 use App\Http\Controllers\Website\ModuleController;
 use App\Http\Controllers\Website\ProfileController;
+use App\Http\Controllers\Website\SurveyController;
 use App\Http\Middleware\EnsureMicrositeAccessIsOpen;
-use App\Http\Controllers\Website\LiveQuestionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -31,6 +32,9 @@ Route::middleware(EnsureMicrositeAccessIsOpen::class)->group(function () {
     Route::post('/modules/{slug}/comments', [ModuleController::class, 'storeComment'])->name('modules.comments.store');
     Route::post('/modules/{slug}/complete-video', [ModuleController::class, 'completeVideo'])->name('modules.complete_video');
     Route::get('/modules/{slug}/certificate-status', [ModuleController::class, 'certificateStatus'])->name('modules.certificate_status');
+    Route::get('/modules/{slug}/surveys/state', [SurveyController::class, 'state'])->name('modules.surveys.state');
+    Route::get('/modules/{slug}/surveys/{type}/responses', [SurveyController::class, 'responses'])->name('modules.surveys.responses');
+    Route::post('/modules/{slug}/surveys/{type}', [SurveyController::class, 'submit'])->name('modules.surveys.submit');
     Route::post('/modules/{slug}/view-heartbeat', [ModuleController::class, 'trackViewHeartbeat'])->name('modules.view_heartbeat');
     Route::get('/modules/{slug}/quiz', [ModuleController::class, 'quiz'])->name('modules.quiz');
     Route::post('/modules/{slug}/quiz', [ModuleController::class, 'submitQuiz'])->name('modules.quiz.submit');

@@ -111,6 +111,20 @@ function getModules($user_type = 'admin', ?string $role = null): array
                 'all_routes' => ['admin.quizzes', 'admin.quizzes.add_edit_form', 'admin.quizzes.submissions', 'admin.quizzes.submissions.show']
             ],
             [
+                'route' => route('admin.surveys'),
+                'name' => 'Pre & Post Surveys',
+                'icon' => 'bi bi-ui-radios-grid fs-3',
+                'child' => [],
+                'all_routes' => ['admin.surveys', 'admin.surveys.form', 'admin.surveys.responses']
+            ],
+            [
+                'route' => route('admin.surveys.responses'),
+                'name' => 'Survey Responses',
+                'icon' => 'bi bi-clipboard-data fs-3',
+                'child' => [],
+                'all_routes' => ['admin.surveys.responses']
+            ],
+            [
                 'route' => route('admin.quizzes.submissions'),
                 'name' => 'Submitted Feedback',
                 'icon' => 'bi bi-chat-square-text fs-3',
@@ -207,6 +221,13 @@ function getModules($user_type = 'admin', ?string $role = null): array
                 'icon' => 'bi bi-chat-square-text fs-3',
                 'child' => [],
                 'all_routes' => ['admin.quizzes.submissions', 'admin.quizzes.submissions.show'],
+            ],
+            [
+                'route' => route('admin.surveys.responses'),
+                'name' => 'Survey Responses',
+                'icon' => 'bi bi-clipboard-data fs-3',
+                'child' => [],
+                'all_routes' => ['admin.surveys.responses'],
             ],
             [
                 'route' => route('admin.comments'),

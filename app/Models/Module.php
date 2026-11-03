@@ -91,8 +91,8 @@ class Module extends Model
         $startAt = $this->utcDateTime('start_at');
         $endAt = $this->utcDateTime('end_at');
 
-        return (!$startAt || $startAt->lte($now))
-            && (!$endAt || $endAt->gte($now));
+        return (! $startAt || $startAt->lte($now))
+            && (! $endAt || $endAt->gte($now));
     }
 
     public function isJoinOpen(): bool
@@ -114,7 +114,7 @@ class Module extends Model
         if ($startAt && $endAt && $endAt->gt($startAt)) {
             $minutes = (int) $startAt->diffInMinutes($endAt);
 
-            return intdiv($minutes, 60) . ':' . str_pad((string) ($minutes % 60), 2, '0', STR_PAD_LEFT);
+            return intdiv($minutes, 60).':'.str_pad((string) ($minutes % 60), 2, '0', STR_PAD_LEFT);
         }
 
         return $this->duration;
@@ -144,7 +144,7 @@ class Module extends Model
 
     public static function youtubeEmbedUrl(?string $url, ?string $startTime = null): ?string
     {
-        if (!$url) {
+        if (! $url) {
             return null;
         }
 
@@ -154,28 +154,28 @@ class Module extends Model
             $videoId = $matches[1];
         }
 
-        if (!$videoId && preg_match('/youtube\.com\/embed\/([A-Za-z0-9_-]+)/', $url, $matches)) {
+        if (! $videoId && preg_match('/youtube\.com\/embed\/([A-Za-z0-9_-]+)/', $url, $matches)) {
             $videoId = $matches[1];
         }
 
-        if (!$videoId && preg_match('/youtube\.com\/(?:live|shorts)\/([A-Za-z0-9_-]+)/', $url, $matches)) {
+        if (! $videoId && preg_match('/youtube\.com\/(?:live|shorts)\/([A-Za-z0-9_-]+)/', $url, $matches)) {
             $videoId = $matches[1];
         }
 
-        if (!$videoId) {
+        if (! $videoId) {
             $query = parse_url($url, PHP_URL_QUERY);
             parse_str($query ?: '', $params);
             $videoId = $params['v'] ?? null;
         }
 
-        if (!$videoId) {
+        if (! $videoId) {
             return null;
         }
 
-        $embedUrl = 'https://www.youtube.com/embed/' . $videoId;
+        $embedUrl = 'https://www.youtube.com/embed/'.$videoId;
         $startSeconds = static::timeToSeconds($startTime);
         if ($startSeconds > 0) {
-            $embedUrl .= '?start=' . $startSeconds;
+            $embedUrl .= '?start='.$startSeconds;
         }
 
         return $embedUrl;
@@ -214,6 +214,16 @@ class Module extends Model
         return $this->questions()->where('status', 'active');
     }
 
+    public function surveyQuestions(): HasMany
+    {
+        return $this->hasMany(SurveyQuestion::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function surveySubmissions(): HasMany
+    {
+        return $this->hasMany(SurveySubmission::class);
+    }
+
     public function progresses(): HasMany
     {
         return $this->hasMany(ModuleUserProgress::class);
@@ -237,10 +247,10 @@ class Module extends Model
 
         while (
             static::where('slug', $slug)
-                ->when($ignoreId, fn($query) => $query->where('id', '!=', $ignoreId))
+                ->when($ignoreId, fn ($query) => $query->where('id', '!=', $ignoreId))
                 ->exists()
         ) {
-            $slug = $baseSlug . '-' . $counter++;
+            $slug = $baseSlug.'-'.$counter++;
         }
 
         return $slug;
