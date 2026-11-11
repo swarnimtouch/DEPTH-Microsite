@@ -8,7 +8,6 @@ use App\Models\Course;
 use App\Models\Module;
 use App\Models\ModuleUserProgress;
 use App\Models\ModuleViewSession;
-use App\Models\SurveySubmission;
 use App\Support\CertificatePdf;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
@@ -144,9 +143,7 @@ class ModuleController
         $progress->save();
 
         if ($request->expectsJson()) {
-            $postSurveyComplete = SurveySubmission::where([
-                'module_id' => $module->id, 'user_id' => Auth::guard('web')->id(), 'survey_type' => 'post',
-            ])->exists();
+            $postSurveyComplete = (bool) SurveyController::moduleState($module, Auth::guard('web')->id())['post']['completed'];
             $certificateUnlocked = (bool) $module->certificate_enabled && $postSurveyComplete;
 
             return response()->json([
@@ -180,9 +177,7 @@ class ModuleController
         $progress = ModuleUserProgress::where('module_id', $module->id)
             ->where('user_id', Auth::guard('web')->id())->first();
         $postSurveyRequired = $module->surveyQuestions()->active()->where('survey_type', 'post')->exists();
-        $postSurveyComplete = SurveySubmission::where([
-            'module_id' => $module->id, 'user_id' => Auth::guard('web')->id(), 'survey_type' => 'post',
-        ])->exists();
+        $postSurveyComplete = (bool) SurveyController::moduleState($module, Auth::guard('web')->id())['post']['completed'];
 
         return response()->json([
             'enabled' => (bool) $module->certificate_enabled,
@@ -378,11 +373,7 @@ class ModuleController
                 ->with('error', 'Please complete the module before downloading your certificate.');
         }
 
-        if (! SurveySubmission::where([
-            'module_id' => $module->id,
-            'user_id' => Auth::guard('web')->id(),
-            'survey_type' => 'post',
-        ])->exists()) {
+        if (! SurveyController::moduleState($module, Auth::guard('web')->id())['post']['completed']) {
             return redirect()->route('modules.show', $module->slug)
                 ->with('error', 'Please complete the post-event survey before downloading your certificate.');
         }

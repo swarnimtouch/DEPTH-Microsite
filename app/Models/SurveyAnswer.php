@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SurveyAnswer extends Model
 {
-    protected $fillable = ['survey_submission_id', 'survey_question_id', 'survey_option_id', 'question_text', 'answer_text', 'sort_order'];
+    protected $fillable = [
+        'survey_submission_id', 'survey_question_id', 'survey_question_row_id', 'survey_option_id',
+        'question_text', 'row_text', 'answer_text', 'sort_order',
+    ];
 
     public function submission(): BelongsTo
     {
@@ -22,5 +25,10 @@ class SurveyAnswer extends Model
     public function option(): BelongsTo
     {
         return $this->belongsTo(SurveyOption::class, 'survey_option_id');
+    }
+
+    public function row(): BelongsTo
+    {
+        return $this->belongsTo(SurveyQuestionRow::class, 'survey_question_row_id');
     }
 }

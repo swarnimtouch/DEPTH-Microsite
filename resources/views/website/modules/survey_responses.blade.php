@@ -19,6 +19,7 @@
     .survey-review-progress{height:5px;background:#e9e5e1;border-radius:10px;overflow:hidden}.survey-review-progress span{display:block;height:100%;background:#a8283f;transition:width .2s ease}
     .survey-review-option{display:flex;align-items:center;gap:12px;padding:15px;margin-top:10px;border:1px solid #dedbd7;border-radius:10px;color:#1f2a44}
     .survey-review-option.is-selected{border-color:#a8283f;background:#fff7f8}.survey-review-check{margin-left:auto;color:#a8283f}
+    .survey-matrix-scroll{overflow-x:auto;border:1px solid #dedbd7;border-radius:10px}.survey-matrix{width:100%;min-width:720px;border-collapse:collapse}.survey-matrix th,.survey-matrix td{padding:12px;border-bottom:1px solid #e8e4e0;border-right:1px solid #e8e4e0;text-align:center;vertical-align:middle}.survey-matrix tr:last-child th,.survey-matrix tr:last-child td{border-bottom:0}.survey-matrix th:last-child,.survey-matrix td:last-child{border-right:0}.survey-matrix thead th{background:#f6f3f1;font-size:12px}.survey-matrix .survey-matrix-row{text-align:left;min-width:260px}.survey-matrix-choice{display:inline-grid;place-items:center;width:24px;height:24px;border:1px solid #cbc5bf;border-radius:50%;color:#a8283f}.survey-matrix-choice.is-selected{border-color:#a8283f;background:#fff3f5}
     @media(max-width:760px){.depth-room-header__top,.depth-room-tabs__inner{padding-left:18px;padding-right:18px}.depth-room-brand{gap:9px;flex:1 1 auto}.depth-room-logo{height:36px}.depth-room-brand__divider{height:34px}.depth-room-depth-logo{height:34px;max-width:min(36vw,150px)}.depth-room-user__name{display:none}.depth-room-tab{padding:12px 13px;font-size:10px}.survey-review-card{padding:22px}}
 </style>
 @endpush
@@ -48,19 +49,22 @@
 
 @push('scripts')
 <script>
-const reviewAnswers = @json($submission->answers->map(function($answer) {
-    $options = $answer->question?->options?->pluck('option_text')->values() ?? collect();
-    if (!$options->contains($answer->answer_text)) $options->push($answer->answer_text);
-    return ['question' => $answer->question_text, 'answer' => $answer->answer_text, 'options' => $options->values()];
-})->values());
+const reviewAnswers = @json($responses);
 let reviewIndex = 0;
 function escapeReview(value){return String(value ?? '').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));}
+function renderMatrixReview(item){
+    const headings=item.options.map(option=>`<th scope="col">${escapeReview(option)}</th>`).join('');
+    const rows=item.rows.map(row=>`<tr><th scope="row" class="survey-matrix-row">${escapeReview(row.row)}</th>${item.options.map(option=>`<td><span class="survey-matrix-choice ${option===row.answer?'is-selected':''}">${option===row.answer?'<i class="bi bi-check"></i>':''}</span></td>`).join('')}</tr>`).join('');
+    return `<div class="survey-matrix-scroll"><table class="survey-matrix"><thead><tr><th scope="col" class="survey-matrix-row">Clinical condition</th>${headings}</tr></thead><tbody>${rows}</tbody></table></div>`;
+}
 function renderReview(){
     const item=reviewAnswers[reviewIndex];
     document.getElementById('reviewCount').textContent=`Question ${reviewIndex+1} of ${reviewAnswers.length}`;
     document.getElementById('reviewProgress').style.width=`${((reviewIndex+1)/reviewAnswers.length)*100}%`;
     document.getElementById('reviewQuestion').textContent=item.question;
-    document.getElementById('reviewOptions').innerHTML=item.options.map(option=>`<div class="survey-review-option ${option===item.answer?'is-selected':''}"><span class="border rounded-circle" style="width:18px;height:18px"></span><span>${escapeReview(option)}</span>${option===item.answer?'<i class="bi bi-check-circle-fill survey-review-check"></i>':''}</div>`).join('');
+    document.getElementById('reviewOptions').innerHTML=item.type==='matrix_single_choice'
+        ? renderMatrixReview(item)
+        : item.options.map(option=>`<div class="survey-review-option ${option===item.answer?'is-selected':''}"><span class="border rounded-circle" style="width:18px;height:18px"></span><span>${escapeReview(option)}</span>${option===item.answer?'<i class="bi bi-check-circle-fill survey-review-check"></i>':''}</div>`).join('');
     document.getElementById('reviewPrevious').classList.toggle('invisible',reviewIndex===0);
     document.getElementById('reviewNext').textContent=reviewIndex===reviewAnswers.length-1?'Back to live session':'Next question →';
 }

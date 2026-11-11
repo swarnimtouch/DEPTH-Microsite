@@ -49,6 +49,7 @@
         .survey-progress{height:5px;background:#e8ebf0;border-radius:10px;overflow:hidden}.survey-progress span{display:block;height:100%;background:#d71920;transition:width .25s ease}
         .survey-option{display:flex;gap:12px;align-items:center;width:100%;padding:14px 16px;margin-top:10px;border:1px solid #dce2ea;border-radius:11px;background:#fff;text-align:left;color:#1f2a44}
         .survey-option:hover,.survey-option.is-selected{border-color:#d71920;background:#fff7f7}.survey-option i{margin-left:auto;color:#d71920;opacity:0}.survey-option.is-selected i{opacity:1}
+        .survey-matrix-scroll{overflow-x:auto;border:1px solid #dce2ea;border-radius:11px}.survey-matrix{width:100%;min-width:720px;border-collapse:collapse;background:#fff}.survey-matrix th,.survey-matrix td{padding:12px;border-bottom:1px solid #e6e9ee;border-right:1px solid #e6e9ee;text-align:center;vertical-align:middle}.survey-matrix tr:last-child th,.survey-matrix tr:last-child td{border-bottom:0}.survey-matrix th:last-child,.survey-matrix td:last-child{border-right:0}.survey-matrix thead th{background:#f4f6f9;color:#263650;font-size:12px}.survey-matrix .survey-matrix-row{text-align:left;min-width:260px;color:#263650}.survey-matrix-choice{width:34px;height:34px;border:1px solid #cfd6e0;border-radius:50%;background:#fff;color:#d71920}.survey-matrix-choice.is-selected{border:9px solid #d71920}.survey-matrix-choice:focus-visible{outline:3px solid rgba(215,25,32,.22);outline-offset:2px}.survey-matrix-review-choice{display:inline-grid;place-items:center;width:24px;height:24px;border:1px solid #cfd6e0;border-radius:50%;color:#d71920}.survey-matrix-review-choice.is-selected{border-color:#d71920;background:#fff3f3}
         #postSurveyResponsesView .survey-option{cursor:default}#postSurveyResponsesView .survey-option:hover{box-shadow:none}#postSurveyResponsesView .survey-option.is-selected .custom-radio-circle{border:6px solid #d71920;background:#fff}
         .survey-response-list{display:grid;gap:12px}.survey-response-item{padding:14px;border:1px solid #e4e8ef;border-radius:10px}.survey-response-item strong{display:block;color:#17345b;margin-bottom:4px}
         .post-survey-panel{border:1px solid #e1e5ec;border-radius:14px;padding:26px;background:#fff}
@@ -91,11 +92,7 @@
                 ?: ($fullRecordingResource?->file ? asset('storage/' . $fullRecordingResource->file) : null));
         $youtubeEmbedUrl = \App\Models\Module::youtubeEmbedUrl($recordingUrl);
         $directVideoUrl = $recordingUrl && !$youtubeEmbedUrl ? $recordingUrl : null;
-        $postSurveyCompleted = \App\Models\SurveySubmission::where([
-            'module_id' => $module->id,
-            'user_id' => Auth::guard('web')->id(),
-            'survey_type' => 'post',
-        ])->exists();
+        $postSurveyCompleted = (bool) ($initialSurveyState['post']['completed'] ?? false);
         $certificateUnlocked = (bool) $module->certificate_enabled
             && (bool) $progress->video_completed_at
             && $postSurveyCompleted;
@@ -227,7 +224,7 @@
                                     </button>
                                 </div>
                                 <div class="d-none mt-4" id="postSurveyQuestionView">
-                                    <div class="d-flex justify-content-between small mb-2"><strong class="text-danger" id="postSurveyQuestionCount"></strong><span class="text-muted">Select one answer</span></div>
+                                    <div class="d-flex justify-content-between small mb-2"><strong class="text-danger" id="postSurveyQuestionCount"></strong><span class="text-muted" id="postSurveyInstruction">Select one answer</span></div>
                                     <div class="survey-progress mb-4"><span id="postSurveyProgressBar"></span></div>
                                     <h4 class="fw-bold text-dark-green mb-3" id="postSurveyQuestionText"></h4>
                                     <div id="postSurveyOptions"></div>
@@ -505,7 +502,7 @@
             </div>
             <div class="modal-body">
                 <div id="surveyQuestionView">
-                    <div class="d-flex justify-content-between small mb-2"><strong class="text-danger" id="surveyQuestionCount"></strong><span class="text-muted">Select one answer</span></div>
+                    <div class="d-flex justify-content-between small mb-2"><strong class="text-danger" id="surveyQuestionCount"></strong><span class="text-muted" id="surveyInstruction">Select one answer</span></div>
                     <div class="survey-progress mb-4"><span id="surveyProgressBar"></span></div>
                     <h4 class="fw-bold text-dark-green mb-3" id="surveyQuestionText"></h4>
                     <div id="surveyOptions"></div>
@@ -551,6 +548,24 @@
 
         function escapeSurveyHtml(value) {
             return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
+        }
+
+        function matrixIsComplete(question, answers) {
+            const selected = answers?.[question.id] || {};
+            return question.rows.length > 0 && question.rows.every(row => selected[row.id]);
+        }
+
+        function renderMatrixQuestion(question, answers, attributePrefix) {
+            const selected = answers?.[question.id] || {};
+            const headings = question.options.map(option => `<th scope="col">${escapeSurveyHtml(option.text)}</th>`).join('');
+            const rows = question.rows.map(row => `<tr><th scope="row" class="survey-matrix-row">${escapeSurveyHtml(row.text)}</th>${question.options.map(option => `<td><button type="button" class="survey-matrix-choice ${selected[row.id] == option.id ? 'is-selected' : ''}" aria-label="${escapeSurveyHtml(row.text)}: ${escapeSurveyHtml(option.text)}" data-${attributePrefix}-row="${row.id}" data-${attributePrefix}-option="${option.id}"></button></td>`).join('')}</tr>`).join('');
+            return `<div class="survey-matrix-scroll"><table class="survey-matrix"><thead><tr><th scope="col" class="survey-matrix-row">Clinical condition</th>${headings}</tr></thead><tbody>${rows}</tbody></table></div>`;
+        }
+
+        function renderMatrixResponse(response) {
+            const headings = response.options.map(option => `<th scope="col">${escapeSurveyHtml(option)}</th>`).join('');
+            const rows = response.rows.map(row => `<tr><th scope="row" class="survey-matrix-row">${escapeSurveyHtml(row.row)}</th>${response.options.map(option => `<td><span class="survey-matrix-review-choice ${option === row.answer ? 'is-selected' : ''}">${option === row.answer ? '<i class="bi bi-check"></i>' : ''}</span></td>`).join('')}</tr>`).join('');
+            return `<div class="survey-matrix-scroll"><table class="survey-matrix"><thead><tr><th scope="col" class="survey-matrix-row">Clinical condition</th>${headings}</tr></thead><tbody>${rows}</tbody></table></div>`;
         }
 
         function updateSurveyCards() {
@@ -603,18 +618,22 @@
             document.getElementById('surveyQuestionCount').textContent = `Question ${activeSurveyIndex + 1} of ${survey.questions.length}`;
             document.getElementById('surveyProgressBar').style.width = `${((activeSurveyIndex + 1) / survey.questions.length) * 100}%`;
             document.getElementById('surveyQuestionText').textContent = question.question;
-            document.getElementById('surveyOptions').innerHTML = question.options.map(option => `<button type="button" class="survey-option ${activeSurveyAnswers[question.id] == option.id ? 'is-selected' : ''}" data-survey-option="${option.id}"><span>${escapeSurveyHtml(option.text)}</span><i class="bi bi-check-circle-fill"></i></button>`).join('');
+            const isMatrix = question.type === 'matrix_single_choice';
+            document.getElementById('surveyInstruction').textContent = isMatrix ? 'Select one option per row' : 'Select one answer';
+            document.getElementById('surveyOptions').innerHTML = isMatrix
+                ? renderMatrixQuestion(question, activeSurveyAnswers, 'survey-matrix')
+                : question.options.map(option => `<button type="button" class="survey-option ${activeSurveyAnswers[question.id] == option.id ? 'is-selected' : ''}" data-survey-option="${option.id}"><span>${escapeSurveyHtml(option.text)}</span><i class="bi bi-check-circle-fill"></i></button>`).join('');
             document.getElementById('surveyPrevious').classList.toggle('invisible', activeSurveyIndex === 0 || activeSurveyType === 'pre');
             const next = document.getElementById('surveyNext');
             next.textContent = activeSurveyIndex === survey.questions.length - 1 ? 'Submit responses' : 'Next';
-            next.disabled = !activeSurveyAnswers[question.id];
+            next.disabled = isMatrix ? !matrixIsComplete(question, activeSurveyAnswers) : !activeSurveyAnswers[question.id];
         }
 
         function showSurveyResponses(survey) {
             document.getElementById('surveyQuestionView').classList.add('d-none');
             document.getElementById('surveySuccessView').classList.add('d-none');
             document.getElementById('surveyResponsesView').classList.remove('d-none');
-            document.getElementById('surveyResponseList').innerHTML = survey.responses.map(item => `<div class="survey-response-item"><strong>${escapeSurveyHtml(item.question)}</strong><span>${escapeSurveyHtml(item.answer)}</span></div>`).join('');
+            document.getElementById('surveyResponseList').innerHTML = survey.responses.map(item => `<div class="survey-response-item"><strong>${escapeSurveyHtml(item.question)}</strong>${item.type === 'matrix_single_choice' ? renderMatrixResponse(item) : `<span>${escapeSurveyHtml(item.answer)}</span>`}</div>`).join('');
         }
 
         function renderPostSurveyQuestion() {
@@ -623,11 +642,15 @@
             document.getElementById('postSurveyQuestionCount').textContent = `Question ${postSurveyIndex + 1} of ${survey.questions.length}`;
             document.getElementById('postSurveyProgressBar').style.width = `${((postSurveyIndex + 1) / survey.questions.length) * 100}%`;
             document.getElementById('postSurveyQuestionText').textContent = question.question;
-            document.getElementById('postSurveyOptions').innerHTML = question.options.map(option => `<button type="button" class="survey-option ${postSurveyAnswers[question.id] == option.id ? 'is-selected' : ''}" data-post-survey-option="${option.id}"><span>${escapeSurveyHtml(option.text)}</span><i class="bi bi-check-circle-fill"></i></button>`).join('');
+            const isMatrix = question.type === 'matrix_single_choice';
+            document.getElementById('postSurveyInstruction').textContent = isMatrix ? 'Select one option per row' : 'Select one answer';
+            document.getElementById('postSurveyOptions').innerHTML = isMatrix
+                ? renderMatrixQuestion(question, postSurveyAnswers, 'post-survey-matrix')
+                : question.options.map(option => `<button type="button" class="survey-option ${postSurveyAnswers[question.id] == option.id ? 'is-selected' : ''}" data-post-survey-option="${option.id}"><span>${escapeSurveyHtml(option.text)}</span><i class="bi bi-check-circle-fill"></i></button>`).join('');
             document.getElementById('postSurveyPrevious').classList.toggle('invisible', postSurveyIndex === 0);
             const next = document.getElementById('postSurveyNext');
             next.textContent = postSurveyIndex === survey.questions.length - 1 ? 'Submit responses' : 'Next question';
-            next.disabled = !postSurveyAnswers[question.id];
+            next.disabled = isMatrix ? !matrixIsComplete(question, postSurveyAnswers) : !postSurveyAnswers[question.id];
         }
 
         function renderPostSurveyResponses() {
@@ -640,7 +663,9 @@
             document.getElementById('postResponseCount').textContent = `Question ${postResponseIndex + 1} of ${survey.responses.length}`;
             document.getElementById('postResponseProgress').style.width = `${((postResponseIndex + 1) / survey.responses.length) * 100}%`;
             document.getElementById('postResponseQuestion').textContent = response.question;
-            document.getElementById('postResponseOptions').innerHTML = response.options.map(option => `<div class="survey-option ${option === response.answer ? 'is-selected' : ''}"><span class="custom-radio-circle"></span><span>${escapeSurveyHtml(option)}</span>${option === response.answer ? '<i class="bi bi-check-circle-fill"></i>' : ''}</div>`).join('');
+            document.getElementById('postResponseOptions').innerHTML = response.type === 'matrix_single_choice'
+                ? renderMatrixResponse(response)
+                : response.options.map(option => `<div class="survey-option ${option === response.answer ? 'is-selected' : ''}"><span class="custom-radio-circle"></span><span>${escapeSurveyHtml(option)}</span>${option === response.answer ? '<i class="bi bi-check-circle-fill"></i>' : ''}</div>`).join('');
             document.getElementById('postResponsePrevious').classList.toggle('invisible', postResponseIndex === 0);
             const next = document.getElementById('postResponseNext');
             next.classList.toggle('invisible', postResponseIndex === survey.responses.length - 1);
@@ -695,12 +720,27 @@
                 const question = moduleSurveyState[activeSurveyType].questions[activeSurveyIndex];
                 activeSurveyAnswers[question.id] = Number(option.dataset.surveyOption); renderSurveyQuestion();
             }
+            const matrixOption = event.target.closest('[data-survey-matrix-row]');
+            if (matrixOption && activeSurveyType) {
+                const question = moduleSurveyState[activeSurveyType].questions[activeSurveyIndex];
+                activeSurveyAnswers[question.id] ||= {};
+                activeSurveyAnswers[question.id][matrixOption.dataset.surveyMatrixRow] = Number(matrixOption.dataset.surveyMatrixOption);
+                renderSurveyQuestion();
+            }
         });
         document.addEventListener('click', event => {
             const option = event.target.closest('[data-post-survey-option]');
             if (!option || !moduleSurveyState?.post) return;
             const question = moduleSurveyState.post.questions[postSurveyIndex];
             postSurveyAnswers[question.id] = Number(option.dataset.postSurveyOption);
+            renderPostSurveyQuestion();
+        });
+        document.addEventListener('click', event => {
+            const option = event.target.closest('[data-post-survey-matrix-row]');
+            if (!option || !moduleSurveyState?.post) return;
+            const question = moduleSurveyState.post.questions[postSurveyIndex];
+            postSurveyAnswers[question.id] ||= {};
+            postSurveyAnswers[question.id][option.dataset.postSurveyMatrixRow] = Number(option.dataset.postSurveyMatrixOption);
             renderPostSurveyQuestion();
         });
         document.getElementById('postSurveyPrevious')?.addEventListener('click', () => { if (postSurveyIndex > 0) { postSurveyIndex--; renderPostSurveyQuestion(); } });

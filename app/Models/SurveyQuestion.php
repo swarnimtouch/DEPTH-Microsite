@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SurveyQuestion extends Model
 {
-    protected $fillable = ['module_id', 'survey_type', 'question', 'sort_order', 'status'];
+    protected $fillable = ['module_id', 'survey_type', 'question', 'question_type', 'sort_order', 'status'];
 
     public function module(): BelongsTo
     {
@@ -18,6 +18,11 @@ class SurveyQuestion extends Model
     public function options(): HasMany
     {
         return $this->hasMany(SurveyOption::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function rows(): HasMany
+    {
+        return $this->hasMany(SurveyQuestionRow::class)->orderBy('sort_order')->orderBy('id');
     }
 
     public function scopeActive($query)

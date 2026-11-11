@@ -16,7 +16,7 @@ class SurveyController
 {
     public function index(Request $request)
     {
-        $questions = SurveyQuestion::with(['module', 'options'])
+        $questions = SurveyQuestion::with(['module', 'options', 'rows'])
             ->when($request->module_id, fn ($q, $id) => $q->where('module_id', $id))
             ->when(in_array($request->survey_type, ['pre', 'post'], true), fn ($q) => $q->where('survey_type', $request->survey_type))
             ->when($request->search, fn ($q, $search) => $q->where('question', 'LIKE', "%{$search}%"))
@@ -33,7 +33,7 @@ class SurveyController
     {
         return view('admin.surveys.form', [
             'title' => 'Pre & Post Surveys',
-            'question' => $id ? SurveyQuestion::with('options')->findOrFail($id) : new SurveyQuestion(['survey_type' => 'pre', 'status' => 'active']),
+            'question' => $id ? SurveyQuestion::with(['options', 'rows'])->findOrFail($id) : new SurveyQuestion(['survey_type' => 'pre', 'question_type' => 'single_choice', 'status' => 'active']),
             'modules' => Module::orderBy('sort_order')->orderBy('title')->get(),
             'breadcrumb' => breadcrumb(['Pre & Post Surveys' => route('admin.surveys'), $id ? 'Edit Question' : 'Add Question' => '']),
         ]);
@@ -44,8 +44,10 @@ class SurveyController
         $validated = $request->validate([
             'module_id' => ['required', Rule::exists('modules', 'id')],
             'survey_type' => ['required', Rule::in(['pre', 'post'])],
+            'question_type' => ['required', Rule::in(['single_choice', 'matrix_single_choice'])],
             'question' => ['required', 'string', 'max:2000'],
             'options_text' => ['required', 'string'],
+            'matrix_rows_text' => ['nullable', 'string', Rule::requiredIf($request->input('question_type') === 'matrix_single_choice')],
             'sort_order' => ['required', 'integer', 'min:0'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
         ]);
@@ -53,16 +55,26 @@ class SurveyController
         if ($options->count() < 2) {
             return back()->withInput()->withErrors(['options_text' => 'Please enter at least two options, one per line.']);
         }
+        $rows = collect(preg_split('/\r\n|\r|\n/', (string) ($validated['matrix_rows_text'] ?? '')))->map(fn ($v) => trim($v))->filter()->values();
+        if ($validated['question_type'] === 'matrix_single_choice' && $rows->count() < 2) {
+            return back()->withInput()->withErrors(['matrix_rows_text' => 'Please enter at least two table rows, one per line.']);
+        }
 
         $existing = $id ? SurveyQuestion::findOrFail($id) : null;
         $previousContext = $existing ? [$existing->module_id, $existing->survey_type] : null;
 
-        $question = DB::transaction(function () use ($validated, $options, $existing) {
+        $question = DB::transaction(function () use ($validated, $options, $rows, $existing) {
             $question = $existing ?: new SurveyQuestion;
-            $question->fill(collect($validated)->except('options_text')->all())->save();
+            $question->fill(collect($validated)->except(['options_text', 'matrix_rows_text'])->all())->save();
             $question->options()->delete();
             foreach ($options as $index => $text) {
                 $question->options()->create(['option_text' => $text, 'sort_order' => $index]);
+            }
+            $question->rows()->delete();
+            if ($validated['question_type'] === 'matrix_single_choice') {
+                foreach ($rows as $index => $text) {
+                    $question->rows()->create(['row_text' => $text, 'sort_order' => $index]);
+                }
             }
 
             return $question;
@@ -111,7 +123,8 @@ class SurveyController
             return $submission->answers->map(fn ($answer) => [
                 $submission->user?->name ?: 'Delegate', $submission->user?->email ?: '-', $submission->user?->mobile ?: '-',
                 $submission->module?->title ?: '-', ucfirst($submission->survey_type).'-event',
-                $answer->question_text, $answer->answer_text, $submission->submitted_at?->format('d M Y, h:i A'),
+                $answer->row_text ? $answer->question_text.' — '.$answer->row_text : $answer->question_text,
+                $answer->answer_text, $submission->submitted_at?->format('d M Y, h:i A'),
             ]);
         });
 
