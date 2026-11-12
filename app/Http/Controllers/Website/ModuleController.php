@@ -48,6 +48,11 @@ class ModuleController
         abort_if(! $activeCourse, 404);
         $module = Module::active()->with('resourceDocuments')->where('course_id', $activeCourse->id)->where('slug', $slug)->firstOrFail();
 
+        if (! SurveyController::moduleState($module, Auth::guard('web')->id())['pre']['completed']
+            && $module->surveyQuestions()->active()->where('survey_type', 'pre')->exists()) {
+            return redirect()->route('dashboard.live');
+        }
+
         if (! $module->isJoinOpen()) {
             return redirect()->route('dashboard.live')
                 ->with('error', 'This chapter will open when the administrator enables it or its scheduled start time is reached.');

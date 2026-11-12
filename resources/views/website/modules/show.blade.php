@@ -596,9 +596,7 @@
         }
 
         function openRequiredSurvey() {
-            if (moduleSurveyState.pre.enabled && !moduleSurveyState.pre.completed && moduleSurveyState.pre.questions.length) {
-                openSurvey('pre');
-            } else if (moduleSurveyState.post.enabled && moduleSurveyState.post.eligible && !moduleSurveyState.post.completed && moduleSurveyState.post.questions.length) {
+            if (moduleSurveyState.post.enabled && moduleSurveyState.post.eligible && !moduleSurveyState.post.completed && moduleSurveyState.post.questions.length) {
                 openSurvey('post');
             }
         }
@@ -797,7 +795,7 @@
             window.Echo.channel(surveyChannel).listen('.survey.availability-changed', async event => {
                 await loadSurveyState();
                 const survey = moduleSurveyState?.[event.survey_type];
-                if (event.enabled && survey?.eligible && !survey.completed && survey.questions.length) openSurvey(event.survey_type);
+                if (event.survey_type === 'post' && event.enabled && survey?.eligible && !survey.completed && survey.questions.length) openSurvey('post');
             });
         }
         window.addEventListener('load', connectSurveyReverb);

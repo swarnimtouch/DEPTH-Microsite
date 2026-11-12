@@ -59,7 +59,8 @@
                                             <select name="country" id="registrationCountry" class="form-select custom-form-control" required>
                                                 <option value="" disabled {{ old('country') ? '' : 'selected' }}>Choose Country</option>
                                                 @foreach($country as $key=>$value)
-                                                    <option value="{{$value->name}}" {{ old('country') == $value->name ? 'selected' : '' }}>{{$value->name}}</option>
+                                                    @php([$mobileMin, $mobileMax] = $value->mobileLengthRange())
+                                                    <option value="{{$value->name}}" data-iso="{{ strtolower($value->iso2) }}" data-dial="{{ ltrim($value->phonecode, '+') }}" data-mobile-min="{{ $mobileMin }}" data-mobile-max="{{ $mobileMax }}" {{ old('country') == $value->name ? 'selected' : '' }}>{{$value->displayName()}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -75,10 +76,10 @@
                                                  <input type="hidden" name="mobile_country_iso" id="mobileCountryIso" value="{{ old('mobile_country_iso', 'in') }}">
                                                  <div class="mobile-number-group">
                                                      <select id="mobileCountryPicker" class="form-select custom-form-control">
-                                                         <option value="{{ old('mobile_country_iso', 'in') }}" data-dial="{{ $oldMobileCountryCode }}">+{{ $oldMobileCountryCode }}</option>
+                                                         @foreach($country as $value)@php([$mobileMin, $mobileMax] = $value->mobileLengthRange())<option value="{{ strtolower($value->iso2) }}" data-dial="{{ ltrim($value->phonecode, '+') }}" data-mobile-min="{{ $mobileMin }}" data-mobile-max="{{ $mobileMax }}" @selected(old('mobile_country_iso', 'in') === strtolower($value->iso2))>{{ $value->emoji }} +{{ ltrim($value->phonecode, '+') }}</option>@endforeach
                                                      </select>
                                                      <input type="tel" name="mobile_number" id="mobileNumber" class="form-control custom-form-control"
-                                                            value="{{ $oldMobileNumber }}" placeholder="0000000000">
+                                                            value="{{ $oldMobileNumber }}" inputmode="numeric" pattern="[0-9]*" maxlength="15" placeholder="0000000000">
                                                  </div>
                                              </div>
                                             <div class="col-md-6">
@@ -154,6 +155,7 @@
             }
 
             function populateCountryCodes() {
+                if ($countryPicker.find('option').length > 1) return;
                 const selectedIso = ($countryIso.val() || 'in').toLowerCase();
                 const countries = allTelephoneCountries.length ? allTelephoneCountries : [
                     {name: 'India', iso2: 'in', dialCode: '91'},
@@ -192,6 +194,12 @@
             }
 
             function syncCodeFromRegistrationCountry() {
+                const directIso = String($registrationCountry.find(':selected').data('iso') || '').toLowerCase();
+                if (directIso && $countryPicker.find('option[value="' + directIso + '"]').length) {
+                    $countryPicker.val(directIso);
+                    syncMobileValue();
+                    return;
+                }
                 const telephoneCountry = findTelephoneCountryByName($registrationCountry.val());
                 const iso2 = telephoneCountry ? (telephoneCountry.iso2 || telephoneCountry[1]) : null;
 
@@ -216,6 +224,11 @@
 
                 $countryIso.val(dialData.iso2);
                 $countryCode.val(dialData.dialCode);
+                const $selected = $countryPicker.find(':selected');
+                const min = Number($selected.data('mobile-min') || 6);
+                const max = Number($selected.data('mobile-max') || 15);
+                $mobileNumber.attr({minlength: min, maxlength: max});
+                $mobileNumber.attr('placeholder', min === max ? min + ' digits' : min + '-' + max + ' digits');
                 $mobileFullNumber.val(localNumber ? '+' + dialData.dialCode + localNumber : '');
 
                 return $mobileFullNumber.val();
@@ -238,8 +251,17 @@
                 $(this).parent().find('.custom-form-label').css('color', '#4a5568');
             });
             $.validator.addMethod('optionalMobileDigits', function (value, element) {
-                return this.optional(element) || /^\d{7,15}$/.test(value);
-            }, 'Please enter a valid mobile number');
+                const $selected = $countryPicker.find(':selected');
+                const min = Number($selected.data('mobile-min') || 6);
+                const max = Number($selected.data('mobile-max') || 15);
+                return this.optional(element) || new RegExp('^\\d{' + min + ',' + max + '}$').test(value);
+            }, function () {
+                const $selected = $countryPicker.find(':selected');
+                const min = Number($selected.data('mobile-min') || 6);
+                const max = Number($selected.data('mobile-max') || 15);
+                const country = $registrationCountry.find(':selected').text() || 'the selected country';
+                return min === max ? 'Enter exactly ' + min + ' digits for ' + country : 'Enter ' + min + ' to ' + max + ' digits for ' + country;
+            });
             $('#doctorRegistrationForm').validate({
                 ignore: [],
                 rules: {
@@ -280,7 +302,6 @@
                     hospital: "Please enter your hospital",
                     country: "Please select your country",
                     mobile_number: {
-                        optionalMobileDigits: "Please enter 7 to 15 digits",
                         remote: "Mobile number already exists",
                     },
                     email: {

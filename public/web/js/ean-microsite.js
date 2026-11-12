@@ -87,11 +87,23 @@
             const local = $localNumber.val().replace(/\D+/g, '');
             $countryIso.val(iso2);
             $dialCode.val(dial);
+            const min = Number($selected.data('mobile-min') || 6);
+            const max = Number($selected.data('mobile-max') || 15);
+            $localNumber.attr({minlength: min, maxlength: max});
+            $localNumber.attr('placeholder', min === max ? min + ' digits' : min + '-' + max + ' digits');
             $fullNumber.val(local ? '+' + dial + local : '');
             return $fullNumber.val();
         }
 
         function syncCodeFromRegistrationCountry() {
+            const $selectedCountry = $registrationCountry.find(':selected');
+            const directIso = String($selectedCountry.data('iso') || '').toLowerCase();
+            if (directIso && $countryPicker.find('option[value="' + directIso + '"]').length) {
+                $countryPicker.val(directIso);
+                syncMobile();
+                return;
+            }
+
             const selectedName = normalizeCountryName($registrationCountry.val());
             if (!selectedName) return;
 
@@ -107,7 +119,7 @@
         }
 
         const initialIso = String($countryIso.val() || 'in').toLowerCase();
-        if (telephoneCountries.length) {
+        if (telephoneCountries.length && $countryPicker.find('option').length <= 1) {
             $countryPicker.empty();
             telephoneCountries.forEach(function (country) {
                 const iso2 = String(country.iso2 || country[1] || '').toLowerCase();
@@ -120,8 +132,17 @@
         }
 
         $.validator.addMethod('requiredMobileDigits', function (value) {
-            return /^\d{7,15}$/.test(value);
-        }, 'Enter 7 to 15 digits');
+            const $selected = $countryPicker.find(':selected');
+            const min = Number($selected.data('mobile-min') || 6);
+            const max = Number($selected.data('mobile-max') || 15);
+            return new RegExp('^\\d{' + min + ',' + max + '}$').test(value);
+        }, function () {
+            const $selected = $countryPicker.find(':selected');
+            const min = Number($selected.data('mobile-min') || 6);
+            const max = Number($selected.data('mobile-max') || 15);
+            const country = $registrationCountry.find(':selected').text() || 'the selected country';
+            return min === max ? 'Enter exactly ' + min + ' digits for ' + country : 'Enter ' + min + ' to ' + max + ' digits for ' + country;
+        });
 
         $countryPicker.on('change', syncMobile);
         $registrationCountry.on('change', syncCodeFromRegistrationCountry);
@@ -172,7 +193,7 @@
                 speciality_id: { required: 'Please select your speciality' },
                 country: { required: 'Please select your country' },
                 hospital: { required: 'Please enter your institution' },
-                mobile_number: { required: 'Please enter your mobile number', requiredMobileDigits: 'Enter 7 to 15 digits', remote: 'Mobile number already exists' }
+                mobile_number: { required: 'Please enter your mobile number', remote: 'Mobile number already exists' }
             },
             errorElement: 'span',
             errorClass: 'micro-error',

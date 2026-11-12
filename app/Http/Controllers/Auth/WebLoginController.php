@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Website\SurveyController;
 use App\Mail\RegistrationConfirmation;
 use App\Models\Country;
 use App\Models\Course;
@@ -27,7 +28,7 @@ class WebLoginController
         }
 
         return redirect()
-            ->to(route('home') . '#register')
+            ->to(route('home').'#register')
             ->with('show_login', true);
     }
 
@@ -78,7 +79,7 @@ class WebLoginController
 
     private function dashboardSection(string $section, string $title)
     {
-        if (!Auth::guard('web')->check()) {
+        if (! Auth::guard('web')->check()) {
             return redirect()
                 ->route('login')
                 ->with('error', 'Please login first');
@@ -102,7 +103,7 @@ class WebLoginController
 
     public function courseDashboard()
     {
-        if (!Auth::guard('web')->check()) {
+        if (! Auth::guard('web')->check()) {
             return redirect()
                 ->route('login')
                 ->with('error', 'Please login first');
@@ -114,6 +115,7 @@ class WebLoginController
     private function dashboardData(string $title): array
     {
         $doctor = Auth::guard('web')->user();
+        $pendingPreSurvey = SurveyController::pendingPreSurveyFor($doctor);
         $activeCourse = Course::active()->with(['activeModules.doctor'])->first();
         $modules = $activeCourse?->activeModules ?? collect();
         $progress = ModuleUserProgress::where('user_id', $doctor->id)
@@ -127,8 +129,8 @@ class WebLoginController
         $feedbackSubmitted = $quizProgress->count();
 
         $nearestModule = $modules
-            ->filter(fn($module) => $module->end_at && $module->end_at->gte(now()))
-            ->sortBy(fn($module) => $module->start_at?->timestamp ?? PHP_INT_MAX)
+            ->filter(fn ($module) => $module->end_at && $module->end_at->gte(now()))
+            ->sortBy(fn ($module) => $module->start_at?->timestamp ?? PHP_INT_MAX)
             ->first();
 
         $recentActivity = $progress
@@ -136,16 +138,17 @@ class WebLoginController
                 $items = collect();
                 if ($item->quiz_completed_at) {
                     $items->push([
-                        'title' => 'Submitted feedback: ' . $item->module->title,
+                        'title' => 'Submitted feedback: '.$item->module->title,
                         'date' => $item->quiz_completed_at,
                     ]);
                 }
                 if ($item->video_completed_at) {
                     $items->push([
-                        'title' => 'Completed video: ' . $item->module->title,
+                        'title' => 'Completed video: '.$item->module->title,
                         'date' => $item->video_completed_at,
                     ]);
                 }
+
                 return $items;
             })
             ->sortByDesc('date')
@@ -153,19 +156,19 @@ class WebLoginController
             ->values();
 
         $chartLabels = $quizProgress->map(function ($item) {
-            return $item->module->title . ' (Chapter ' . ($item->module->sort_order) . ')';
+            return $item->module->title.' (Chapter '.($item->module->sort_order).')';
         })->values();
-        $chartScores = $quizProgress->map(fn($item) => $item->quiz_total ? round(($item->quiz_score / $item->quiz_total) * 100) : 0)->values();
+        $chartScores = $quizProgress->map(fn ($item) => $item->quiz_total ? round(($item->quiz_score / $item->quiz_total) * 100) : 0)->values();
         $agendaModule = $nearestModule ?: $modules->first();
         $agendaModule?->loadMissing('resourceDocuments');
-        $depthAgenda = collect($agendaModule?->agenda ?? [])->map(fn($row) => [
+        $depthAgenda = collect($agendaModule?->agenda ?? [])->map(fn ($row) => [
             'type' => $row['type'] ?? 'person',
             'time' => $row['time'] ?? null,
             'duration' => isset($row['duration']) && $row['duration'] !== '' ? (int) $row['duration'] : null,
             'title' => $row['title'] ?? '',
             'role' => $row['role'] ?? '',
             'names' => $row['names'] ?? ($row['name'] ?? ''),
-        ])->filter(fn($row) => $row['title'] !== '' || $row['role'] !== '' || $row['names'] !== '')->values();
+        ])->filter(fn ($row) => $row['title'] !== '' || $row['role'] !== '' || $row['names'] !== '')->values();
         $speakerProfiles = collect($agendaModule?->speakers ?? []);
         if ($speakerProfiles->isEmpty() && $agendaModule?->speaker_name) {
             $speakerProfiles = collect([[
@@ -184,7 +187,7 @@ class WebLoginController
                 'image' => null,
             ]]);
         }
-        $publicUrl = static fn (string $path): string => (request()->getBaseUrl() ?: '') . '/' . ltrim($path, '/');
+        $publicUrl = static fn (string $path): string => (request()->getBaseUrl() ?: '').'/'.ltrim($path, '/');
 
         $depthSpeakers = $speakerProfiles->map(function ($speaker) use ($agendaModule, $publicUrl) {
             $expertise = is_array($speaker['expertise'] ?? null)
@@ -200,13 +203,13 @@ class WebLoginController
             return [
                 'name' => $name,
                 'photo' => $image
-                    ? (str_starts_with($image, 'web/') ? $publicUrl($image) : $publicUrl('storage/' . $image))
+                    ? (str_starts_with($image, 'web/') ? $publicUrl($image) : $publicUrl('storage/'.$image))
                     : $publicUrl('web/depth/assets/speakers/kasper.jpg'),
                 'role' => $speaker['role'] ?? 'Speaker',
                 'designation' => $designation,
                 'designation2' => $hospital,
                 'place' => implode(', ', array_filter([$city, $country])) ?: $hospital,
-                'bio' => strip_tags($speaker['bio'] ?? '') ?: trim($designation . ($hospital ? ', ' . $hospital : '')),
+                'bio' => strip_tags($speaker['bio'] ?? '') ?: trim($designation.($hospital ? ', '.$hospital : '')),
                 'expertise' => $expertise,
                 'resourceUrl' => $speaker['profile_resource_url'] ?? '',
                 'profile' => [
@@ -233,7 +236,7 @@ class WebLoginController
         $fullRecordingReady = $fullRecordingResource
             && $fullRecordingResource->status === 'active'
             && ($fullRecordingResource->file || $fullRecordingResource->external_url)
-            && (!$fullRecordingResource->getRawOriginal('available_at')
+            && (! $fullRecordingResource->getRawOriginal('available_at')
                 || CarbonImmutable::parse($fullRecordingResource->getRawOriginal('available_at'), 'UTC')->lte(now('UTC')));
         $depthEvent = $agendaModule ? [
             'moduleId' => $agendaModule->id,
@@ -259,7 +262,7 @@ class WebLoginController
             'certificateUrl' => route('modules.certificate', $agendaModule->slug),
             'certificateUnlocked' => (bool) $agendaModule->certificate_enabled,
             'liveQuestionsUrl' => route('live_questions.state', $agendaModule),
-            'liveQuestionsChannel' => 'live-questions.module.' . $agendaModule->id,
+            'liveQuestionsChannel' => 'live-questions.module.'.$agendaModule->id,
         ] : [];
 
         $caseFallbackImages = [
@@ -273,17 +276,17 @@ class WebLoginController
             ->values()
             ->mapWithKeys(function ($resource, $index) use ($caseFallbackImages, $publicUrl) {
                 return [
-                    $resource->id => $publicUrl('web/depth/assets/visual/' . $caseFallbackImages[$index % count($caseFallbackImages)]),
+                    $resource->id => $publicUrl('web/depth/assets/visual/'.$caseFallbackImages[$index % count($caseFallbackImages)]),
                 ];
             });
 
         $depthResources = collect($agendaModule?->resourceDocuments ?? [])->map(function ($resource) use ($caseFallbacksById, $publicUrl) {
-            $url = $resource->external_url ?: ($resource->file ? $publicUrl('storage/' . $resource->file) : null);
+            $url = $resource->external_url ?: ($resource->file ? $publicUrl('storage/'.$resource->file) : null);
             $hasSource = (bool) $url;
             $extension = strtolower(pathinfo((string) (parse_url($url ?? '', PHP_URL_PATH) ?: $resource->file), PATHINFO_EXTENSION));
             $videoExtensions = ['mp4', 'webm', 'mov'];
             $embedUrl = Module::youtubeEmbedUrl($resource->external_url);
-            if (!$embedUrl && $resource->resource_type === 'video' && $resource->external_url && !in_array($extension, $videoExtensions, true)) {
+            if (! $embedUrl && $resource->resource_type === 'video' && $resource->external_url && ! in_array($extension, $videoExtensions, true)) {
                 $embedUrl = $resource->external_url;
             }
 
@@ -295,12 +298,12 @@ class WebLoginController
                 'url' => $url,
                 'embedUrl' => $embedUrl,
                 'thumbnail' => $resource->thumbnail
-                    ? $publicUrl('storage/' . $resource->thumbnail)
+                    ? $publicUrl('storage/'.$resource->thumbnail)
                     : $caseFallbacksById->get($resource->id),
                 'type' => $resource->resource_type === 'video' || $embedUrl || in_array($extension, $videoExtensions, true) ? 'Video' : ($resource->resource_type === 'pdf' || $extension === 'pdf' ? 'PDF' : 'Link'),
                 'isVideo' => (bool) ($resource->resource_type === 'video' || $embedUrl || in_array($extension, $videoExtensions, true)),
                 'isPdf' => $resource->resource_type === 'pdf' || $extension === 'pdf',
-                'available' => $hasSource && $resource->status === 'active' && (!$resource->getRawOriginal('available_at') || CarbonImmutable::parse($resource->getRawOriginal('available_at'), 'UTC')->lte(now('UTC'))),
+                'available' => $hasSource && $resource->status === 'active' && (! $resource->getRawOriginal('available_at') || CarbonImmutable::parse($resource->getRawOriginal('available_at'), 'UTC')->lte(now('UTC'))),
                 'availableAt' => $resource->getRawOriginal('available_at') ? CarbonImmutable::parse($resource->getRawOriginal('available_at'), 'UTC')->toIso8601String() : null,
             ];
         })->values();
@@ -327,6 +330,11 @@ class WebLoginController
             'depthSpeakers' => $depthSpeakers,
             'depthEvent' => $depthEvent,
             'depthResources' => $depthResources,
+            'depthPreSurvey' => $pendingPreSurvey ? [
+                'module_title' => $pendingPreSurvey->title,
+                'submit_url' => route('modules.surveys.submit', ['slug' => $pendingPreSurvey->slug, 'type' => 'pre']),
+                'questions' => SurveyController::moduleState($pendingPreSurvey, $doctor->id)['pre']['questions'],
+            ] : null,
             'activeCourse' => $activeCourse,
             'modules' => $modules,
             'progress' => $progress,
@@ -354,12 +362,17 @@ class WebLoginController
                 ->get(),
             'specialities' => Speciality::active()->orderBy('name')->get(),
         ];
+
         return view('website.auth.registration', $response);
     }
 
     public function registerPost(Request $request)
     {
         $isLandingRegistration = $request->input('registration_context') === 'landing';
+        $selectedCountry = Country::where('name', $request->input('country'))->first();
+        $mobileRange = $selectedCountry?->mobileLengthRange() ?? [6, 15];
+        $expectedIso = strtolower((string) $selectedCountry?->iso2);
+        $expectedCode = ltrim((string) $selectedCountry?->phonecode, '+');
         $validated = $request->validate([
             'registration_context' => ['nullable', Rule::in(['landing'])],
             'event' => [
@@ -373,12 +386,23 @@ class WebLoginController
             'city' => [$isLandingRegistration ? 'required' : 'nullable', 'string', 'max:255'],
             'country' => ['required', 'string', 'max:255', Rule::exists('countries', 'name')],
             'mobile' => [$isLandingRegistration ? 'required' : 'nullable', 'regex:/^\+[0-9]{7,20}$/', 'unique:users,mobile'],
-            'mobile_country_code' => ['nullable', 'string', 'max:5'],
-            'mobile_country_iso' => ['nullable', 'string', 'size:2'],
-            'mobile_number' => [$isLandingRegistration ? 'required' : 'nullable', 'digits_between:7,15'],
+            'mobile_country_code' => ['nullable', 'digits_between:1,5', Rule::in([$expectedCode])],
+            'mobile_country_iso' => ['nullable', 'string', 'size:2', Rule::in([$expectedIso])],
+            'mobile_number' => [$isLandingRegistration ? 'required' : 'nullable', 'regex:/^[0-9]+$/', 'digits_between:'.$mobileRange[0].','.$mobileRange[1]],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'speciality_id' => ['required', Rule::exists('specialities', 'id')->where('status', 'active')],
+        ], [
+            'mobile_number.regex' => 'The mobile number may contain digits only.',
+            'mobile_number.digits_between' => $mobileRange[0] === $mobileRange[1]
+                ? "Please enter exactly {$mobileRange[0]} digits for {$selectedCountry?->displayName()}."
+                : "Please enter {$mobileRange[0]} to {$mobileRange[1]} digits for {$selectedCountry?->displayName()}.",
+            'mobile_country_code.in' => 'The selected phone code does not match the country.',
+            'mobile_country_iso.in' => 'The selected phone country does not match the country.',
         ]);
+
+        if (! empty($validated['mobile']) && $validated['mobile'] !== '+'.$expectedCode.($validated['mobile_number'] ?? '')) {
+            return back()->withErrors(['mobile_number' => 'The mobile number and country code do not match.'])->withInput();
+        }
 
         $doctor = User::create([
             'type' => 'doctor',
@@ -421,7 +445,7 @@ class WebLoginController
         }
 
         return redirect()
-            ->to(route('home') . '#register')
+            ->to(route('home').'#register')
             ->with('success', 'Registration completed successfully. The learning portal will open shortly.');
     }
 
@@ -439,9 +463,9 @@ class WebLoginController
             ->where('status', 'active')
             ->first();
 
-        if (!$doctor) {
+        if (! $doctor) {
             $redirect = $isLandingLogin
-                ? redirect()->to(route('home') . '#register')
+                ? redirect()->to(route('home').'#register')
                 : redirect()->route('login');
 
             return $redirect

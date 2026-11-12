@@ -6,12 +6,31 @@ use App\Models\Course;
 use App\Models\Module;
 use App\Models\ModuleUserProgress;
 use App\Models\SurveySubmission;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SurveyController
 {
+    public static function pendingPreSurveyFor(User $user): ?Module
+    {
+        $course = Course::active()->first();
+        if (! $course) {
+            return null;
+        }
+
+        $modules = Module::active()
+            ->where('course_id', $course->id)
+            ->whereHas('surveyQuestions', fn ($query) => $query->active()->where('survey_type', 'pre'))
+            ->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [$user->registered_module_id ?: 0])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
+        return $modules->first(fn (Module $module) => ! static::moduleState($module, $user->id)['pre']['completed']);
+    }
+
     public function state($slug)
     {
         abort_unless(Auth::guard('web')->check(), 401, 'Please login first.');

@@ -14,6 +14,7 @@
 <style>
 .logo-hetero{height:48px}.brand-divider{width:1px;height:46px;background:#d9dee7}.logo-depth-brand{height:48px;width:auto;max-width:250px}.trust-row.solo .t-hetero{height:44px}.arm-logos .a-hetero{height:34px}
 .profile-form-card{width:100%;max-width:1100px;padding:0;overflow:hidden}.profile-form-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:28px 36px;border-bottom:1px solid #d9dee7;background:#f7f9fc}.profile-form-head .kicker{margin-bottom:8px}.profile-form-card form,.profile-errors{margin-left:36px;margin-right:36px}.profile-form-card form{padding:30px 0 34px}.profile-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 24px}.profile-edit-grid .field{display:grid;gap:8px}.profile-edit-grid .field span{font-size:12px;font-weight:800;color:#4e5668;text-transform:uppercase;letter-spacing:.08em}.profile-edit-grid .field em{color:#e0242b;font-style:normal}.profile-edit-grid .input{width:100%;min-height:52px;border:1px solid #d9dee7;border-radius:9px;background:#fff;padding:12px 16px;color:#1f2a44;font:inherit}.profile-edit-grid .input:focus{outline:2px solid rgba(224,36,43,.14);border-color:#e0242b}.profile-edit-grid .span2{grid-column:1/-1}.profile-form-actions{display:flex;justify-content:flex-end;align-items:center;gap:14px;margin-top:28px}.profile-errors{margin-top:24px;margin-bottom:0;padding:14px 16px;border:1px solid #f2b3b7;border-radius:9px;background:#fff2f3;color:#a31319}.profile-errors ul{margin:6px 0 0 18px}
+.depth-pre-survey-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(17,27,49,.72);backdrop-filter:blur(5px)}.depth-pre-survey-dialog{width:min(760px,100%);max-height:calc(100vh - 40px);overflow:auto;border-radius:18px;background:#fff;box-shadow:0 28px 90px rgba(0,0,0,.3)}.depth-pre-survey-head{padding:28px 32px 16px}.depth-pre-survey-kicker{color:#c4161c;font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}.depth-pre-survey-head h2{margin:7px 0 8px;font-size:27px;color:#1f2a44}.depth-pre-survey-head p{margin:0;color:#687083;line-height:1.55}.depth-pre-survey-session{margin-top:13px;font-size:13px;font-weight:700;color:#303a50}.depth-pre-survey-body{padding:10px 32px 32px}.depth-pre-survey-progress{height:5px;margin:3px 0 24px;overflow:hidden;border-radius:8px;background:#e8ebf0}.depth-pre-survey-progress span{display:block;height:100%;background:#c4161c}.depth-pre-survey-count{margin-bottom:8px;color:#c4161c;font-size:12px;font-weight:800}.depth-pre-survey-question{margin:0 0 17px;font-size:20px;line-height:1.45;color:#1f2a44}.depth-pre-survey-options{display:grid;gap:10px}.depth-pre-survey-option{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border:1px solid #dce2ea;border-radius:10px;background:#fff;color:#1f2a44;text-align:left;font:inherit;cursor:pointer}.depth-pre-survey-option.is-selected{border-color:#c4161c;background:#fff7f8}.depth-pre-survey-dot{width:18px;height:18px;border:1px solid #bec6d2;border-radius:50%}.depth-pre-survey-option.is-selected .depth-pre-survey-dot{border:5px solid #c4161c}.depth-pre-survey-matrix-wrap{overflow-x:auto;border:1px solid #dce2ea;border-radius:10px}.depth-pre-survey-matrix{width:100%;min-width:640px;border-collapse:collapse}.depth-pre-survey-matrix th,.depth-pre-survey-matrix td{padding:12px;border-right:1px solid #e5e8ee;border-bottom:1px solid #e5e8ee;text-align:center}.depth-pre-survey-matrix th:first-child{text-align:left}.depth-pre-survey-matrix thead th{background:#f5f7fa;font-size:11px}.depth-pre-survey-matrix button{width:28px;height:28px;border:1px solid #bdc6d2;border-radius:50%;background:#fff;cursor:pointer}.depth-pre-survey-matrix button.is-selected{border:8px solid #c4161c}.depth-pre-survey-error{margin-top:16px;padding:11px 13px;border-radius:8px;background:#fff0f1;color:#a31319;font-size:13px}.depth-pre-survey-actions{display:flex;justify-content:space-between;gap:12px;margin-top:24px}.depth-pre-survey-actions button{padding:12px 20px;border-radius:8px;font-weight:700;cursor:pointer}.depth-pre-survey-back{border:1px solid #dce2ea;background:#fff;color:#303a50}.depth-pre-survey-next{border:0;background:linear-gradient(135deg,#d71920,#a70e14);color:#fff}.depth-pre-survey-next:disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:760px){.brand{flex:1 1 auto;min-width:0;gap:9px}.logo-hetero{height:36px}.brand-divider{height:34px}.logo-depth-brand{height:34px;max-width:min(36vw,150px)}.trust-row.solo .t-hetero{height:38px}.arm-logos .a-hetero{height:30px}.profile-form-head{align-items:flex-start;padding:22px 20px;flex-direction:column}.profile-form-card form{padding:24px 0}.profile-form-card form,.profile-errors{margin-left:20px;margin-right:20px}.profile-edit-grid{grid-template-columns:1fr}.profile-edit-grid .span2{grid-column:auto}.profile-form-actions{align-items:stretch;flex-direction:column}}
 </style>
 </head>
@@ -108,6 +109,14 @@
 </div>
 
 <div class="sticky-cta" id="sticky-cta" hidden></div>
+@if($depthPreSurvey)
+<div class="depth-pre-survey-overlay" id="depthPreSurveyModal" role="dialog" aria-modal="true" aria-labelledby="depthPreSurveyTitle">
+  <section class="depth-pre-survey-dialog">
+    <header class="depth-pre-survey-head"><div class="depth-pre-survey-kicker">Before the live session</div><h2 id="depthPreSurveyTitle">Pre-event survey</h2><p>Please complete this short survey before entering the live room. You will only be asked once.</p><div class="depth-pre-survey-session">{{ $depthPreSurvey['module_title'] }}</div></header>
+    <div class="depth-pre-survey-body"><div class="depth-pre-survey-count" id="depthPreSurveyCount"></div><div class="depth-pre-survey-progress"><span id="depthPreSurveyProgress"></span></div><h3 class="depth-pre-survey-question" id="depthPreSurveyQuestion"></h3><div id="depthPreSurveyOptions"></div><div class="depth-pre-survey-error" id="depthPreSurveyError" role="alert" hidden></div><div class="depth-pre-survey-actions"><button type="button" class="depth-pre-survey-back" id="depthPreSurveyBack">Previous</button><button type="button" class="depth-pre-survey-next" id="depthPreSurveyNext">Next</button></div></div>
+  </section>
+</div>
+@endif
 <div class="modal" id="modal" hidden><div class="modal-card"><button class="modal-x" data-close aria-label="Close">×</button><div class="modal-video" id="modal-art"><div class="play"><span></span></div></div><h3 id="modal-title"></h3><p id="modal-body"></p></div></div>
 <div class="toast" id="toast" hidden></div>
 <script>
@@ -121,9 +130,44 @@ window.DEPTH_SPEAKERS = @json($depthSpeakers);
 window.DEPTH_EVENT = @json($depthEvent);
 window.DEPTH_LIVE_QUESTION_ANSWER_URL = @json(route('live_questions.answer', ['liveQuestion' => '__QUESTION__']));
 window.DEPTH_RESOURCES = @json($depthResources);
+window.DEPTH_PRE_SURVEY = @json($depthPreSurvey);
 localStorage.setItem('depth.user', JSON.stringify(@json($depthUser)));
 </script>
 <script src="{{ asset('web/depth/dashboard-static.js') }}?v={{ filemtime(public_path('web/depth/dashboard-static.js')) }}"></script>
+@if($depthPreSurvey)
+<script>
+(() => {
+  const survey = window.DEPTH_PRE_SURVEY, modal = document.getElementById('depthPreSurveyModal'), options = document.getElementById('depthPreSurveyOptions'), next = document.getElementById('depthPreSurveyNext'), back = document.getElementById('depthPreSurveyBack'), error = document.getElementById('depthPreSurveyError');
+  let index = 0; const answers = {};
+  const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[character]));
+  const complete = question => question.type === 'matrix_single_choice' ? question.rows.every(row => answers[question.id]?.[row.id]) : Boolean(answers[question.id]);
+  function render() {
+    const question = survey.questions[index];
+    document.getElementById('depthPreSurveyCount').textContent = `Question ${index + 1} of ${survey.questions.length}`;
+    document.getElementById('depthPreSurveyProgress').style.width = `${((index + 1) / survey.questions.length) * 100}%`;
+    document.getElementById('depthPreSurveyQuestion').textContent = question.question;
+    back.hidden = index === 0; next.textContent = index === survey.questions.length - 1 ? 'Submit and continue →' : 'Next →'; next.disabled = !complete(question); error.hidden = true;
+    if (question.type === 'matrix_single_choice') {
+      const headings = question.options.map(option => `<th>${escapeHtml(option.text)}</th>`).join('');
+      const rows = question.rows.map(row => `<tr><th>${escapeHtml(row.text)}</th>${question.options.map(option => `<td><button type="button" class="${answers[question.id]?.[row.id] == option.id ? 'is-selected' : ''}" data-row="${row.id}" data-option="${option.id}" aria-label="${escapeHtml(row.text)}: ${escapeHtml(option.text)}"></button></td>`).join('')}</tr>`).join('');
+      options.innerHTML = `<div class="depth-pre-survey-matrix-wrap"><table class="depth-pre-survey-matrix"><thead><tr><th>Item</th>${headings}</tr></thead><tbody>${rows}</tbody></table></div>`;
+    } else options.innerHTML = `<div class="depth-pre-survey-options">${question.options.map(option => `<button type="button" class="depth-pre-survey-option ${answers[question.id] == option.id ? 'is-selected' : ''}" data-option="${option.id}"><span class="depth-pre-survey-dot"></span><span>${escapeHtml(option.text)}</span></button>`).join('')}</div>`;
+  }
+  options.addEventListener('click', event => { const choice = event.target.closest('[data-option]'); if (!choice) return; const question = survey.questions[index]; if (question.type === 'matrix_single_choice') { answers[question.id] ||= {}; answers[question.id][choice.dataset.row] = Number(choice.dataset.option); } else answers[question.id] = Number(choice.dataset.option); render(); });
+  back.addEventListener('click', () => { if (index > 0) { index--; render(); } });
+  next.addEventListener('click', async () => {
+    if (index < survey.questions.length - 1) { index++; render(); return; }
+    next.disabled = true; next.textContent = 'Saving...'; error.hidden = true;
+    try {
+      const response = await fetch(survey.submit_url, {method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content},body:JSON.stringify({answers})});
+      if (!response.ok) throw new Error((await response.json().catch(() => ({}))).message || 'Unable to save the survey.');
+      modal.remove();
+    } catch (exception) { error.textContent = exception.message; error.hidden = false; next.disabled = false; next.textContent = 'Submit and continue →'; }
+  });
+  render();
+})();
+</script>
+@endif
 @vite('resources/js/app.js')
 </body>
 </html>
