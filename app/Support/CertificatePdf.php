@@ -42,7 +42,7 @@ class CertificatePdf
         $stream = implode("\n", [
             'BT',
             '/F99 ' . $fontSize . ' Tf',
-            '0.557 0.373 0.086 rg',
+            '0.941176 0.12549 0.12549 rg',
             '1 0 0 1 ' . self::num($x) . ' ' . self::num($y) . ' Tm',
             '(' . self::escapePdfString($delegateName) . ') Tj',
             'ET',
@@ -70,7 +70,7 @@ class CertificatePdf
             $append .= $fontObjectId . " 0 obj\n<</Type/Font/Subtype/TrueType/BaseFont/AbrilDisplayItalic/Encoding/WinAnsiEncoding/FirstChar 32/LastChar 126/Widths[" . self::fontWidths() . "]/FontDescriptor {$fontDescriptorObjectId} 0 R>>\nendobj\n";
         } else {
             $offsets[$fontObjectId] = strlen($pdf . $append);
-            $append .= $fontObjectId . " 0 obj\n<</Type/Font/Subtype/Type1/BaseFont/Times-Italic/Encoding/WinAnsiEncoding>>\nendobj\n";
+            $append .= $fontObjectId . " 0 obj\n<</Type/Font/Subtype/Type1/BaseFont/Helvetica-Bold/Encoding/WinAnsiEncoding>>\nendobj\n";
         }
 
         $offsetContent = strlen($pdf . $append);

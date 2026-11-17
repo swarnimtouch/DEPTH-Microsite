@@ -395,7 +395,6 @@ class ModuleController
             $module->certificate_name_x !== null ? (float) $module->certificate_name_x : null,
             $module->certificate_name_y !== null ? (float) $module->certificate_name_y : null,
             $module->certificate_font_size ?: null,
-            public_path('assets/fonts/Abril_Display_Italic.otf'),
         );
         $fileName = Str::slug(($doctor->name ?? 'delegate').'-'.$module->title.'-certificate').'.pdf';
 

@@ -1066,9 +1066,10 @@
             transform: translateY(-100%);
             transform-origin: left bottom;
             padding: 2px 0;
-            border: 1px dashed #0f766e;
-            background: rgba(15, 118, 110, 0.12);
-            color: #0f3f3a;
+            border: 1px dashed #F02020;
+            background: rgba(240, 32, 32, 0.08);
+            color: #F02020;
+            font-family: Arial, Helvetica, sans-serif;
             font-weight: 700;
             line-height: 1.1;
             white-space: nowrap;
