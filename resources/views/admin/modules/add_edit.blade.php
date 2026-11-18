@@ -82,7 +82,9 @@
                                 <div class="col-lg-9">
                                     <div id="speakerRows">
                                         @foreach($speakerRows as $index => $speaker)
-                                            @php($profileType = $index === 0 ? 'Speaker' : 'Panelist')
+                                            @php
+                                                $profileType = $index === 0 ? 'Speaker' : 'Panelist';
+                                            @endphp
                                             <div class="speaker-row border rounded p-4 mb-4" data-speaker-index="{{ $index }}">
                                                 <div class="row g-3">
                                                     <div class="col-md-5"><label class="form-label">{{ $profileType }} Name</label><input type="text" name="speakers[{{ $index }}][name]" value="{{ $speaker['name'] ?? '' }}" class="form-control form-control-solid" placeholder="{{ $profileType }} Name" required></div>
