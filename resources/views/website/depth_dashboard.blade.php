@@ -160,7 +160,12 @@ localStorage.setItem('depth.user', JSON.stringify(@json($depthUser)));
     next.disabled = true; next.textContent = 'Saving...'; error.hidden = true;
     try {
       const response = await fetch(survey.submit_url, {method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content},body:JSON.stringify({answers})});
-      if (!response.ok) throw new Error((await response.json().catch(() => ({}))).message || 'Unable to save the survey.');
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.message || 'Unable to save the survey.');
+      if (result.live_room_open && result.live_room_url) {
+        window.location.assign(result.live_room_url);
+        return;
+      }
       modal.remove();
     } catch (exception) { error.textContent = exception.message; error.hidden = false; next.disabled = false; next.textContent = 'Submit and continue →'; }
   });

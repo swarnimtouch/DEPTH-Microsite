@@ -68,6 +68,7 @@ class Module extends Model
     protected $appends = [
         'start_at_utc_iso',
         'end_at_utc_iso',
+        'join_opens_at_utc_iso',
     ];
 
     public function scopeActive($query)
@@ -101,9 +102,9 @@ class Module extends Model
             return true;
         }
 
-        $startAt = $this->utcDateTime('start_at');
+        $joinOpensAt = $this->joinOpensAt();
 
-        return $startAt !== null && $startAt->lte(now('UTC'));
+        return $joinOpensAt !== null && $joinOpensAt->lte(now('UTC'));
     }
 
     public function getDisplayDurationAttribute(): ?string
@@ -128,6 +129,16 @@ class Module extends Model
     public function getEndAtUtcIsoAttribute(): ?string
     {
         return $this->utcDateTime('end_at')?->toIso8601String();
+    }
+
+    public function getJoinOpensAtUtcIsoAttribute(): ?string
+    {
+        return $this->joinOpensAt()?->toIso8601String();
+    }
+
+    private function joinOpensAt(): ?CarbonImmutable
+    {
+        return $this->utcDateTime('start_at')?->subHour();
     }
 
     private function utcDateTime(string $attribute): ?CarbonImmutable

@@ -38,6 +38,7 @@ class ModuleUserProgress extends Model
 
     public function recalculate(): void
     {
+        // Module feedback is optional; video completion alone completes the module.
         $this->progress_percent = $this->video_completed_at ? 100 : 0;
     }
 }

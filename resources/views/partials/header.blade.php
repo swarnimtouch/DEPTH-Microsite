@@ -9,7 +9,7 @@
     <!--begin::Brand-->
     <div class="aside-logo flex-column-auto" id="kt_aside_logo">
         <!--begin::Logo-->
-        <a href="{{route('admin.login')}}">
+        <a href="{{ route('admin.dashboard') }}">
             <img alt="{{ siteSetting('site_name', 'DEPTH Microsite') }}" src="{{ siteSettingAsset('site_logo', 'web/depth/assets/hetero.png') }}" class="site-admin-logo"/>
         </a>
         <!--end::Logo-->

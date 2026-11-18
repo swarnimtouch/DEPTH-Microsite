@@ -370,7 +370,9 @@
                         <button type="button" class="btn w-100 py-2" data-open-survey="pre">{{ $preSurveyState['completed'] ? 'View responses' : 'Start survey' }}</button>
                     </div>
 
-                    <div class="card quiz-widget p-4 mb-4">
+                    {{-- Module feedback is optional and intentionally hidden from the live room.
+                         Keep this block and its routes intact so it can be re-enabled later. --}}
+                    <div class="card quiz-widget p-4 mb-4 d-none" aria-hidden="true">
                         <h5 class="fw-bold mb-2">Module Feedback</h5>
                         @if(!$progress->video_completed_at)
                             <p class="quiz-unlock-text mb-3" id="videoAutoCompleteText">Start the video to complete your progress.</p>

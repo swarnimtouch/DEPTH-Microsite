@@ -40,6 +40,18 @@ class Course extends Model
 
     public static function participantAccessEnabled(): bool
     {
-        return (bool) static::active()->value('microsite_access_enabled');
+        $course = static::active()->first();
+
+        if (! $course) {
+            return false;
+        }
+
+        if ($course->microsite_access_enabled) {
+            return true;
+        }
+
+        return $course->activeModules()
+            ->get()
+            ->contains(fn (Module $module) => $module->isJoinOpen());
     }
 }

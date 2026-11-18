@@ -260,7 +260,14 @@ function getModules($user_type = 'admin', ?string $role = null): array
         ];
     }
 
-    return $module;
+    // Module feedback remains available through its existing routes, but its
+    // management links are intentionally hidden from the admin sidebar.
+    $hiddenSidebarModules = ['Feedback Questions', 'Submitted Feedback'];
+
+    return array_values(array_filter(
+        $module,
+        fn ($item) => ! in_array($item['name'] ?? '', $hiddenSidebarModules, true)
+    ));
 }
 
 function get_route($route)

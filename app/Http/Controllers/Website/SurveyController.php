@@ -130,6 +130,9 @@ class SurveyController
             'success' => true,
             'already_submitted' => $alreadySubmitted,
             'message' => $type === 'pre' ? 'Pre-event responses saved.' : 'Thank you. Your post-event survey has been submitted.',
+            'live_room_open' => $type === 'pre' && $module->isJoinOpen(),
+            'live_room_opens_at' => $type === 'pre' ? $module->join_opens_at_utc_iso : null,
+            'live_room_url' => $type === 'pre' ? route('modules.show', $module->slug) : null,
             'certificate_enabled' => (bool) $module->certificate_enabled,
             'certificate_url' => $type === 'post' && $module->certificate_enabled ? route('modules.certificate', $module->slug) : null,
         ]);

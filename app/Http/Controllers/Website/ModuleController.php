@@ -53,11 +53,6 @@ class ModuleController
             return redirect()->route('dashboard.live');
         }
 
-        if (! $module->isJoinOpen()) {
-            return redirect()->route('dashboard.live')
-                ->with('error', 'This chapter will open when the administrator enables it or its scheduled start time is reached.');
-        }
-
         $nextModule = Module::active()
             ->where(function ($query) use ($module) {
                 $query->where('sort_order', '>', $module->sort_order)

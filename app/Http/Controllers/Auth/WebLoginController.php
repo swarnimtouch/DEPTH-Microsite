@@ -24,7 +24,7 @@ class WebLoginController
     public function login()
     {
         if (Auth::guard('web')->check()) {
-            return redirect()->route('dashboard');
+            return $this->redirectAfterLogin(Auth::guard('web')->user());
         }
 
         return redirect()
@@ -252,6 +252,7 @@ class WebLoginController
             'timeZoneLabel' => $participantSession['time_zone_label'],
             'start' => $agendaModule->start_at_utc_iso,
             'end' => $agendaModule->end_at_utc_iso,
+            'joinOpensAt' => $agendaModule->join_opens_at_utc_iso,
             'duration' => $agendaModule->display_duration,
             'joinEnabled' => (bool) $agendaModule->join_enabled,
             'videoPageUrl' => route('modules.show', $agendaModule->slug),
@@ -434,19 +435,11 @@ class WebLoginController
             }
         }
 
-        if (Course::participantAccessEnabled()) {
-            Auth::guard('web')->login($doctor);
-            $doctor->forceFill(['last_login_at' => now()])->save();
-            $request->session()->regenerate();
+        Auth::guard('web')->login($doctor);
+        $doctor->forceFill(['last_login_at' => now()])->save();
+        $request->session()->regenerate();
 
-            return redirect()
-                ->route('dashboard')
-                ->with('success', 'Registration completed successfully.');
-        }
-
-        return redirect()
-            ->to(route('home').'#register')
-            ->with('success', 'Registration completed successfully. The learning portal will open shortly.');
+        return $this->redirectAfterLogin($doctor, 'Registration completed successfully.');
     }
 
     public function loginPost(Request $request)
@@ -478,8 +471,30 @@ class WebLoginController
         $doctor->forceFill(['last_login_at' => now()])->save();
         $request->session()->regenerate();
 
-        return redirect()
-            ->route('dashboard')
-            ->with('success', 'Login successful');
+        return $this->redirectAfterLogin($doctor, 'Login successful');
+    }
+
+    private function redirectAfterLogin(User $doctor, ?string $message = null)
+    {
+        $activeCourse = Course::active()->first();
+        $openModule = $activeCourse
+            ? Module::active()
+                ->where('course_id', $activeCourse->id)
+                ->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [$doctor->registered_module_id ?: 0])
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get()
+                ->first(fn (Module $module) => $module->isJoinOpen())
+            : null;
+
+        $preSurveyPending = $openModule
+            && $openModule->surveyQuestions()->active()->where('survey_type', 'pre')->exists()
+            && ! SurveyController::moduleState($openModule, $doctor->id)['pre']['completed'];
+
+        $redirect = $openModule && ! $preSurveyPending
+            ? redirect()->route('modules.show', $openModule->slug)
+            : redirect()->route('dashboard');
+
+        return $message ? $redirect->with('success', $message) : $redirect;
     }
 }

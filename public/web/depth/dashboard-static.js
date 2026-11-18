@@ -16,7 +16,7 @@
     proposition: 'When should primary care clinicians suspect depression — and what should they do next?',
     date: '20 November 2026', dateShort: '20 Nov 2026', day: 'Friday', time: '4:00 – 5:30 PM IST',
     timeZone: 'Asia/Kolkata', timeZoneLabel: 'IST',
-    start: '2026-11-20T16:00:00+05:30', end: '2026-11-20T17:30:00+05:30',
+    start: '2026-11-20T16:00:00+05:30', end: '2026-11-20T17:30:00+05:30', joinOpensAt: '2026-11-20T15:00:00+05:30',
     img: depthAsset('assets/visual/doctor-patient-consultation.png'), speaker: 'kasper',
     agenda: [
       [5, 'Welcome and Introduction of International speaker', 'Medical Team, Hetero'],
@@ -155,11 +155,7 @@
     const start = Date.parse(EVENT.start);
     return Number.isFinite(start) && Date.now() < start;
   };
-  const joinOpen = () => {
-    const manuallyEnabled = EVENT.joinEnabled === true || EVENT.joinEnabled === 1 || EVENT.joinEnabled === '1';
-    const start = Date.parse(EVENT.start);
-    return manuallyEnabled || (Number.isFinite(start) && Date.now() >= start);
-  };
+  const joinOpen = () => true;
   const pill = () => { const s = status(); return `<span class="status s-${s}">${s === 'live' ? 'Live now' : s === 'replay' ? 'Recording available' : 'Upcoming'}</span>`; };
 
   /* ============================================================== ROUTING */
@@ -497,7 +493,6 @@
     if (t.dataset.resource !== undefined) { openResource(t.dataset.resource); return; }
     if (t.dataset.close !== undefined) { $('modal').hidden = true; $('modal-art').innerHTML = '<div class="play"><span></span></div>'; return; }
     if (t.dataset.join) {
-      if (!joinOpen()) { toast('Joining opens automatically at the scheduled start time'); return; }
       if (!EVENT.roomUrl) { toast('Webinar room is not available yet'); return; }
       window.location.assign(EVENT.roomUrl);
       return;

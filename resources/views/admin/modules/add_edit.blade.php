@@ -372,7 +372,7 @@
                                         <option value="0" @selected(old('join_enabled', $module->join_enabled ? '1' : '0') === '0')>No — follow chapter schedule</option>
                                         <option value="1" @selected(old('join_enabled', $module->join_enabled ? '1' : '0') === '1')>Yes — enable immediately</option>
                                     </select>
-                                    <div class="form-text">Yes enables joining immediately while the countdown remains visible before the event. With No, the button enables automatically at the scheduled start time and stays enabled afterwards.</div>
+                                    <div class="form-text">Yes enables joining immediately while the countdown remains visible before the event. With No, the button enables automatically one hour before the scheduled start time and stays enabled afterwards.</div>
                                 </div>
                             </div>
                         </div>
