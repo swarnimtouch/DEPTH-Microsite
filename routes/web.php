@@ -16,6 +16,7 @@ Route::middleware(EnsureMicrositeAccessIsOpen::class)->group(function () {
     Route::get('/dashboard', [WebLoginController::class, 'dashboard'])->name('dashboard');
     Route::get('/dashboard/agenda', [WebLoginController::class, 'agenda'])->name('dashboard.agenda');
     Route::get('/dashboard/cases', [WebLoginController::class, 'cases'])->name('dashboard.cases');
+    Route::get('/dashboard/diagnostic', [WebLoginController::class, 'diagnostic'])->name('dashboard.diagnostic');
     Route::get('/dashboard/speakers', [WebLoginController::class, 'speakers'])->name('dashboard.speakers');
     Route::get('/dashboard/live', [WebLoginController::class, 'live'])->name('dashboard.live');
     Route::get('/live-questions/{module}', [LiveQuestionController::class, 'state'])->name('live_questions.state');

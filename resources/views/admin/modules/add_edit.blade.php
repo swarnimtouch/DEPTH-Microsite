@@ -82,10 +82,11 @@
                                 <div class="col-lg-9">
                                     <div id="speakerRows">
                                         @foreach($speakerRows as $index => $speaker)
+                                            @php($profileType = $index === 0 ? 'Speaker' : 'Panelist')
                                             <div class="speaker-row border rounded p-4 mb-4" data-speaker-index="{{ $index }}">
                                                 <div class="row g-3">
-                                                    <div class="col-md-5"><label class="form-label">Speaker Name</label><input type="text" name="speakers[{{ $index }}][name]" value="{{ $speaker['name'] ?? '' }}" class="form-control form-control-solid" placeholder="Prof. Speaker Name" required></div>
-                                                    <div class="col-md-3"><label class="form-label">Role</label><input type="text" name="speakers[{{ $index }}][role]" value="{{ $speaker['role'] ?? 'Speaker' }}" class="form-control form-control-solid" placeholder="Speaker"></div>
+                                                    <div class="col-md-5"><label class="form-label">{{ $profileType }} Name</label><input type="text" name="speakers[{{ $index }}][name]" value="{{ $speaker['name'] ?? '' }}" class="form-control form-control-solid" placeholder="{{ $profileType }} Name" required></div>
+                                                    <div class="col-md-3"><label class="form-label">Role</label><input type="text" name="speakers[{{ $index }}][role]" value="{{ $profileType }}" class="form-control form-control-solid" readonly></div>
                                                     <div class="col-md-3"><label class="form-label">Designation</label><input type="text" name="speakers[{{ $index }}][designation]" value="{{ $speaker['designation'] ?? '' }}" class="form-control form-control-solid" placeholder="Professor of Psychiatry" required></div>
                                                     <div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-light-danger remove-speaker-row w-100">X</button></div>
                                                     <div class="col-md-6"><label class="form-label">Institution / Hospital</label><input type="text" name="speakers[{{ $index }}][hospital]" value="{{ $speaker['hospital'] ?? '' }}" class="form-control form-control-solid" placeholder="Medical University / Hospital"></div>
@@ -98,8 +99,8 @@
                                                     <div class="col-md-6"><label class="form-label">Biography</label><textarea name="speakers[{{ $index }}][bio]" rows="4" class="form-control form-control-solid" placeholder="Short biography shown below the speaker name">{{ $speaker['bio'] ?? '' }}</textarea></div>
                                                     <div class="col-md-6"><label class="form-label">Professional Profile</label><textarea name="speakers[{{ $index }}][professional_profile]" rows="4" class="form-control form-control-solid" placeholder="Detailed professional profile shown in the profile table">{{ $speaker['professional_profile'] ?? '' }}</textarea></div>
                                                     <div class="col-md-4">
-                                                        <label class="form-label">Speaker Image</label>
-                                                        @if(!empty($speaker['image']))<div class="mb-2"><img src="{{ str_starts_with($speaker['image'], 'web/') ? asset($speaker['image']) : asset('storage/' . $speaker['image']) }}" alt="{{ $speaker['name'] ?? 'Speaker' }}" class="rounded" style="width:90px;height:90px;object-fit:cover"></div>@endif
+                                                        <label class="form-label">{{ $profileType }} Image</label>
+                                                        @if(!empty($speaker['image']))<div class="mb-2"><img src="{{ str_starts_with($speaker['image'], 'web/') ? asset($speaker['image']) : asset('storage/' . $speaker['image']) }}" alt="{{ $speaker['name'] ?? $profileType }}" class="rounded" style="width:90px;height:90px;object-fit:cover"></div>@endif
                                                         <input type="hidden" name="speakers[{{ $index }}][image]" value="{{ $speaker['image'] ?? '' }}">
                                                         <input type="file" name="speaker_images[{{ $index }}]" class="form-control form-control-solid" accept=".jpg,.jpeg,.png,.webp">
                                                     </div>
@@ -107,8 +108,8 @@
                                             </div>
                                         @endforeach
                                     </div>
-                                    <button type="button" class="btn btn-light-primary btn-sm" id="addSpeakerRow">Add Speaker</button>
-                                    <div class="form-text">Each speaker is managed inside this chapter and appears automatically on the participant Speaker tab.</div>
+                                    <button type="button" class="btn btn-light-primary btn-sm" id="addSpeakerRow">Add Panelist</button>
+                                    <div class="form-text">The first profile is the Speaker. Every additional profile is shown as a Panelist on the participant Speaker tab.</div>
                                 </div>
                             </div>
 
@@ -763,8 +764,8 @@
                 $('#speakerRows').append(`
                     <div class="speaker-row border rounded p-4 mb-4" data-speaker-index="${index}">
                         <div class="row g-3">
-                            <div class="col-md-5"><label class="form-label">Speaker Name</label><input type="text" name="speakers[${index}][name]" class="form-control form-control-solid" placeholder="Prof. Speaker Name" required></div>
-                            <div class="col-md-3"><label class="form-label">Role</label><input type="text" name="speakers[${index}][role]" value="Speaker" class="form-control form-control-solid" placeholder="Speaker"></div>
+                            <div class="col-md-5"><label class="form-label">Panelist Name</label><input type="text" name="speakers[${index}][name]" class="form-control form-control-solid" placeholder="Panelist Name" required></div>
+                            <div class="col-md-3"><label class="form-label">Role</label><input type="text" name="speakers[${index}][role]" value="Panelist" class="form-control form-control-solid" readonly></div>
                             <div class="col-md-3"><label class="form-label">Designation</label><input type="text" name="speakers[${index}][designation]" class="form-control form-control-solid" placeholder="Professor of Psychiatry" required></div>
                             <div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-light-danger remove-speaker-row w-100">X</button></div>
                             <div class="col-md-6"><label class="form-label">Institution / Hospital</label><input type="text" name="speakers[${index}][hospital]" class="form-control form-control-solid" placeholder="Medical University / Hospital"></div>
@@ -776,7 +777,7 @@
                             <div class="col-md-6"><label class="form-label">Speaker Resource URL</label><input type="url" name="speakers[${index}][profile_resource_url]" class="form-control form-control-solid" placeholder="Profile PDF or reference URL"></div>
                             <div class="col-md-6"><label class="form-label">Biography</label><textarea name="speakers[${index}][bio]" rows="4" class="form-control form-control-solid" placeholder="Short biography shown below the speaker name"></textarea></div>
                             <div class="col-md-6"><label class="form-label">Professional Profile</label><textarea name="speakers[${index}][professional_profile]" rows="4" class="form-control form-control-solid" placeholder="Detailed professional profile shown in the profile table"></textarea></div>
-                            <div class="col-md-4"><label class="form-label">Speaker Image</label><input type="hidden" name="speakers[${index}][image]" value=""><input type="file" name="speaker_images[${index}]" class="form-control form-control-solid" accept=".jpg,.jpeg,.png,.webp"></div>
+                            <div class="col-md-4"><label class="form-label">Panelist Image</label><input type="hidden" name="speakers[${index}][image]" value=""><input type="file" name="speaker_images[${index}]" class="form-control form-control-solid" accept=".jpg,.jpeg,.png,.webp"></div>
                         </div>
                     </div>
                 `);

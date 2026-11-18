@@ -133,8 +133,8 @@
   };
   const ico = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k] || ICONS.evidence}</svg>`;
 
-  const TABS = [['overview', 'Program overview'], ['agenda', 'Agenda'], ['cases', 'Case booklets'], ['speakers', 'Speaker'], ['live', 'Live session'], ['hub', 'Post-event hub'], ['profile', 'Profile']];
-  const GATED = ['overview', 'agenda', 'cases', 'speakers', 'live', 'hub', 'takeaways', 'certificate', 'profile', 'thanks'];
+  const TABS = [['overview', 'Program overview'], ['agenda', 'Agenda'], ['cases', 'Case booklets'], ['diagnostic', 'Diagnostic'], ['speakers', 'Speaker'], ['live', 'Live session'], ['hub', 'Post-event hub'], ['profile', 'Profile']];
+  const GATED = ['overview', 'agenda', 'cases', 'diagnostic', 'speakers', 'live', 'hub', 'takeaways', 'certificate', 'profile', 'thanks'];
   const ROUTES = window.DEPTH_ROUTES || {};
 
   /* ============================================================== STATE */
@@ -174,7 +174,7 @@
     document.body.dataset.view = v;
     document.body.classList.toggle('registered', !!state.user);
     document.querySelectorAll('[data-view]').forEach((el) => { el.hidden = el.dataset.view !== v; });
-    const titles = { landing: 'Recognising & Managing Depression in Primary Care', thanks: 'Registered', overview: 'Program overview', agenda: 'Agenda', cases: 'Case booklets', speakers: 'Speaker', live: 'Live session', hub: 'Post-event hub', takeaways: 'Key takeaways', certificate: 'Certificate', profile: 'Profile' };
+    const titles = { landing: 'Recognising & Managing Depression in Primary Care', thanks: 'Registered', overview: 'Program overview', agenda: 'Agenda', cases: 'Case booklets', diagnostic: 'Diagnostic', speakers: 'Speaker', live: 'Live session', hub: 'Post-event hub', takeaways: 'Key takeaways', certificate: 'Certificate', profile: 'Profile' };
     document.title = (titles[v] || 'DEPTH') + ' · DEPTH by Hetero';
 
     if ($('hdr-auth')) $('hdr-auth').innerHTML = state.user
@@ -303,11 +303,15 @@
 
   /* ---------- speaker ---------- */
   function renderSpeakers() {
-    $('speaker-cards').innerHTML = Object.values(SPEAKERS).map((s) => `<article class="spk-full">
-      <div class="spk-left"><div class="spk-photo"><img src="${s.photo}" alt="${esc(s.name)}"></div><div class="kicker">${s.role} · Live session</div></div>
-      <div class="spk-right"><h2 class="h2">${esc(s.name)}</h2><p class="spk-des">${esc(s.designation)}<br>${esc(s.designation2)}</p><p class="body">${s.bio}</p>
+    $('speaker-cards').innerHTML = Object.values(SPEAKERS).map((s, index) => {
+      const profileType = index === 0 ? 'Speaker' : 'Panelist';
+      const biography = s.bio ? `<p class="body">${esc(s.bio)}</p>` : '';
+      return `<article class="spk-full">
+      <div class="spk-left"><div class="spk-photo"><img src="${s.photo}" alt="${esc(s.name)}"></div><div class="kicker">${profileType} · Live session</div></div>
+      <div class="spk-right"><h2 class="h2">${esc(s.name)}</h2><p class="spk-des">${esc(s.designation)}<br>${esc(s.designation2)}</p>${biography}
         <div class="kicker" style="margin-top:18px">Areas of expertise</div><div class="chips">${s.expertise.map((e) => `<span class="chip">${esc(e)}</span>`).join('')}</div>
-        <details class="profile-t"><summary>Speaker profile</summary><table class="kv">${s.profile.map(([k, vv]) => `<tr><th>${k}</th><td>${esc(vv)}</td></tr>`).join('')}</table></details>${s.resourceUrl ? `<a class="btn btn-line sm" href="${esc(s.resourceUrl)}" target="_blank" rel="noopener">Open speaker resource →</a>` : ''}</div></article>`).join('')
+        <details class="profile-t"><summary>${profileType} profile</summary><table class="kv">${s.profile.map(([k, vv]) => `<tr><th>${k}</th><td>${esc(vv)}</td></tr>`).join('')}</table></details>${s.resourceUrl ? `<a class="btn btn-line sm" href="${esc(s.resourceUrl)}" target="_blank" rel="noopener">Open ${profileType.toLowerCase()} resource →</a>` : ''}</div></article>`;
+    }).join('')
 ;
   }
 

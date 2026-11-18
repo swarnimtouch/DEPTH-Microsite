@@ -47,6 +47,11 @@ class WebLoginController
         return $this->dashboardSection('cases', 'Case booklets');
     }
 
+    public function diagnostic()
+    {
+        return $this->dashboardSection('diagnostic', 'Diagnostic');
+    }
+
     public function speakers()
     {
         return $this->dashboardSection('speakers', 'Speaker');
@@ -92,6 +97,7 @@ class WebLoginController
                 'overview' => route('dashboard'),
                 'agenda' => route('dashboard.agenda'),
                 'cases' => route('dashboard.cases'),
+                'diagnostic' => route('dashboard.diagnostic'),
                 'speakers' => route('dashboard.speakers'),
                 'live' => route('dashboard.live'),
                 'hub' => route('dashboard.hub'),
@@ -189,7 +195,7 @@ class WebLoginController
         }
         $publicUrl = static fn (string $path): string => (request()->getBaseUrl() ?: '').'/'.ltrim($path, '/');
 
-        $depthSpeakers = $speakerProfiles->map(function ($speaker) use ($agendaModule, $publicUrl) {
+        $depthSpeakers = $speakerProfiles->values()->map(function ($speaker, $index) use ($agendaModule, $publicUrl) {
             $expertise = is_array($speaker['expertise'] ?? null)
                 ? $speaker['expertise']
                 : array_values(array_filter(array_map('trim', explode(',', $speaker['expertise'] ?? ''))));
@@ -205,11 +211,11 @@ class WebLoginController
                 'photo' => $image
                     ? (str_starts_with($image, 'web/') ? $publicUrl($image) : $publicUrl('storage/'.$image))
                     : $publicUrl('web/depth/assets/speakers/kasper.jpg'),
-                'role' => $speaker['role'] ?? 'Speaker',
+                'role' => $index === 0 ? 'Speaker' : 'Panelist',
                 'designation' => $designation,
                 'designation2' => $hospital,
                 'place' => implode(', ', array_filter([$city, $country])) ?: $hospital,
-                'bio' => strip_tags($speaker['bio'] ?? '') ?: trim($designation.($hospital ? ', '.$hospital : '')),
+                'bio' => trim(strip_tags($speaker['bio'] ?? '')),
                 'expertise' => $expertise,
                 'resourceUrl' => $speaker['profile_resource_url'] ?? '',
                 'profile' => [
@@ -218,7 +224,7 @@ class WebLoginController
                     ['Institution / Hospital', $hospital ?: '—'],
                     ['Professional profile', strip_tags($speaker['professional_profile'] ?? '') ?: (strip_tags($speaker['bio'] ?? '') ?: '—')],
                     ['Clinical / research expertise', $expertise ? implode(' • ', $expertise) : '—'],
-                    ['Role in webinar', $speaker['role'] ?? 'Speaker'],
+                    ['Role in webinar', $index === 0 ? 'Speaker' : 'Panelist'],
                     ['Session', $speaker['session_title'] ?? ($agendaModule?->title ?? 'DEPTH')],
                 ],
             ];

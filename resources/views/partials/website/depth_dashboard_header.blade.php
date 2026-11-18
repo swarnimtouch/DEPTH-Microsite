@@ -5,6 +5,7 @@
         'overview' => ['dashboard', 'Program overview'],
         'agenda' => ['dashboard.agenda', 'Agenda'],
         'cases' => ['dashboard.cases', 'Case booklets'],
+        'diagnostic' => ['dashboard.diagnostic', 'Diagnostic'],
         'speakers' => ['dashboard.speakers', 'Speaker'],
         'live' => ['dashboard.live', 'Live session'],
         'hub' => ['dashboard.hub', 'Post-event hub'],

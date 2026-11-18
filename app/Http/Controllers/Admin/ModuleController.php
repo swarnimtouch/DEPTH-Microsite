@@ -225,7 +225,7 @@ class ModuleController
 
                 return [
                     'name' => trim($speaker['name'] ?? ''),
-                    'role' => trim($speaker['role'] ?? '') ?: 'Speaker',
+                    'role' => $index === 0 ? 'Speaker' : 'Panelist',
                     'designation' => trim($speaker['designation'] ?? ''),
                     'current_position' => trim($speaker['current_position'] ?? ''),
                     'hospital' => trim($speaker['hospital'] ?? ''),
