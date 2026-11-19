@@ -36,14 +36,14 @@
                 <div class="overview-kpis">
                     <article class="overview-kpi"><span>Total users</span><strong>{{ number_format($stats['participants']) }}</strong><small>{{ number_format($stats['participants']) }} registered participants</small></article>
                     <article class="overview-kpi"><span>Total attendance</span><strong>{{ number_format($stats['attendance']) }}</strong><small>{{ number_format($stats['attendance']) }} participants attended</small></article>
-                    <article class="overview-kpi"><span>Completed chapters</span><strong>{{ number_format($stats['completed_chapters']) }}</strong><small>Feedback submitted</small></article>
-                    <article class="overview-kpi"><span>Certificates issued</span><strong>{{ number_format($stats['participation_certificates'] + $stats['advanced_certificates']) }}</strong><small>{{ number_format($stats['participation_certificates']) }} participation · {{ number_format($stats['advanced_certificates']) }} advanced</small></article>
+                    <article class="overview-kpi"><span>Completed chapters</span><strong>{{ number_format($stats['completed_chapters']) }}</strong><small>Chapter video completed</small></article>
+                    <article class="overview-kpi"><span>Certificates issued</span><strong>{{ number_format($stats['certificates_issued']) }}</strong><small>Unique certificates downloaded</small></article>
                 </div>
 
                 <div class="overview-middle">
                     <section class="overview-panel chapter-panel">
                         <h2>Chapter completion</h2>
-                        <p>Participants who submitted chapter feedback</p>
+                        <p>Participants who completed the chapter video</p>
                         <div class="chapter-bars">
                             @forelse($chapterProgress as $index => $chapter)
                                 <div class="chapter-bar-row"><b>Chapter {{ $index + 1 }} — {{ $chapter['title'] }}</b><div class="chapter-track"><i style="width:{{ $chapter['rate'] }}%"></i></div><strong>{{ $chapter['rate'] }}%</strong></div>

@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\CertificateDownloadLog;
+use App\Models\LiveQuestion;
 use App\Models\Module;
 use App\Models\ModuleUserProgress;
 use App\Models\ModuleViewSession;
-use App\Models\LiveQuestion;
 use App\Models\Speciality;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
@@ -47,7 +49,7 @@ class DashboardController extends Controller
 
         $progressQuery = ModuleUserProgress::query()
             ->whereIn('module_id', $moduleIds)
-            ->whereNotNull('quiz_completed_at')
+            ->whereNotNull('video_completed_at')
             ->whereHas('user', $userScope);
         $completedChapters = (clone $progressQuery)->count();
         $completedUserCounts = (clone $progressQuery)
@@ -66,14 +68,16 @@ class DashboardController extends Controller
             ];
         });
 
-        $advancedCount = 0;
-        if ($moduleIds->isNotEmpty()) {
-            $advancedCount = (clone $progressQuery)
-                ->select('user_id')
-                ->groupBy('user_id')
-                ->havingRaw('COUNT(DISTINCT module_id) >= ?', [$moduleIds->count()])
-                ->get()->count();
-        }
+        // A certificate is counted when the participant actually downloads it.
+        // Keep one issued certificate per participant/chapter even if it is downloaded again.
+        $issuedCertificatesQuery = CertificateDownloadLog::query()
+            ->whereIn('module_id', $moduleIds)
+            ->whereHas('user', $userScope)
+            ->select(['module_id', 'user_id'])
+            ->distinct();
+        $certificatesIssued = DB::query()
+            ->fromSub($issuedCertificatesQuery, 'issued_certificates')
+            ->count();
 
         $specialityBreakdown = collect();
         $unspecifiedSpeciality = 0;
@@ -152,8 +156,7 @@ class DashboardController extends Controller
                 'participants' => $participantCount,
                 'attendance' => $attendanceCount,
                 'completed_chapters' => $completedChapters,
-                'participation_certificates' => $completedChapters,
-                'advanced_certificates' => $advancedCount,
+                'certificates_issued' => $certificatesIssued,
             ],
             'modules' => $modules,
             'chapterProgress' => $chapterProgress,
