@@ -55,7 +55,7 @@ class ModuleViewReportController extends Controller
 
         return ExcelExport::download(
             'user-time-report-' . now()->format('Y-m-d-His'),
-            ['Doctor', 'Email', 'Mobile', 'Chapter', 'Event Start', 'Event End', 'During Event Time', 'Post Event Time', 'Total Time', 'First Seen', 'Last Seen'],
+            ['Doctor', 'Email', 'Mobile', 'Country', 'Speciality', 'Chapter', 'Event Start', 'Event End', 'During Event Time', 'Post Event Time', 'Total Time', 'First Seen', 'Last Seen'],
             $exportRows
         );
     }
@@ -96,6 +96,7 @@ class ModuleViewReportController extends Controller
             $formatted = $this->formatRow($row);
             return [
                 $formatted['module_title'], $formatted['user_name'], $formatted['email'], $formatted['mobile'],
+                $formatted['country'], $formatted['speciality_name'],
                 $formatted['event_start'], $formatted['event_end'], $formatted['first_seen'], $formatted['last_seen'],
                 $formatted['during_event_time'], $formatted['post_event_time'], $formatted['total_time'],
             ];
@@ -103,21 +104,22 @@ class ModuleViewReportController extends Controller
 
         return ExcelExport::download(
             'session-wise-attendees-' . now()->format('Y-m-d-His'),
-            ['Session', 'Doctor', 'Email', 'Mobile', 'Event Start', 'Event End', 'First Seen', 'Last Seen', 'During Event Time', 'Post Event Time', 'Total Time'],
+            ['Session', 'Doctor', 'Email', 'Mobile', 'Country', 'Speciality', 'Event Start', 'Event End', 'First Seen', 'Last Seen', 'During Event Time', 'Post Event Time', 'Total Time'],
             $exportRows
         );
     }
 
     public function downloadUsers(Request $request)
     {
-        $users = User::where('type', 'doctor')
+        $users = User::with('speciality:id,name')->where('type', 'doctor')
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%$search%")
                         ->orWhere('email', 'LIKE', "%$search%")
                         ->orWhere('mobile', 'LIKE', "%$search%")
                         ->orWhere('hospital', 'LIKE', "%$search%")
-                        ->orWhere('country', 'LIKE', "%$search%");
+                        ->orWhere('country', 'LIKE', "%$search%")
+                        ->orWhereHas('speciality', fn($speciality) => $speciality->where('name', 'LIKE', "%$search%"));
                 });
             })
             ->orderBy('name')
@@ -129,13 +131,14 @@ class ModuleViewReportController extends Controller
             $user->mobile ?: '-',
             $user->hospital ?: '-',
             $user->country ?: '-',
+            $user->speciality?->name ?: '-',
             ucfirst($user->status ?: '-'),
             $user->created_at?->format('d M Y, h:i A') ?: '-',
         ]);
 
         return ExcelExport::download(
             'all-users-' . now()->format('Y-m-d-His'),
-            ['Doctor', 'Email', 'Mobile', 'Hospital', 'Country', 'Status', 'Registered At'],
+            ['Doctor', 'Email', 'Mobile', 'Hospital', 'Country', 'Speciality', 'Status', 'Registered At'],
             $rows
         );
     }
@@ -145,12 +148,15 @@ class ModuleViewReportController extends Controller
         return ModuleViewSession::query()
             ->join('modules', 'modules.id', '=', 'module_view_sessions.module_id')
             ->join('users', 'users.id', '=', 'module_view_sessions.user_id')
+            ->leftJoin('specialities', 'specialities.id', '=', 'users.speciality_id')
             ->when($request->module_id, fn($query) => $query->where('modules.id', $request->module_id))
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('users.name', 'LIKE', "%$search%")
                         ->orWhere('users.email', 'LIKE', "%$search%")
                         ->orWhere('users.mobile', 'LIKE', "%$search%")
+                        ->orWhere('users.country', 'LIKE', "%$search%")
+                        ->orWhere('specialities.name', 'LIKE', "%$search%")
                         ->orWhere('modules.title', 'LIKE', "%$search%");
                 });
             })
@@ -158,6 +164,8 @@ class ModuleViewReportController extends Controller
                 'users.name as user_name',
                 'users.email',
                 'users.mobile',
+                'users.country',
+                'specialities.name as speciality_name',
                 'modules.title as module_title',
                 'modules.start_at as event_start',
                 'modules.end_at as event_end',
@@ -167,7 +175,7 @@ class ModuleViewReportController extends Controller
                 DB::raw('SUM(module_view_sessions.during_event_seconds) as during_event_seconds'),
                 DB::raw('SUM(module_view_sessions.post_event_seconds) as post_event_seconds'),
             ])
-            ->groupBy('users.id', 'users.name', 'users.email', 'users.mobile', 'modules.id', 'modules.title', 'modules.start_at', 'modules.end_at');
+            ->groupBy('users.id', 'users.name', 'users.email', 'users.mobile', 'users.country', 'specialities.name', 'modules.id', 'modules.title', 'modules.start_at', 'modules.end_at');
     }
 
     private function formatRow($row): array
@@ -176,6 +184,8 @@ class ModuleViewReportController extends Controller
             'user_name' => $row->user_name ?: 'Delegate',
             'email' => $row->email ?: '-',
             'mobile' => $row->mobile ?: '-',
+            'country' => $row->country ?: '-',
+            'speciality_name' => $row->speciality_name ?: '-',
             'module_title' => $row->module_title,
             'event_start' => $this->formatDate($row->event_start),
             'event_end' => $this->formatDate($row->event_end),

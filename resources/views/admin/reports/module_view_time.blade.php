@@ -11,7 +11,7 @@
                 <div class="card">
                     <div class="card-header border-0 pt-6">
                         <div class="card-title gap-3">
-                            <input type="text" data-kt-time-report-filter="search" class="form-control form-control-solid w-250px" placeholder="Search user or chapter"/>
+                            <input type="text" data-kt-time-report-filter="search" class="form-control form-control-solid w-250px" placeholder="Search user, country, speciality or chapter"/>
                             <select data-kt-time-report-filter="module" class="form-select form-select-solid w-250px">
                                 <option value="">All Chapters</option>
                                 @foreach($modules as $module)
@@ -44,6 +44,8 @@
                                 <th>Doctor</th>
                                 <th>Email</th>
                                 <th>Mobile</th>
+                                <th>Country</th>
+                                <th>Speciality</th>
                                 <th>Chapter</th>
                                 <th>Event Time</th>
                                 <th>During Event</th>
@@ -82,6 +84,8 @@
                     {data: 'user_name'},
                     {data: 'email'},
                     {data: 'mobile'},
+                    {data: 'country'},
+                    {data: 'speciality_name'},
                     {data: 'module_title'},
                     {
                         data: null,
