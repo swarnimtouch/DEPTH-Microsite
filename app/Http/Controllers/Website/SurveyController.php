@@ -36,7 +36,10 @@ class SurveyController
         abort_unless(Auth::guard('web')->check(), 401, 'Please login first.');
         $module = $this->module($slug);
 
-        return response()->json(static::moduleState($module, Auth::guard('web')->id()));
+        return response()
+            ->json(static::moduleState($module, Auth::guard('web')->id()))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+            ->header('Pragma', 'no-cache');
     }
 
     public static function moduleState(Module $module, int $userId): array

@@ -603,12 +603,15 @@
             }
         }
 
-        async function loadSurveyState({openRequired = false} = {}) {
+        async function loadSurveyState() {
             const response = await fetch(surveyStateUrl, {headers:{Accept:'application/json','X-Requested-With':'XMLHttpRequest'}, cache:'no-store'});
             if (!response.ok) throw new Error('Unable to load surveys');
-            moduleSurveyState = await response.json();
+            const nextSurveyState = await response.json();
+            const postSurveyWasEnabled = Boolean(moduleSurveyState?.post?.enabled);
+            moduleSurveyState = nextSurveyState;
             updateSurveyCards();
-            if (openRequired) openRequiredSurvey();
+            const postSurveyBecameAvailable = !postSurveyWasEnabled && Boolean(moduleSurveyState?.post?.enabled);
+            if (postSurveyBecameAvailable) openRequiredSurvey();
             return moduleSurveyState;
         }
 
@@ -794,15 +797,20 @@
         function connectSurveyReverb() {
             if (surveyReverbConnected || !window.Echo) return;
             surveyReverbConnected = true;
-            window.Echo.channel(surveyChannel).listen('.survey.availability-changed', async event => {
-                await loadSurveyState();
-                const survey = moduleSurveyState?.[event.survey_type];
-                if (event.survey_type === 'post' && event.enabled && survey?.eligible && !survey.completed && survey.questions.length) openSurvey('post');
+            window.Echo.channel(surveyChannel).listen('.survey.availability-changed', () => {
+                loadSurveyState().catch(() => {});
             });
         }
         window.addEventListener('load', connectSurveyReverb);
         window.setTimeout(connectSurveyReverb, 1000);
-        window.setInterval(() => loadSurveyState().catch(() => {}), 15000);
+        window.setInterval(() => {
+            if (!document.hidden) loadSurveyState().catch(() => {});
+        }, 5000);
+        window.addEventListener('focus', () => loadSurveyState().catch(() => {}));
+        window.addEventListener('online', () => loadSurveyState().catch(() => {}));
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) loadSurveyState().catch(() => {});
+        });
 
         document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
 
